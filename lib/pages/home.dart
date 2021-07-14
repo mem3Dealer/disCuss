@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  Widget _chatMessages(List<Message> messageDataList, snapshot) {
+  Widget _chatMessages(List<Message> messageDataList) {
     // final _messages = snapshot.data.docs;
     // bool _isNewAuthor;
     // bool _isAuthorOver;
@@ -80,47 +80,29 @@ class _HomePageState extends State<HomePage> {
               controller: _scrollController,
               reverse: true,
               shrinkWrap: true,
-              itemCount: snapshot.data.length,
+              itemCount: messageDataList.length,
               itemBuilder: (context, index) {
-                // if (needsToScroll)
-                //   Timer(
-                //       Duration(milliseconds: 100),
-                //       () => _scrollController.animateTo(
-                //             _scrollController.position.maxScrollExtent,
-                //             duration: Duration(seconds: 1),
-                //             curve: Curves.fastOutSlowIn,
-                //           ));
-                int _timeStamp = messageDataList[index].time!.seconds;
+                int _timeStamp =
+                    messageDataList[index].time!.millisecondsSinceEpoch;
                 var date =
                     DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
                 var formattedDate =
                     DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
 
-                // final messages = messageDataList[index];
-
-                // if (index > 0 && index < _messages.length)
-                //   _isNewAuthor = _messages[index - 1]['sender'].toString() !=
-                //       _messages[index]['sender'].toString();
-                // else
-                //   _isNewAuthor = false;
-
-                // if (index > 0 && index < _messages.length - 1)
-                //   _isAuthorOver = _messages[index - 1]['sender'].toString() !=
-                //       _messages[index]['sender'].toString();
-                // else
-                //   _isAuthorOver = true;
+                final message = messageDataList[index];
 
                 return MessageTile(
                     time: formattedDate,
                     firstMessageOfAuthor: message.isFirst,
                     lastMessageOfAuthor: message.isLast,
                     author: message.isFirst
-                        ? message.getUserName(message.sender!, listUsers)
+                        ? message.getUserName(message.sender, listUsers)
                         : '',
-                    message: message.content!,
+                    message: message.content,
                     sentByMe: senderId == message.sender);
               }),
     );
+    ;
   }
 
   List<Message> makeMessagesDataList(
@@ -128,16 +110,16 @@ class _HomePageState extends State<HomePage> {
     List<Message>? _messages = snapshot.data?.docs
         .map<Message>((e) => Message.fromSnapshot(e))
         .toList();
-    for (int i = 0; i < _messages!.length; i++) {
-      if (i < _messages.length)
-        _messages[i].isFirst = _messages[i - 1].sender != _messages[i].sender;
-      else
-        _messages[i].isFirst = false;
-
+    for (int i = 1; i < _messages!.length; i++) {
       if (i < _messages.length - 1)
-        _messages[i].isLast = _messages[i + 1].sender != _messages[i].sender;
+        _messages[i].isFirst = _messages[i + 1].sender != _messages[i].sender;
       else
-        _messages[i].isLast = true;
+        _messages[i].isFirst = true;
+
+      if (i < _messages.length)
+        _messages[i].isLast = _messages[i - 1].sender != _messages[i].sender;
+      else
+        _messages[i].isLast = false;
     }
     return _messages;
   }
@@ -200,10 +182,13 @@ class _HomePageState extends State<HomePage> {
               stream: data.chatStream(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  // final messageDataList = makeMessagesDataList(snapshot);
+                  final messageDataList = makeMessagesDataList(snapshot);
 
                   return Column(children: [
-                    Expanded(child: Text('hello')),
+                    // Center(
+                    //   child: Text(messageDataList.length.toString()),
+                    // ),
+                    // _chatMessages(messageDataList),
                     // message.makeMessagesDataList(snapshot, listChat, listUsers),
                     // Expanded(
                     //     child: Center(
@@ -211,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                     //     child: Text(listChat.toString()),
                     //   ),
                     // )),
-                    // Expanded(child: _chatMessages(messageDataList, snapshot)),
+                    Expanded(child: _chatMessages(messageDataList)),
 
                     Align(
                       alignment: Alignment.bottomCenter,

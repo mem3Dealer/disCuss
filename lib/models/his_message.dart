@@ -1,19 +1,16 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_chat_app/models/user.dart';
-import 'package:my_chat_app/widgets/messageTile.dart';
 
 class Message {
   String? content;
   String? sender;
   Timestamp? time;
-  bool isFirst;
-  bool isLast;
+  bool? isFirst;
+  bool? isLast;
 
   Message({
     this.content,
@@ -23,13 +20,7 @@ class Message {
     this.isLast,
   });
 
-  Message copyWith({
-    String? content,
-    String? sender,
-    Timestamp? time,
-    bool? isFirst,
-    bool? isLast
-  }) {
+  Message copyWith({String? content, String? sender, Timestamp? time, bool? isFirst, bool? isLast}) {
     return Message(
       content: content ?? this.content,
       sender: sender ?? this.sender,
@@ -61,12 +52,10 @@ class Message {
 
   String toJson() => json.encode(toMap());
 
-  factory Message.fromJson(String source) =>
-      Message.fromMap(json.decode(source));
+  factory Message.fromJson(String source) => Message.fromMap(json.decode(source));
 
   @override
-  String toString() =>
-      'Message(content: $content, sender: $sender, time: $time, isFirst: $isFirst, isLast: $isLast)';
+  String toString() => 'Message(content: $content, sender: $sender, time: $time, isFirst: $isFirst, isLast: $isLast)';
 
   @override
   bool operator ==(Object other) {
@@ -88,14 +77,10 @@ class Message {
   // }
 
   static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
-    return Message(
-        content: e.get('recentMessage'),
-        sender: e.get('sender'),
-        time: e.get('time'));
+    return Message(content: e.get('recentMessage'), sender: e.get('sender'), time: e.get('time'));
   }
 
-  getTimed(
-      Timestamp? stamp, index, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
+  getTimed(Timestamp? stamp, index, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
     final messages = snapshot.data?.docs;
     int _timeStamp = messages?[index]['time'].seconds;
     var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
@@ -104,11 +89,6 @@ class Message {
   }
 
   String? getUserName(List<MyUser>? listUsers) {
-    return listUsers!
-        .firstWhere((e) => e.uid == sender,
-            orElse: () => MyUser(name: 'null name'))
-        .name;
-  }
-
+    return listUsers!.firstWhere((e) => e.uid == sender, orElse: () => MyUser(name: 'null name')).name;
   }
 }
