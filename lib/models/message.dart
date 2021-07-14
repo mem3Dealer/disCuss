@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'package:my_chat_app/models/user.dart';
-import 'package:my_chat_app/widgets/messageTile.dart';
 
 class Message {
   String? content;
@@ -62,8 +60,7 @@ class Message {
 
   String toJson() => json.encode(toMap());
 
-  factory Message.fromJson(String source) =>
-      Message.fromMap(json.decode(source));
+  factory Message.fromJson(String source) => Message.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -84,11 +81,7 @@ class Message {
 
   @override
   int get hashCode {
-    return content.hashCode ^
-        sender.hashCode ^
-        time.hashCode ^
-        isFirst.hashCode ^
-        isLast.hashCode;
+    return content.hashCode ^ sender.hashCode ^ time.hashCode ^ isFirst.hashCode ^ isLast.hashCode;
   }
 
   // String? getAuthorName(String sender, List? listUsers) {
@@ -96,10 +89,7 @@ class Message {
   // }
 
   static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
-    return Message(
-        content: e.get('recentMessage'),
-        sender: e.get('sender'),
-        time: e.get('time'));
+    return Message(content: e.get('recentMessage'), sender: e.get('sender'), time: e.get('time'));
   }
 
   // String? getUserName(String? sender) {
@@ -108,8 +98,7 @@ class Message {
   //           orElse: () => MyUser(name: 'null name'))
   //       .name;
   // }
-  getTimed(
-      Timestamp? stamp, index, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
+  getTimed(Timestamp? stamp, index, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
     final messages = snapshot.data?.docs;
     int _timeStamp = messages?[index]['time'].seconds;
     var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
@@ -117,15 +106,12 @@ class Message {
     return formattedDate;
   }
 
-  String? getUserName(String sender, List<MyUser>? listUsers) {
-    return listUsers!
-        .firstWhere((e) => e.uid == sender,
-            orElse: () => MyUser(name: 'null name'))
-        .name;
+  String? getUserName(String? sender, List<MyUser>? listUsers) {
+    return listUsers!.firstWhere((e) => e.uid == sender, orElse: () => MyUser(name: 'null name')).name;
   }
 
-  makeMessagesDataList(AsyncSnapshot<QuerySnapshot<Object?>> snapshot,
-      List<Message>? listChat, List<MyUser>? listUsers) {
+  makeMessagesDataList(
+      AsyncSnapshot<QuerySnapshot<Object?>> snapshot, List<Message>? listChat, List<MyUser>? listUsers) {
     bool _isNewAuthor;
     bool _isAuthorOver;
     final messages = snapshot.data?.docs;

@@ -61,7 +61,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _chatMessages(List<Message> messagesList) {
-
     return Container(
       child: listUsers == null
           ? Center(
@@ -71,48 +70,40 @@ class _HomePageState extends State<HomePage> {
               controller: _scrollController,
               reverse: true,
               shrinkWrap: true,
-              itemCount: _messages.length,
+              itemCount: messagesList.length,
               itemBuilder: (context, index) {
-                int _timeStamp = _messages[index]['time'].seconds;
-                var date =
-                    DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
-                var formattedDate =
-                    DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
+                int _timeStamp = messagesList[index].time!.millisecondsSinceEpoch;
+                var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
+                var formattedDate = DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
 
-                final message = _messages[index];
+                final message = messagesList[index];
 
                 return MessageTile(
                     time: formattedDate,
-                    firstMessageOfAuthor:  message.isFirst,
+                    firstMessageOfAuthor: message.isFirst,
                     lastMessageOfAuthor: message.isLast,
-                    author: message.isFirst
-                        ? message.getUserName(listUsers)
-                        : '',
+                    author: message.isFirst ? message.getUserName(message.sender, listUsers) : '',
                     message: message.content,
-                    sentByMe:
-                        senderId == message.sender
-                        );
+                    sentByMe: senderId == message.sender);
               }),
     );
   }
 
   List<Message> makeMessagesDataList(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
+    List<Message>? _messages = snapshot.data?.docs.map<Message>((e) => Message.fromSnapshot(e)).toList();
+    for (int i = 0; i < _messages!.length; i++) {
+      if (i < _messages.length)
+        _messages[i].isFirst = _messages[i - 1].sender != _messages[i].sender;
+      else
+        _messages[i].isFirst = false;
 
-    List<Massage> _messages = snapshot.data?.docs.map((e)=>Message.fromSnapshot).toList();
-      for(int i=0; i<_messages.length; i++){
-                if (i < _messages.length)
-                  messages[i].isFirst = _messages[i - 1]sender != _messages[i]sender;
-                else
-                  messages[i].isFirst = false;
-
-                if (i < _messages.length - 1)
-                  messages[i].isLast = _messages[i + 1].sender != _messages[i]sender;
-                else
-                  messages[i].isLast = true;
-      }
+      if (i < _messages.length - 1)
+        _messages[i].isLast = _messages[i + 1].sender != _messages[i].sender;
+      else
+        _messages[i].isLast = true;
+    }
     return _messages;
-    };
-
+  }
 
   Widget buttonSend() {
     return GestureDetector(
@@ -129,8 +120,7 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         height: 50.0,
         width: 50.0,
-        decoration: BoxDecoration(
-            color: Colors.blueAccent, borderRadius: BorderRadius.circular(50)),
+        decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(50)),
         child: Center(child: Icon(Icons.send, color: Colors.white)),
       ),
     );
@@ -141,16 +131,12 @@ class _HomePageState extends State<HomePage> {
     final AuthService _auth = AuthService();
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            listUsers?.firstWhere((element) => element.uid == senderId).name ??
-                'Loading'),
+        title: Text(listUsers?.firstWhere((element) => element.uid == senderId).name ?? 'Loading'),
         actions: [
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: ElevatedButton.icon(
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.amber.shade700)),
+              style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.amber.shade700)),
               icon: Icon(Icons.person),
               onPressed: () async {
                 await _auth.signOut();
@@ -165,16 +151,12 @@ class _HomePageState extends State<HomePage> {
               stream: data.chatStream(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  final messageDataList = makeMessagesDataList(
-                      snapshot);
+                  final messageDataList = makeMessagesDataList(snapshot);
                   // make everithing with
-                  
-                  
-                  
-                  return Column(children: [
-                    _chatMessages(snapshot),
-                    SendFieldAndButton()
 
+                  return Column(children: [
+                    _chatMessages(messageDataList),
+                    SendFieldAndButton(),
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Container(
@@ -185,10 +167,7 @@ class _HomePageState extends State<HomePage> {
                         // color: Colors.red,
                         child: Row(
                           // main AxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            textField(messageEditingController),
-                            buttonSend()
-                          ],
+                          children: [textField(messageEditingController), buttonSend()],
                         ),
                       ),
                     ),
@@ -199,7 +178,6 @@ class _HomePageState extends State<HomePage> {
               })),
     );
   }
-
 }
 
 Widget textField(TextEditingController messageEditingController) {
