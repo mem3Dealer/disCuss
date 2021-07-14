@@ -5,17 +5,13 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/user.dart';
-import 'package:my_chat_app/pages/register.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
-import 'package:my_chat_app/widgets/chatMessages.dart';
 import 'package:my_chat_app/widgets/messageTile.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:collection/collection.dart';
 import 'package:my_chat_app/widgets/sendFieldandButton.dart';
 
 class HomePage extends StatefulWidget {
@@ -92,15 +88,15 @@ class _HomePageState extends State<HomePage> {
   List<Message> makeMessagesDataList(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
     List<Message>? _messages = snapshot.data?.docs.map<Message>((e) => Message.fromSnapshot(e)).toList();
     for (int i = 0; i < _messages!.length; i++) {
-      if (i < _messages.length)
-        _messages[i].isFirst = _messages[i - 1].sender != _messages[i].sender;
+      if (i > 0 && i < _messages.length - 1)
+        _messages[i].isFirst = _messages[i + 1].sender != _messages[i].sender;
       else
         _messages[i].isFirst = false;
 
-      if (i < _messages.length - 1)
-        _messages[i].isLast = _messages[i + 1].sender != _messages[i].sender;
+      if (i > 0 && i < _messages.length)
+        _messages[i].isLast = _messages[i - 1].sender != _messages[i].sender;
       else
-        _messages[i].isLast = true;
+        _messages[i].isLast = false;
     }
     return _messages;
   }
@@ -155,22 +151,8 @@ class _HomePageState extends State<HomePage> {
                   // make everithing with
 
                   return Column(children: [
-                    _chatMessages(messageDataList),
+                    Expanded(child: _chatMessages(messageDataList)),
                     SendFieldAndButton(),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        color: Colors.white,
-                        padding: EdgeInsets.symmetric(horizontal: 15.0),
-                        // height: 50,
-                        width: MediaQuery.of(context).size.width,
-                        // color: Colors.red,
-                        child: Row(
-                          // main AxisAlignment: MainAxisAlignment.start,
-                          children: [textField(messageEditingController), buttonSend()],
-                        ),
-                      ),
-                    ),
                   ]);
                 } else {
                   return Container(child: Center(child: Text('loading...')));
