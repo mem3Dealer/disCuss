@@ -10,8 +10,6 @@ class MessageTile extends StatelessWidget {
   final bool firstMessageOfAuthor;
   final bool lastMessageOfAuthor;
   final String? time;
-  // final bool amIlast;
-  // final bool penult;
   final List<MyUser>? listUsers;
 
   MessageTile(
@@ -21,8 +19,6 @@ class MessageTile extends StatelessWidget {
       required this.sentByMe,
       required this.firstMessageOfAuthor,
       required this.lastMessageOfAuthor,
-      // required this.amIlast,
-      // required this.penult
       this.listUsers});
 
   // HomePage home = HomePage();
@@ -38,38 +34,54 @@ class MessageTile extends StatelessWidget {
       ),
       alignment: sentByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: sentByMe ? EdgeInsets.only(left: 30) : EdgeInsets.only(right: 30),
+        margin:
+            sentByMe ? EdgeInsets.only(left: 30) : EdgeInsets.only(right: 30),
         padding: EdgeInsets.only(right: 20, left: 20, top: 12, bottom: 12),
         decoration: BoxDecoration(
             borderRadius: sentByMe
-                ? firstMessageOfAuthor
-                    ? BorderRadius.only(
-                        topLeft: Radius.circular(18), topRight: Radius.circular(18), bottomLeft: Radius.circular(18))
-                    : lastMessageOfAuthor
+                ? lastMessageOfAuthor && firstMessageOfAuthor
+                    ? BorderRadius.all(Radius.circular(18))
+                    : // последне
+                    firstMessageOfAuthor
                         ? BorderRadius.only(
                             topLeft: Radius.circular(18),
-                            bottomRight: Radius.circular(18),
-                            bottomLeft: Radius.circular(18)) // последне
-                        : BorderRadius.all(Radius.circular(18)) // середина
+                            topRight: Radius.circular(18),
+                            bottomLeft: Radius.circular(18))
+                        : lastMessageOfAuthor
+                            ? BorderRadius.only(
+                                topLeft: Radius.circular(18),
+                                bottomRight: Radius.circular(18),
+                                bottomLeft: Radius.circular(18))
+                            : BorderRadius.only(
+                                topLeft: Radius.circular(18),
+                                bottomLeft: Radius.circular(18),
+                              )
 
                 /// not by me
-                : firstMessageOfAuthor
-                    ? BorderRadius.only(
-                        topLeft: Radius.circular(18),
-                        topRight: Radius.circular(18),
-                        bottomRight: Radius.circular(18)) //FIRST
-                    : lastMessageOfAuthor
+                : lastMessageOfAuthor && firstMessageOfAuthor
+                    ? BorderRadius.all(Radius.circular(18))
+                    : firstMessageOfAuthor
                         ? BorderRadius.only(
+                            topLeft: Radius.circular(18),
                             topRight: Radius.circular(18),
-                            // topRight: Radius.circular(23),
-                            bottomRight: Radius.circular(18),
-                            bottomLeft: Radius.circular(18))
-                        //LAST
-                        : BorderRadius.all(Radius.circular(18)),
-            color: sentByMe ? Colors.lightBlueAccent.shade400 : Colors.grey.shade700),
+                            bottomRight: Radius.circular(18)) //FIRST
+                        : lastMessageOfAuthor
+                            ? BorderRadius.only(
+                                topRight: Radius.circular(18),
+                                bottomRight: Radius.circular(18),
+                                bottomLeft: Radius.circular(18))
+                            //LAST
+                            : BorderRadius.only(
+                                topRight: Radius.circular(18),
+                                bottomRight: Radius.circular(18),
+                              ),
+            color: sentByMe
+                ? Colors.lightBlueAccent.shade400
+                : Colors.grey.shade700),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Text("${firstMessageOfAuthor} $lastMessageOfAuthor"),
             if (author!.isNotEmpty) messageAuthor(author),
             messageContent(message!),
             SizedBox(
@@ -97,13 +109,19 @@ class MessageTile extends StatelessWidget {
       children: [
         Text(author!.toUpperCase(),
             textAlign: TextAlign.start,
-            style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: -0.5)),
+            style: TextStyle(
+                fontSize: 13.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                letterSpacing: -0.5)),
         SizedBox(height: 7.0),
       ],
     );
   }
 
   Widget messageContent(String message) {
-    return Text(message, textAlign: TextAlign.start, style: TextStyle(fontSize: 15.0, color: Colors.white));
+    return Text(message,
+        textAlign: TextAlign.start,
+        style: TextStyle(fontSize: 15.0, color: Colors.white));
   }
 }

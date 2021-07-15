@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/pages/authenticate.dart';
-import 'package:my_chat_app/pages/home.dart';
+import 'package:my_chat_app/pages/his_home.dart';
 import 'package:provider/provider.dart';
 
 class Wrapper extends StatelessWidget {
