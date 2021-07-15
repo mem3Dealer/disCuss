@@ -51,7 +51,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
-      initializeDateFormatting('ru');
       if (listUsers == null) {
         final chatData = await data.getChat();
         final usersData = await data.getUsers();
@@ -82,8 +81,9 @@ class _HomePageState extends State<HomePage> {
               shrinkWrap: true,
               itemCount: messageDataList.length,
               itemBuilder: (context, index) {
-                int _timeStamp =
-                    messageDataList[index].time!.millisecondsSinceEpoch;
+                String localeTag =
+                    Localizations.localeOf(context).toLanguageTag();
+                int _timeStamp = messageDataList[index].time!.seconds;
                 var date =
                     DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
                 var formattedDate =
@@ -110,16 +110,16 @@ class _HomePageState extends State<HomePage> {
     List<Message>? _messages = snapshot.data?.docs
         .map<Message>((e) => Message.fromSnapshot(e))
         .toList();
-    for (int i = 1; i < _messages!.length; i++) {
-      if (i < _messages.length - 1)
+    for (int i = 0; i < _messages!.length; i++) {
+      if (i > 0 && i < _messages.length - 1)
         _messages[i].isFirst = _messages[i + 1].sender != _messages[i].sender;
       else
-        _messages[i].isFirst = true;
+        _messages[i].isFirst = false;
 
-      if (i < _messages.length)
+      if (i > 0 && i < _messages.length)
         _messages[i].isLast = _messages[i - 1].sender != _messages[i].sender;
       else
-        _messages[i].isLast = false;
+        _messages[i].isLast = true;
     }
     return _messages;
   }
