@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:my_chat_app/pages/home.dart';
+import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/widgets/messageTile.dart';
 import 'package:my_chat_app/widgets/sendFieldandButton.dart';
@@ -34,7 +34,7 @@ class _ChatMessagesState extends State<ChatMessages> {
     final _messages = snapshot?.data.docs;
     bool _isNewAuthor;
     bool _isAuthorOver;
-    HomePage home = HomePage();
+    // HomePage home = HomePage();
     DataBaseService data = DataBaseService();
 
     return Container(

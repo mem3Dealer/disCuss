@@ -5,24 +5,31 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/user.dart';
+import 'package:my_chat_app/pages/register.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
+import 'package:my_chat_app/widgets/chatMessages.dart';
 import 'package:my_chat_app/widgets/messageTile.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:collection/collection.dart';
 import 'package:my_chat_app/widgets/sendFieldandButton.dart';
 
-class HisHomePage extends StatefulWidget {
+class ChatPage extends StatefulWidget {
   String groupID;
-  HisHomePage(this.groupID);
+
+  ChatPage(this.groupID);
+  // ChatPage({Key? key, required this.groupID}) : super(key: key);
 
   @override
-  _HisHomePageState createState() => _HisHomePageState();
+  _ChatPageState createState() => _ChatPageState();
 }
 
-class _HisHomePageState extends State<HisHomePage> {
+class _ChatPageState extends State<ChatPage> {
+  // Stream<QuerySnapshot>? _chat;
   TextEditingController messageEditingController = TextEditingController();
   CollectionReference users = FirebaseFirestore.instance.collection('users');
   CollectionReference chat = FirebaseFirestore.instance.collection('chat');
@@ -47,17 +54,21 @@ class _HisHomePageState extends State<HisHomePage> {
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
-      initializeDateFormatting('ru');
       if (listUsers == null) {
+        final chatData = await data.getChat();
         final usersData = await data.getUsers();
-        listUsers = usersData?.toList();
+
+        listChat = chatData.toList();
+        listUsers = usersData?.reversed.toList();
         setState(() {});
       }
+      // print(listChat);
+      // print(listChat.toString());
     });
     super.initState();
   }
 
-  Widget _chatMessages(List<Message> messagesList) {
+  Widget _chatMessages(List<Message> messageDataList) {
     return Container(
       child: listUsers == null
           ? Center(
@@ -67,16 +78,17 @@ class _HisHomePageState extends State<HisHomePage> {
               controller: _scrollController,
               reverse: true,
               shrinkWrap: true,
-              itemCount: messagesList.length,
+              itemCount: messageDataList.length,
               itemBuilder: (context, index) {
-                int _timeStamp =
-                    messagesList[index].time!.millisecondsSinceEpoch;
+                // String localeTag =
+                //     Localizations.localeOf(context).toLanguageTag();
+                int _timeStamp = messageDataList[index].time!.seconds;
                 var date =
                     DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
                 var formattedDate =
                     DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
 
-                final message = messagesList[index];
+                final message = messageDataList[index];
 
                 return MessageTile(
                     time: formattedDate,
@@ -89,6 +101,7 @@ class _HisHomePageState extends State<HisHomePage> {
                     sentByMe: senderId == message.sender);
               }),
     );
+    ;
   }
 
   List<Message> makeMessagesDataList(
@@ -97,17 +110,24 @@ class _HisHomePageState extends State<HisHomePage> {
         .map<Message>((e) => Message.fromSnapshot(e))
         .toList();
     for (int i = 0; i < _messages!.length; i++) {
-      if (i < _messages.length)
-        _messages[i].isFirst = _messages[i - 1].sender != _messages[i].sender;
+      if (i > 0 && i < _messages.length - 1)
+        _messages[i].isFirst = _messages[i + 1].sender != _messages[i].sender;
       else
         _messages[i].isFirst = false;
 
-      if (i < _messages.length - 1)
-        _messages[i].isLast = _messages[i + 1].sender != _messages[i].sender;
+      if (i > 0 && i < _messages.length)
+        _messages[i].isLast = _messages[i - 1].sender != _messages[i].sender;
       else
         _messages[i].isLast = true;
     }
     return _messages;
+  }
+
+  String? getUserName(String uid) {
+    return listUsers!
+        .firstWhere((element) => element.uid == uid,
+            orElse: () => MyUser(name: 'null name'))
+        .name;
   }
 
   Widget buttonSend() {
@@ -118,7 +138,6 @@ class _HisHomePageState extends State<HisHomePage> {
             messageEditingController, senderId.toString(), widget.groupID);
         // print(snapshot.docs.length);
         setState(() {
-          // print(listChat.toString());
           messageEditingController.text = '';
         });
         print('pressed');
@@ -142,31 +161,30 @@ class _HisHomePageState extends State<HisHomePage> {
             listUsers?.firstWhere((element) => element.uid == senderId).name ??
                 'Loading'),
         actions: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: ElevatedButton.icon(
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.amber.shade700)),
-              icon: Icon(Icons.person),
-              onPressed: () async {
-                await _auth.signOut();
-              },
-              label: Text('Log out'),
-            ),
-          )
+          // Padding(
+          //   padding: const EdgeInsets.all(10.0),
+          //   child: ElevatedButton(
+          //     style: ButtonStyle(
+          //         backgroundColor:
+          //             MaterialStateProperty.all<Color>(Colors.amber.shade700)),
+          //     child: Icon(Icons.exit_to_app),
+          //     onPressed: () async {
+          //       // await _auth.signOut();
+          //       Navigator.pop(context);
+          //     },
+          //     // label: Text('Log out'),
+          //   ),
+          // )
         ],
       ),
       body: Container(
           child: StreamBuilder<QuerySnapshot>(
-              stream: data.chatStream(),
+              stream: data.testStream(widget.groupID),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   final messageDataList = makeMessagesDataList(snapshot);
-                  // make everithing with
                   return Column(children: [
-                    _chatMessages(messageDataList),
-                    SendFieldAndButton(widget.groupID),
+                    Expanded(child: _chatMessages(messageDataList)),
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Container(
@@ -186,11 +204,15 @@ class _HisHomePageState extends State<HisHomePage> {
                     ),
                   ]);
                 } else {
+                  // ? SingleChildScrollView(
+                  //     child: Text(listChat.toString()))
                   return Container(child: Center(child: Text('loading...')));
                 }
               })),
     );
   }
+
+  // makeMessagesDataList(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {}
 }
 
 Widget textField(TextEditingController messageEditingController) {

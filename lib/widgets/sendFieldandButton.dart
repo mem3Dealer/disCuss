@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_chat_app/pages/home.dart';
+import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/services/database.dart';
 
 class SendFieldAndButton extends StatefulWidget {
+  String groupID;
   // const SendFieldAndButton({Key? key}) : super(key: key);
-
+  SendFieldAndButton(this.groupID);
   @override
   _SendFieldAndButtonState createState() => _SendFieldAndButtonState();
 }
@@ -14,7 +15,7 @@ class _SendFieldAndButtonState extends State<SendFieldAndButton> {
   TextEditingController messageEditingController = TextEditingController();
   DataBaseService data = DataBaseService();
   String? senderId = FirebaseAuth.instance.currentUser?.uid;
-  HomePage home = HomePage();
+  // HomePage home = HomePage();
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +41,8 @@ class _SendFieldAndButtonState extends State<SendFieldAndButton> {
             ),
             GestureDetector(
               onTap: () {
-                data.sendMessage(messageEditingController, senderId.toString());
+                data.sendMessage(messageEditingController, senderId.toString(),
+                    widget.groupID);
                 // print(snapshot.docs.length);
                 setState(() {
                   messageEditingController.text = '';

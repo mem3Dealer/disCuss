@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_chat_app/models/message.dart';
+import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
 
 class DataBaseService {
@@ -20,10 +21,60 @@ class DataBaseService {
 
   CollectionReference chat = FirebaseFirestore.instance.collection('chat');
 
+  CollectionReference dummyChats =
+      FirebaseFirestore.instance.collection('dummyCollection');
+
   var senderId = FirebaseAuth.instance.currentUser?.uid;
+
+  Stream<QuerySnapshot> roomsStream() => FirebaseFirestore.instance
+      .collection('dummyCollection')
+      // .orderBy('time', descending: true)
+      .snapshots();
+
+  Future<List<Room>?> getRooms() async {
+    var serverRooms = await dummyChats.get();
+    return serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+  }
+
+  Future createGroup(
+    String userName,
+    String groupName,
+    String userId,
+  ) async {
+    DocumentReference roomDocRef = await dummyChats.add({
+      'groupName': groupName,
+      'members': [],
+      'groupID': '',
+      'admin': userName
+    });
+
+    await roomDocRef.update({'groupID': roomDocRef.id});
+
+    await FirebaseFirestore.instance
+        .collection('dummyCollection')
+        .doc(roomDocRef.id)
+        .collection('messages')
+        .add({'content': '', 'time': '', 'sender': ''});
+
+    await roomDocRef.update({
+      'members': FieldValue.arrayUnion([userId])
+    });
+  }
+
+  Stream<QuerySnapshot> usersStream() => FirebaseFirestore.instance
+      .collection('users')
+      // .orderBy('time', descending: true)
+      .snapshots();
 
   Stream<QuerySnapshot> chatStream() => FirebaseFirestore.instance
       .collection('chat')
+      .orderBy('time', descending: true)
+      .snapshots();
+
+  Stream<QuerySnapshot> testStream(String groupId) => FirebaseFirestore.instance
+      .collection('dummyCollection')
+      .doc(groupId)
+      .collection('messages')
       .orderBy('time', descending: true)
       .snapshots();
 
@@ -34,17 +85,11 @@ class DataBaseService {
       'password': password,
     }).then((value) => print('user added'));
   }
-  // void sendMessage(chatMessageMap) {
-  //   FirebaseFirestore.instance.collection('chat').add(chatMessageMap);
-  //   FirebaseFirestore.instance.collection('chat').doc('hey').update({
-  //     'recentMessage': chatMessageMap['message'],
-  //     // 'MessageSender': chatMessageMap['sender'],
-  //     'MessageTime': chatMessageMap['time'].toString()
-  //   });
-  // }
 
   Future<void>? sendMessage(
-      TextEditingController _controller, String senderId) {
+      TextEditingController _controller, String senderId, String groupID) {
+    CollectionReference testChat =
+        dummyChats.doc(groupID).collection('messages');
     // String? userName = FirebaseAuth.instance.currentUser?.displayName;
     // Stream<QuerySnapshot> _userStream = users.snapshots();
     // try {
@@ -57,7 +102,7 @@ class DataBaseService {
     };
     print(message);
     if (_controller.text.isNotEmpty) {
-      chat.add(message).then(
+      testChat.add(message).then(
           (doc) => chat.doc(doc.id).get().then((value) => print(value.data())));
     }
     // } catch (e, trace) {
@@ -71,6 +116,10 @@ class DataBaseService {
             orElse: () => MyUser(name: 'null name?'))
         .name;
   }
+
+  // Future<void> updateRoomData(String groupName) async {
+  //   return await dummyChats.doc(uid).set({'groupName': groupName});
+  // }
 
   Future<void>? updateUserData(
       String name, String email, String password) async {

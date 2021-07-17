@@ -60,7 +60,8 @@ class Message {
 
   String toJson() => json.encode(toMap());
 
-  factory Message.fromJson(String source) => Message.fromMap(json.decode(source));
+  factory Message.fromJson(String source) =>
+      Message.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -81,15 +82,18 @@ class Message {
 
   @override
   int get hashCode {
-    return content.hashCode ^ sender.hashCode ^ time.hashCode ^ isFirst.hashCode ^ isLast.hashCode;
+    return content.hashCode ^
+        sender.hashCode ^
+        time.hashCode ^
+        isFirst.hashCode ^
+        isLast.hashCode;
   }
 
-  // String? getAuthorName(String sender, List? listUsers) {
-  //   return listUsers!.firstWhere((e) => e.uid == sender).sender;
-  // }
-
   static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
-    return Message(content: e.get('recentMessage'), sender: e.get('sender'), time: e.get('time'));
+    return Message(
+        content: e.get('recentMessage'),
+        sender: e.get('sender'),
+        time: e.get('time'));
   }
 
   // String? getUserName(String? sender) {
@@ -98,7 +102,8 @@ class Message {
   //           orElse: () => MyUser(name: 'null name'))
   //       .name;
   // }
-  getTimed(Timestamp? stamp, index, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
+  getTimed(
+      Timestamp? stamp, index, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
     final messages = snapshot.data?.docs;
     int _timeStamp = messages?[index]['time'].seconds;
     var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
@@ -107,66 +112,9 @@ class Message {
   }
 
   String? getUserName(String? sender, List<MyUser>? listUsers) {
-    return listUsers!.firstWhere((e) => e.uid == sender, orElse: () => MyUser(name: 'null name')).name;
-  }
-
-  makeMessagesDataList(
-      AsyncSnapshot<QuerySnapshot<Object?>> snapshot, List<Message>? listChat, List<MyUser>? listUsers) {
-    bool _isNewAuthor;
-    bool _isAuthorOver;
-    final messages = snapshot.data?.docs;
-
-    List<MyUser>? listUsers;
-
-    String? senderId = FirebaseAuth.instance.currentUser?.uid;
-
-    // return listChat?.forEach((element) {
-    //   element.getTimed(time.toString(), element, snapshot);
-    //   element.content.toString();
-    //   element.getUserName(sender!, listUsers);
-    // });
-
-    // return Expanded(
-    //   child: Container(
-    //       child: listChat == null
-    //           ? Center(
-    //               child: CircularProgressIndicator(),
-    //             )
-    //           : ListView.builder(
-
-    //               // reverse: true,
-    //               shrinkWrap: true,
-    //               itemCount: listChat.length,
-    //               itemBuilder: (context, index) {
-
-    //                 int _timeStamp = listChat[index].time!.seconds;
-    //                 var date =
-    //                     DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
-    //                 var formattedDate =
-    //                     DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
-
-    //                 if (index > 0 && index < listChat.length)
-    //                   _isNewAuthor = listChat[index - 1].sender.toString() !=
-    //                       listChat[index].sender.toString();
-    //                 else
-    //                   _isNewAuthor = false;
-
-    //                 if (index > 0 && index < listChat.length - 1)
-    //                   _isAuthorOver = listChat[index - 1].sender.toString() !=
-    //                       listChat[index].sender.toString();
-    //                 else
-    //                   _isAuthorOver = true;
-
-    //                 return MessageTile(
-    //                     time: formattedDate,
-    //                     message: listChat[index].content.toString(),
-    //                     author: _isNewAuthor
-    //                         ? getUserName(listChat[index].sender.toString())
-    //                         : '',
-    //                     sentByMe: senderId == listChat[index].sender.toString(),
-    //                     firstMessageOfAuthor: _isNewAuthor,
-    //                     lastMessageOfAuthor: _isAuthorOver);
-    //               })),
-    // );
+    return listUsers!
+        .firstWhere((e) => e.uid == sender,
+            orElse: () => MyUser(name: 'null name'))
+        .name;
   }
 }
