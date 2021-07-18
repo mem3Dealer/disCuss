@@ -190,11 +190,8 @@ class _ChatPageState extends State<ChatPage> {
                       child: Container(
                         color: Colors.white,
                         padding: EdgeInsets.symmetric(horizontal: 15.0),
-                        // height: 50,
                         width: MediaQuery.of(context).size.width,
-                        // color: Colors.red,
                         child: Row(
-                          // main AxisAlignment: MainAxisAlignment.start,
                           children: [
                             textField(messageEditingController),
                             buttonSend()

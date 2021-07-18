@@ -28,6 +28,9 @@ class DataBaseService {
 
   Stream<QuerySnapshot> roomsStream() => FirebaseFirestore.instance
       .collection('dummyCollection')
+      .where('members',
+          arrayContains:
+              senderId) // могут ли тут быть ошибки? в общем я молодец крутой метод да
       // .orderBy('time', descending: true)
       .snapshots();
 
@@ -50,11 +53,15 @@ class DataBaseService {
 
     await roomDocRef.update({'groupID': roomDocRef.id});
 
-    await FirebaseFirestore.instance
-        .collection('dummyCollection')
-        .doc(roomDocRef.id)
-        .collection('messages')
-        .add({'content': '', 'time': '', 'sender': ''});
+    // await FirebaseFirestore.instance
+    //     .collection('dummyCollection')
+    //     .doc(roomDocRef.id)
+    //     .collection('messages')
+    //     .add({
+    //   'recentMessage': '',
+    //   'time': DateTime.now().toUtc(),
+    //   'sender': ''
+    // });
 
     await roomDocRef.update({
       'members': FieldValue.arrayUnion([userId])
