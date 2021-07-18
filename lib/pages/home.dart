@@ -78,6 +78,7 @@ class _HomePageState extends State<HomePage> {
 
     String? currentUserName = data.getUserName(_currentUserId, listUsers!);
     final AuthService _auth = AuthService();
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -97,120 +98,83 @@ class _HomePageState extends State<HomePage> {
         ],
         title: Text('$currentUserName`s chats'),
       ),
-      drawer: Drawer(
-        child: StreamBuilder<QuerySnapshot>(
-          stream: data.usersStream(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return ListView.builder(
-                  itemCount: listUsers?.length,
-                  itemBuilder: (context, index) {
-                    return Column(
-                      children: [
-                        ListTile(
-                          title: Text(listUsers![index].name.toString()),
-                          leading: CircleAvatar(
-                            child: Icon(Icons.person),
-                          ),
-                          subtitle: Text(listUsers![index].email.toString()),
-                        ),
-                        Divider()
-                      ],
-                    );
-                  });
-            } else {
-              return Text('loading...');
-            }
-          },
-        ),
-      ),
-      body: Container(
-          child: StreamBuilder<QuerySnapshot>(
-        stream: data.roomsStream(),
-        builder: (context, snapshot) {
-          var roomData = snapshot.data!.docs;
-          if (snapshot.hasData)
-            return ListView.builder(
-              itemCount: roomData.length,
-              itemBuilder: (context, index) {
-                if (roomData[index]['members'].contains(_currentUserId))
-                  return Column(
-                    children: [
-                      // if (listRooms![index].members.contains(_currentUserId)
-                      ListTile(
-                        title: Text(
-                            "${roomData[index]['groupName']} + ${roomData[index]['groupID']}"),
-                        subtitle:
-                            Text("Created by: ${listRooms![index].admin}"),
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      ChatPage(roomData[index]['groupID'])));
-                        },
-                      ),
-                      Divider()
-                    ],
-                  );
-                else
-                  return Container(); // он скрывает просто тайлы в которых нет пользователя как участника.
-              },
-            );
-          else
-            return Container();
-        },
-      )
-          // Column(
-          //   mainAxisAlignment: MainAxisAlignment.start,
-          //   children: [
-          //     ListTile(
-          //       onTap: () {
-          //         Navigator.push(context,
-          //             MaterialPageRoute(builder: (context) => ChatPage()));
-          //       },
-          //       title: Text('That Chat'),
-          //       subtitle: Text('users'),
-          //       leading: CircleAvatar(
-          //         child: Icon(Icons.group),
-          //       ),
-          //     ),
-          //     Divider(),
-          //     ListTile(
-          //       title: Text('Chat Room Uno'),
-          //       subtitle: Text('users'),
-          //       leading: CircleAvatar(
-          //         child: Icon(Icons.group),
-          //       ),
-          //     ),
-          //     Divider(),
-          //     ListTile(
-          //       title: Text('Chat Room Dos'),
-          //       subtitle: Text('users'),
-          //       leading: CircleAvatar(
-          //         child: Icon(Icons.group),
-          //       ),
-          //     ),
-          //     Divider(),
-          //     ListTile(
-          //       title: Text('Chat Room Tres'),
-          //       subtitle: Text('users'),
-          //       leading: CircleAvatar(
-          //         child: Icon(Icons.group),
-          //       ),
-          //     ),
-          //     Divider(),
-          //   ],
-          // ),
-          ),
+      // drawer: Drawer(
+      //   child: StreamBuilder<QuerySnapshot>(
+      //     stream: data.usersStream(),
+      //     builder: (context, snapshot) {
+      //       if (snapshot.hasData) {
+      //         return ListView.builder(
+      //             itemCount: listUsers?.length,
+      //             itemBuilder: (context, index) {
+      //               return Column(
+      //                 children: [
+      //                   ListTile(
+      //                     title: Text(listUsers![index].name.toString()),
+      //                     leading: CircleAvatar(
+      //                       child: Icon(Icons.person),
+      //                     ),
+      //                     subtitle: Text(listUsers![index].email.toString()),
+      //                   ),
+      //                   Divider()
+      //                 ],
+      //               );
+      //             });
+      //       } else {
+      //         return Text('loading...');
+      //       }
+      //     },
+      //   ),
+      // ),
+      body: showRooms(),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          // print(listRooms);
           _showDialog();
+
+          // print('pressed');
         },
       ),
     );
+  }
+
+  Widget showRooms() {
+    return Container(
+        child: StreamBuilder<QuerySnapshot>(
+      stream: data.roomsStream(),
+      builder: (context, snapshot) {
+        var roomData = snapshot.data!.docs;
+        if (snapshot.hasData)
+          return ListView.builder(
+            itemCount: snapshot.data?.docs.length,
+            itemBuilder: (context, index) {
+              // if (roomData[index]['members'].contains(_currentUserId))
+              return Column(
+                children: [
+                  // if (listRooms![index].members.contains(_currentUserId))
+                  ListTile(
+                    title: Text(
+                        "${roomData[index]['groupName']} + ${roomData[index]['groupID']}"),
+                    subtitle: Text("Created by: ${listRooms![index].admin}"),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ChatPage(roomData[index]['groupID'])));
+                    },
+                  ),
+                  Divider()
+                ],
+              );
+              // else
+              //   return SizedBox
+              //       .shrink(); // он скрывает просто тайлы в которых нет пользователя как участника.
+            },
+          );
+        else
+          return CircularProgressIndicator();
+      },
+    ));
   }
 
   void _showDialog() {
