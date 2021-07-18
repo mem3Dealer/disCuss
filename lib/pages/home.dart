@@ -30,10 +30,8 @@ class _HomePageState extends State<HomePage> {
 
   List<MyUser>? listUsers;
   List<Room>? listRooms;
-  CollectionReference userCollection =
-      FirebaseFirestore.instance.collection('users');
-  CollectionReference roomsCollection =
-      FirebaseFirestore.instance.collection('dummyCollection');
+  CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
+  CollectionReference roomsCollection = FirebaseFirestore.instance.collection('dummyCollection');
   DataBaseService data = DataBaseService();
   TextEditingController _textFieldController = TextEditingController();
   String? groupName;
@@ -85,9 +83,7 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: ElevatedButton(
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.amber.shade700)),
+              style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.amber.shade700)),
               child: Icon(Icons.exit_to_app),
               onPressed: () async {
                 await _auth.signOut();
@@ -138,43 +134,46 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget showRooms() {
-    return Container(
-        child: StreamBuilder<QuerySnapshot>(
-      stream: data.roomsStream(),
-      builder: (context, snapshot) {
-        var roomData = snapshot.data!.docs;
-        if (snapshot.hasData)
-          return ListView.builder(
-            itemCount: snapshot.data?.docs.length,
-            itemBuilder: (context, index) {
-              // if (roomData[index]['members'].contains(_currentUserId))
-              return Column(
-                children: [
-                  // if (listRooms![index].members.contains(_currentUserId))
-                  ListTile(
-                    title: Text(
-                        "${roomData[index]['groupName']} + ${roomData[index]['groupID']}"),
-                    subtitle: Text("Created by: ${listRooms![index].admin}"),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  ChatPage(roomData[index]['groupID'])));
-                    },
-                  ),
-                  Divider()
-                ],
+    return StreamBuilder<QuerySnapshot>(
+        stream: data.roomsStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (snapshot.connectionState == ConnectionState.active) {
+            if (snapshot.hasData) {
+              var roomData = snapshot.data!.docs;
+              return ListView.builder(
+                itemCount: snapshot.data?.docs.length,
+                itemBuilder: (context, index) {
+                  // if (roomData[index]['members'].contains(_currentUserId))
+                  return Column(
+                    children: [
+                      // if (listRooms![index].members.contains(_currentUserId))
+                      ListTile(
+                        title: Text("${roomData[index]['groupName']} + ${roomData[index]['groupID']}"),
+                        subtitle: Text("Created by: ${listRooms![index].admin}"),
+                        onTap: () {
+                          Navigator.push(
+                              context, MaterialPageRoute(builder: (context) => ChatPage(roomData[index]['groupID'])));
+                        },
+                      ),
+                      Divider()
+                    ],
+                  );
+                  // else
+                  //   return SizedBox
+                  //       .shrink(); // он скрывает просто тайлы в которых нет пользователя как участника.
+                },
               );
-              // else
-              //   return SizedBox
-              //       .shrink(); // он скрывает просто тайлы в которых нет пользователя как участника.
-            },
-          );
-        else
-          return CircularProgressIndicator();
-      },
-    ));
+            } else {
+              return Center(child: CircularProgressIndicator());
+            }
+          }
+          return Center(child: CircularProgressIndicator());
+        });
   }
 
   void _showDialog() {
@@ -193,8 +192,7 @@ class _HomePageState extends State<HomePage> {
             TextButton(
               child: Text("Create"),
               onPressed: () {
-                data.createGroup(currentUserName!, _textFieldController.text,
-                    _currentUserId);
+                data.createGroup(currentUserName!, _textFieldController.text, _currentUserId);
                 // data.updateRoomData(_textFieldController.text);
                 Navigator.of(context).pop();
                 // print(_textFieldController.text);
