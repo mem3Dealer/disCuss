@@ -28,10 +28,7 @@ class DataBaseService {
 
   Stream<QuerySnapshot> roomsStream() => FirebaseFirestore.instance
       .collection('dummyCollection')
-      .where('members',
-          arrayContains:
-              senderId) // могут ли тут быть ошибки? в общем я молодец крутой метод да
-      // .orderBy('time', descending: true)
+      .where('members', arrayContains: senderId)
       .snapshots();
 
   Future<List<Room>?> getRooms() async {
@@ -40,13 +37,14 @@ class DataBaseService {
   }
 
   Future createGroup(
-    String userName,
+    List<MyUser> selectedUsers,
+    String? userName,
     String groupName,
-    String userId,
+    // String userId,
   ) async {
     DocumentReference roomDocRef = await dummyChats.add({
       'groupName': groupName,
-      'members': [],
+      'members': selectedUsers,
       'groupID': '',
       'admin': userName
     });
@@ -63,9 +61,9 @@ class DataBaseService {
     //   'sender': ''
     // });
 
-    await roomDocRef.update({
-      'members': FieldValue.arrayUnion([userId])
-    });
+    // await roomDocRef.update({
+    //   'members': FieldValue.arrayUnion([userId])
+    // });
   }
 
   Stream<QuerySnapshot> usersStream() => FirebaseFirestore.instance
@@ -117,7 +115,7 @@ class DataBaseService {
     // }
   }
 
-  String? getUserName(String uid, List listUsers) {
+  String? getUserName(String uid, List<MyUser> listUsers) {
     return listUsers
         .firstWhere((element) => element.uid == uid,
             orElse: () => MyUser(name: 'null name?'))
