@@ -74,8 +74,9 @@ class _ChatMessagesState extends State<ChatMessages> {
                     firstMessageOfAuthor: _isNewAuthor,
                     lastMessageOfAuthor: _isAuthorOver,
                     author: _isNewAuthor
-                        ? data.getUserName(
-                            message['sender'].toString(), listUsers)
+                        ? ''
+                        // data.getUserName(
+                        //     message['sender'].toString(), listUsers)
                         : '',
                     // snapshot.data.docs[index]['author'].toString(),
                     message: message['recentMessage'].toString(),

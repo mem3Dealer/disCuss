@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/cubit/cubit/authorize_cubit.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/shared/input.dart';
 
@@ -13,7 +15,8 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
-  final AuthService _auth = AuthService();
+  final _auth = AuthService();
+  final authCubit = GetIt.I.get<AuthorizeCubit>();
 
   String email = '';
   String password = '';
@@ -79,16 +82,18 @@ class _SignInPageState extends State<SignInPage> {
                   child: Text('Sign in', style: TextStyle(color: Colors.white)),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      authCubit.signIn(email, password);
+
                       // setState(() => loading = true);
-                      final result = await _auth.signInWithEmailandPassword(
-                          email, password);
-                      print(result);
-                      if (result == null) {
-                        setState(() {
-                          // loading = false;
-                          error = 'we didnt manage to sign u in';
-                        });
-                      }
+                      // final result = await _auth.signInWithEmailandPassword(
+                      //     email, password);
+                      // print(result);
+                      // if (result == null) {
+                      //   setState(() {
+                      //     // loading = false;
+                      //     error = 'we didnt manage to sign u in';
+                      //   });
+                      // }
                     }
                   },
                 ),

@@ -1,5 +1,5 @@
 // import 'dart:html';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,22 +8,25 @@ import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
 
 class DataBaseService {
-  String? uid;
-  DataBaseService({this.uid});
+  // String? uid;
+  DataBaseService() {
+    initializeFB();
+  }
 
-  // Stream<QuerySnapshot>? _chat;
+  bool _inited = false;
+  void initializeFB() async {
+    if (!_inited) {
+      await Firebase.initializeApp();
+      _inited = true;
+    }
+  }
 
   CollectionReference userCollection =
       FirebaseFirestore.instance.collection('users');
 
-  // CollectionReference messagesCollection =
-  //     FirebaseFirestore.instance.collection('chat');
-
   CollectionReference chat = FirebaseFirestore.instance.collection('chat');
-
   CollectionReference dummyChats =
       FirebaseFirestore.instance.collection('dummyCollection');
-
   var senderId = FirebaseAuth.instance.currentUser?.uid;
 
   Stream<QuerySnapshot> roomsStream() => FirebaseFirestore.instance
@@ -31,10 +34,10 @@ class DataBaseService {
       .where('members', arrayContains: senderId)
       .snapshots();
 
-  Future<List<Room>?> getRooms() async {
-    var serverRooms = await dummyChats.get();
-    return serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
-  }
+  // Future<List<Room>?> getRooms() async {
+  //   var serverRooms = await dummyChats.get();
+  //   return serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+  // }
 
   Future createGroup(
     List<MyUser> selectedUsers,
@@ -115,19 +118,19 @@ class DataBaseService {
     // }
   }
 
-  String? getUserName(String uid, List<MyUser> listUsers) {
-    return listUsers
-        .firstWhere((element) => element.uid == uid,
-            orElse: () => MyUser(name: 'null name?'))
-        .name;
-  }
+  // String? getUserName(String uid, List<MyUser> listUsers) {
+  //   return listUsers
+  //       .firstWhere((element) => element.uid == uid,
+  //           orElse: () => MyUser(name: 'null name?'))
+  //       .name;
+  // }
 
   // Future<void> updateRoomData(String groupName) async {
   //   return await dummyChats.doc(uid).set({'groupName': groupName});
   // }
 
   Future<void>? updateUserData(
-      String name, String email, String password) async {
+      String uid, String name, String email, String password) async {
     return await userCollection.doc(uid).set({
       'name': name,
       'email': email,

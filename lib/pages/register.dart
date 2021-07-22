@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/cubit/cubit/authorize_cubit.dart';
+import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/shared/input.dart';
@@ -14,8 +17,10 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  final AuthService _auth = AuthService();
-  DataBaseService data = DataBaseService();
+  final _auth = AuthService();
+  final data = DataBaseService();
+  final userCubit = GetIt.I.get<UserCubit>();
+  final authCubit = GetIt.I.get<AuthorizeCubit>();
 
   String email = '';
   String password = '';
@@ -97,15 +102,16 @@ class _RegisterPageState extends State<RegisterPage> {
                       Text('Register', style: TextStyle(color: Colors.white)),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      authCubit.registrate(name, email, password);
                       // setState(() => loading = true);
-                      dynamic result = await _auth.registerWithEmailandPassword(
-                          name, email, password);
-                      if (result == null) {
-                        setState(() {
-                          // loading = false;
-                          error = 'this is an error message';
-                        });
-                      }
+                      // dynamic result = await _auth.registerWithEmailandPassword(
+                      //     name, email, password);
+                      // if (result == null) {
+                      //   setState(() {
+                      //     // loading = false;
+                      //     error = 'this is an error message';
+                      //   });
+                      // }
                     }
                     // print("email: $email");
                     // print("password: $password");

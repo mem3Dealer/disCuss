@@ -102,14 +102,14 @@ class Message {
   //           orElse: () => MyUser(name: 'null name'))
   //       .name;
   // }
-  getTimed(
-      Timestamp? stamp, index, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
-    final messages = snapshot.data?.docs;
-    int _timeStamp = messages?[index]['time'].seconds;
-    var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
-    var formattedDate = DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
-    return formattedDate;
-  }
+  // getTimed(
+  //     Timestamp? stamp, index, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
+  //   final messages = snapshot.data?.docs;
+  //   int _timeStamp = messages?[index]['time'].seconds;
+  //   var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
+  //   var formattedDate = DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
+  //   return formattedDate;
+  // }
 
   String? getUserName(String? sender, List<MyUser>? listUsers) {
     return listUsers!

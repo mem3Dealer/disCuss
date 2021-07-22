@@ -20,20 +20,6 @@ class AuthService {
     // мапирует стрим юзера с ФБ в MyUser. То есть работа с моим классом ?
   }
 
-  //sign in anon
-  // Future signInAnon() async {
-  //   try {
-  //     UserCredential result = await _auth
-  //         .signInAnonymously(); // здесь был AuthResult, но он помечал ошибкой?
-  //     User? user = result.user;
-  //     return _userFromFirebase(user);
-  //   } catch (e) {
-  //     print(e.toString());
-  //     return null;
-  //   }
-  // }
-
-  //sign out
   Future signOut() async {
     try {
       return await _auth.signOut();
@@ -45,15 +31,14 @@ class AuthService {
 
   // register with email and passw
   Future registerWithEmailandPassword(
-      String name, String email, String password) async {
+      String uid, String name, String email, String password) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       User? _fbUser = result.user;
 
       //create a new doc for that user with the uid
-      await DataBaseService(uid: _fbUser?.uid)
-          .updateUserData(name, email, password);
+      // await DataBaseService().updateUserData(name, email, password);
 
       return _userFromFirebase(_fbUser);
     } catch (e) {

@@ -30,12 +30,12 @@ class _HomePageState extends State<HomePage> {
 
   List<MyUser>? listUsers;
   List<Room>? listRooms;
-  CollectionReference userCollection =
-      FirebaseFirestore.instance.collection('users');
-  CollectionReference roomsCollection =
-      FirebaseFirestore.instance.collection('dummyCollection');
+  // CollectionReference userCollection =
+  //     FirebaseFirestore.instance.collection('users');
+  // CollectionReference roomsCollection =
+  //     FirebaseFirestore.instance.collection('dummyCollection');
   DataBaseService data = DataBaseService();
-  TextEditingController _textFieldController = TextEditingController();
+  // TextEditingController _textFieldController = TextEditingController();
   String? groupName;
   String _currentUserId = FirebaseAuth.instance.currentUser!.uid.toString();
   List avavailableChats = [];
@@ -47,8 +47,8 @@ class _HomePageState extends State<HomePage> {
         final usersData = await data.getUsers();
         listUsers = usersData?.toList();
 
-        final roomsData = await data.getRooms();
-        listRooms = roomsData?.toList();
+        // final roomsData = await data.getRooms();
+        // listRooms = roomsData?.toList();
 
         setState(() {});
       }
@@ -76,30 +76,28 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // bool showIt = ;
 
-    String? currentUserName = data.getUserName(_currentUserId, listUsers!);
+    // String? currentUserName = data.getUserName(_currentUserId, listUsers!);
     bool isClicked;
     final AuthService _auth = AuthService();
 
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: ElevatedButton(
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.amber.shade700)),
-              child: Icon(Icons.exit_to_app),
-              onPressed: () async {
-                await _auth.signOut();
-              },
-              // label: Text('Log out'),
-            ),
-          )
-        ],
-        title:
-            Text('$currentUserName`s chats, ${listUsers?.length.toString()}'),
-      ),
+      appBar: AppBar(actions: [
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: ElevatedButton(
+            style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(Colors.amber.shade700)),
+            child: Icon(Icons.exit_to_app),
+            onPressed: () async {
+              await _auth.signOut();
+            },
+            // label: Text('Log out'),
+          ),
+        )
+      ], title: Text('oyoyo')
+          // Text('$currentUserName`s chats, ${listUsers?.length.toString()}'),
+          ),
       // drawer: Drawer(
       //   child: StreamBuilder<QuerySnapshot>(
       //     stream: data.usersStream(),
@@ -233,9 +231,9 @@ class _GroupCreatorState extends State<GroupCreator> {
   List<MyUser> availableUsers = [];
   int _currentStep = 0;
   StepperType stepperType = StepperType.vertical;
-  bool isSelected = true;
+  // bool isSelected = true;
   List<MyUser> selectedUsers = [];
-  TextEditingController _groupNameController = TextEditingController();
+  final _groupNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +266,7 @@ class _GroupCreatorState extends State<GroupCreator> {
                       decoration: InputDecoration(hintText: 'type here'),
                     )),
                 Step(
-                  title: Text('Pick members, mate, $_currentStep'),
+                  title: Text('Pick members, $_currentStep'),
                   content: SizedBox(
                     child: Column(
                       children: [
