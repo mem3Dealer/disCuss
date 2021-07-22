@@ -22,14 +22,16 @@ Future<void> setUpLocator() async {
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   // WidgetsFlutterBinding.ensureInitialized();
   // print('ayy');
   GetIt.instance
     ..registerSingleton<DataBaseService>(DataBaseService())
-    ..registerSingleton<AuthorizeCubit>(AuthorizeCubit())
     ..registerSingleton<UserCubit>(UserCubit())
     ..registerFactory(() => RoomCubit())
-    ..registerFactory(() => AuthService());
+    ..registerFactory(() => AuthService())
+    ..registerSingleton<AuthorizeCubit>(AuthorizeCubit());
   // await setUpLocator();
   runApp(MyApp());
 }

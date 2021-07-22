@@ -30,11 +30,9 @@ class AuthService {
   }
 
   // register with email and passw
-  Future registerWithEmailandPassword(
-      String uid, String name, String email, String password) async {
+  Future registerWithEmailandPassword(String name, String email, String password) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+      UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       User? _fbUser = result.user;
 
       //create a new doc for that user with the uid
@@ -48,11 +46,9 @@ class AuthService {
   }
 
   //sign in with email and password
-  Future<MyUser?> signInWithEmailandPassword(
-      String email, String password) async {
+  Future<MyUser?> signInWithEmailandPassword(String email, String password) async {
     try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
+      UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
       User? _fbUser = result.user;
       return _userFromFirebase(_fbUser);
     } catch (e) {

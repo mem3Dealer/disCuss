@@ -30,28 +30,24 @@ class UserListState {
 
   Map<String, dynamic> toMap() {
     return {
-      'listUsers': listUsers?.map((x) => x?.toMap())?.toList(),
-      'selectedUsers': selectedUsers?.map((x) => x?.toMap())?.toList(),
+      'listUsers': listUsers?.map((x) => x.toMap()).toList(),
+      'selectedUsers': selectedUsers?.map((x) => x.toMap()).toList(),
     };
   }
 
   factory UserListState.fromMap(Map<String, dynamic> map) {
     return UserListState(
-      listUsers:
-          List<MyUser>.from(map['listUsers']?.map((x) => MyUser.fromMap(x))),
-      selectedUsers: List<MyUser>.from(
-          map['selectedUsers']?.map((x) => MyUser.fromMap(x))),
+      listUsers: List<MyUser>.from(map['listUsers']?.map((x) => MyUser.fromMap(x))),
+      selectedUsers: List<MyUser>.from(map['selectedUsers']?.map((x) => MyUser.fromMap(x))),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory UserListState.fromJson(String source) =>
-      UserListState.fromMap(json.decode(source));
+  factory UserListState.fromJson(String source) => UserListState.fromMap(json.decode(source));
 
   @override
-  String toString() =>
-      'UserListState(listUsers: $listUsers, selectedUsers: $selectedUsers)';
+  String toString() => 'UserListState(listUsers: $listUsers, selectedUsers: $selectedUsers)';
 
   @override
   bool operator ==(Object other) {

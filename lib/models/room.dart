@@ -52,8 +52,8 @@ class Room {
       'groupID': groupID,
       'groupName': groupName,
       'admin': admin?.toMap(),
-      'members': members?.map((x) => x?.toMap())?.toList(),
-      'chatMessages': chatMessages?.map((x) => x?.toMap())?.toList(),
+      'members': members?.map((x) => x.toMap()).toList(),
+      'chatMessages': chatMessages?.map((x) => x.toMap()).toList(),
       'isActive': isActive,
     };
   }
