@@ -6,11 +6,8 @@ class MyUser {
   String? uid;
   String? name;
   String? email;
-  MyUser({
-    this.uid,
-    this.name,
-    this.email,
-  });
+  String? password;
+  MyUser({this.uid, this.name, this.email, this.password});
 
   MyUser copyWith({
     String? uid,
@@ -32,12 +29,23 @@ class MyUser {
     };
   }
 
+  Map<String, dynamic> toHydrant() {
+    return {'uid': uid, 'name': name, 'email': email, 'password': password};
+  }
+
   factory MyUser.fromMap(Map<String, dynamic> map) {
     return MyUser(
       uid: map['uid'],
       name: map['name'],
       email: map['email'],
     );
+  }
+  factory MyUser.fromHydrant(Map<String, dynamic> map) {
+    return MyUser(
+        uid: map['uid'],
+        name: map['name'],
+        email: map['email'],
+        password: map['password']);
   }
 
   String toJson() => json.encode(toMap());
