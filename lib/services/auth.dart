@@ -1,20 +1,15 @@
 import "package:firebase_auth/firebase_auth.dart";
+import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/services/database.dart';
 // import 'package:my_chat_app/services/database.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
+  final dbService = GetIt.I.get<DataBaseService>();
   //create User object based on FB
   MyUser? _userFromFirebase(User? user, String password) {
-    return user != null
-        ? MyUser(
-            uid: user.uid,
-            name: user.displayName,
-            email: user.email,
-            password: password)
-        : null;
+    return user != null ? MyUser(uid: user.uid, name: user.displayName, email: user.email, password: password) : null;
   }
 
   // // auth change user stream!
@@ -36,17 +31,15 @@ class AuthService {
   }
 
   // register with email and passw
-  Future registerWithEmailandPassword(
-      String name, String email, String password) async {
+  Future<MyUser?> registerWithEmailandPassword(String name, String email, String password) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+      UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
 
       User? _fbUser = result.user;
       _fbUser?.updateDisplayName(name);
 
       //create a new doc for that user with the uid
-      await DataBaseService().updateUserData(_fbUser!.uid, name, email);
+      await dbService.updateUserData(_fbUser!.uid, name, email);
 
       return _userFromFirebase(_fbUser, password);
     } catch (e) {
@@ -56,8 +49,7 @@ class AuthService {
   }
 
   //sign in with email and password
-  Future<MyUser?> signInWithEmailandPassword(
-      String email, String password) async {
+  Future<MyUser?> signInWithEmailandPassword(String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
         email: email,

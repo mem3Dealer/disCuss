@@ -24,10 +24,8 @@ class AuthCubit extends HydratedCubit<AuthState> {
     MyUser? signInRes = await auth.signInWithEmailandPassword(email, password);
 
     if (signInRes != null) {
-      emit(state.copyWith(
-          isLoggedIn: true,
-          currentUser: signInRes,
-          version: state.version! + 1));
+      print("I see $signInRes");
+      emit(state.copyWith(isLoggedIn: true, currentUser: signInRes, version: state.version! + 1));
     }
   }
 
@@ -43,19 +41,16 @@ class AuthCubit extends HydratedCubit<AuthState> {
   }
 
   Future<void> registrate(String name, String email, String password) async {
-    dynamic regResult =
-        await auth.registerWithEmailandPassword(name, email, password);
+    MyUser? regResult = await auth.registerWithEmailandPassword(name, email, password);
     if (regResult != null) {
-      final currentUser = MyUser(
-          name: regResult.displayName,
-          email: regResult.email,
-          uid: regResult.uid);
-      emit(state.copyWith(
-          currentUser: currentUser, isLoggedIn: true, error: ''));
+      // final currentUser = MyUser(
+      //     name: regResult.displayName,
+      //     email: regResult.email,
+      //     uid: regResult.uid);
+      emit(state.copyWith(currentUser: regResult, isLoggedIn: true, error: ''));
     } else {
       emit(
-        state.copyWith(
-            isLoggedIn: false, error: 'We did not manage to register you.'),
+        state.copyWith(isLoggedIn: false, error: 'We did not manage to register you.'),
       );
     }
     // print(myUser);
@@ -63,8 +58,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
 
   @override
   AuthState? fromJson(Map<String, dynamic> json) {
-    return AuthState(
-        currentUser: MyUser.fromHydrant(json), version: 0, isLoggedIn: false);
+    return AuthState(currentUser: MyUser.fromHydrant(json), version: 0, isLoggedIn: false);
   }
 
   @override
@@ -74,8 +68,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
 
   void checkUser() {
     if (state.currentUser != null) {
-      auth.signInWithEmailandPassword(state.currentUser!.email.toString(),
-          state.currentUser!.password.toString());
+      auth.signInWithEmailandPassword(state.currentUser!.email.toString(), state.currentUser!.password.toString());
     }
   }
 }

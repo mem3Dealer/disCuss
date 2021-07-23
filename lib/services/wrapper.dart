@@ -8,7 +8,6 @@ import 'package:my_chat_app/pages/authenticate.dart';
 import 'package:my_chat_app/pages/his_home.dart';
 import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/pages/home.dart';
-import 'package:provider/provider.dart';
 
 class Wrapper extends StatelessWidget {
   // const Wrapper({required Key key}) : super(key: key);
@@ -21,7 +20,7 @@ class Wrapper extends StatelessWidget {
     return BlocBuilder<AuthCubit, AuthState>(
       bloc: authCubit,
       builder: (context, state) {
-        if (state.isLoggedIn) {
+        if (authCubit.fbAuth != null || state.isLoggedIn) {
           return HomePage();
         } else {
           return Authenticate();

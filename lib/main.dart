@@ -20,6 +20,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory: await getTemporaryDirectory(),
+  );
   // WidgetsFlutterBinding.ensureInitialized();
   // print('ayy');
   GetIt.instance
@@ -28,9 +31,6 @@ void main() async {
     ..registerFactory(() => RoomCubit())
     ..registerFactory(() => AuthService())
     ..registerSingleton<AuthCubit>(AuthCubit());
-  HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: await getTemporaryDirectory(),
-  );
   runApp(MyApp());
 }
 
@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
             bloc: authCubit,
             // value: AuthService().user,
             builder: (context, state) {
-              authCubit.checkUser();
+              // authCubit.checkUser();
 
               return Wrapper();
             }));
