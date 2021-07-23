@@ -7,18 +7,24 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   //create User object based on FB
-  MyUser? _userFromFirebase(User? user) {
-    return user != null ? MyUser(uid: user.uid) : null;
+  MyUser? _userFromFirebase(User? user, String password) {
+    return user != null
+        ? MyUser(
+            uid: user.uid,
+            name: user.displayName,
+            email: user.email,
+            password: password)
+        : null;
   }
 
-  // auth change user stream!
-  Stream<MyUser?> get user {
-    return _auth
-        .authStateChanges()
-        // .map((User? user) => _userFromFirebase(user));
-        .map(_userFromFirebase);
-    // мапирует стрим юзера с ФБ в MyUser. То есть работа с моим классом ?
-  }
+  // // auth change user stream!
+  // Stream<MyUser?> get user {
+  //   return _auth
+  //       .authStateChanges()
+  //       // .map((User? user) => _userFromFirebase(user));
+  //       .map(_userFromFirebase);
+  //   // мапирует стрим юзера с ФБ в MyUser. То есть работа с моим классом ?
+  // }
 
   Future signOut() async {
     try {
@@ -30,15 +36,19 @@ class AuthService {
   }
 
   // register with email and passw
-  Future registerWithEmailandPassword(String name, String email, String password) async {
+  Future registerWithEmailandPassword(
+      String name, String email, String password) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+
       User? _fbUser = result.user;
+      _fbUser?.updateDisplayName(name);
 
       //create a new doc for that user with the uid
-      // await DataBaseService().updateUserData(name, email, password);
+      await DataBaseService().updateUserData(_fbUser!.uid, name, email);
 
-      return _userFromFirebase(_fbUser);
+      return _userFromFirebase(_fbUser, password);
     } catch (e) {
       print(e.toString());
       return null;
@@ -46,11 +56,16 @@ class AuthService {
   }
 
   //sign in with email and password
-  Future<MyUser?> signInWithEmailandPassword(String email, String password) async {
+  Future<MyUser?> signInWithEmailandPassword(
+      String email, String password) async {
     try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      UserCredential result = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       User? _fbUser = result.user;
-      return _userFromFirebase(_fbUser);
+      // print("FB USER IS ${_fbUser.toString()}");
+      return _userFromFirebase(_fbUser, password);
     } catch (e) {
       print(e.toString());
       return null;

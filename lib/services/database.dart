@@ -21,14 +21,18 @@ class DataBaseService {
   //   }
   // }
 
-  CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
+  CollectionReference userCollection =
+      FirebaseFirestore.instance.collection('users');
 
   CollectionReference chat = FirebaseFirestore.instance.collection('chat');
-  CollectionReference dummyChats = FirebaseFirestore.instance.collection('dummyCollection');
+  CollectionReference dummyChats =
+      FirebaseFirestore.instance.collection('dummyCollection');
   var senderId = FirebaseAuth.instance.currentUser?.uid;
 
-  Stream<QuerySnapshot> roomsStream() =>
-      FirebaseFirestore.instance.collection('dummyCollection').where('members', arrayContains: senderId).snapshots();
+  Stream<QuerySnapshot> roomsStream() => FirebaseFirestore.instance
+      .collection('dummyCollection')
+      // .where('members', arrayContains: senderId)
+      .snapshots();
 
   // Future<List<Room>?> getRooms() async {
   //   var serverRooms = await dummyChats.get();
@@ -41,8 +45,12 @@ class DataBaseService {
     String groupName,
     // String userId,
   ) async {
-    DocumentReference roomDocRef =
-        await dummyChats.add({'groupName': groupName, 'members': selectedUsers, 'groupID': '', 'admin': userName});
+    DocumentReference roomDocRef = await dummyChats.add({
+      'groupName': groupName,
+      'members': selectedUsers,
+      'groupID': '',
+      'admin': userName
+    });
 
     await roomDocRef.update({'groupID': roomDocRef.id});
 
@@ -66,8 +74,10 @@ class DataBaseService {
       // .orderBy('time', descending: true)
       .snapshots();
 
-  Stream<QuerySnapshot> chatStream() =>
-      FirebaseFirestore.instance.collection('chat').orderBy('time', descending: true).snapshots();
+  Stream<QuerySnapshot> chatStream() => FirebaseFirestore.instance
+      .collection('chat')
+      .orderBy('time', descending: true)
+      .snapshots();
 
   Stream<QuerySnapshot> testStream(String groupId) => FirebaseFirestore.instance
       .collection('dummyCollection')
@@ -84,8 +94,10 @@ class DataBaseService {
     }).then((value) => print('user added'));
   }
 
-  Future<void>? sendMessage(TextEditingController _controller, String senderId, String groupID) {
-    CollectionReference testChat = dummyChats.doc(groupID).collection('messages');
+  Future<void>? sendMessage(
+      TextEditingController _controller, String senderId, String groupID) {
+    CollectionReference testChat =
+        dummyChats.doc(groupID).collection('messages');
     // String? userName = FirebaseAuth.instance.currentUser?.displayName;
     // Stream<QuerySnapshot> _userStream = users.snapshots();
     // try {
@@ -98,7 +110,8 @@ class DataBaseService {
     };
     print(message);
     if (_controller.text.isNotEmpty) {
-      testChat.add(message).then((doc) => chat.doc(doc.id).get().then((value) => print(value.data())));
+      testChat.add(message).then(
+          (doc) => chat.doc(doc.id).get().then((value) => print(value.data())));
     }
     // } catch (e, trace) {
     //   debugPrint("Error is $e. Stack = $trace");
@@ -116,12 +129,10 @@ class DataBaseService {
   //   return await dummyChats.doc(uid).set({'groupName': groupName});
   // }
 
-  Future<void>? updateUserData(String uid, String name, String email, String password) async {
-    return await userCollection.doc(uid).set({
-      'name': name,
-      'email': email,
-      'password': password,
-    });
+  Future<void>? updateUserData(String uid, String name, String email) async {
+    return await userCollection
+        .doc(uid)
+        .set({'name': name, 'email': email, 'uid': uid});
   }
 
   Future<List<MyUser>?> getUsers() async {
@@ -131,6 +142,8 @@ class DataBaseService {
 
   Future<List<Message>> getChat() async {
     var serverChat = await chat.orderBy('time').get();
-    return serverChat.docs.map<Message>((e) => Message.fromSnapshot(e)).toList();
+    return serverChat.docs
+        .map<Message>((e) => Message.fromSnapshot(e))
+        .toList();
   }
 }

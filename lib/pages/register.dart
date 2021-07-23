@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:my_chat_app/cubit/cubit/authorize_cubit.dart';
+import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
@@ -17,15 +17,20 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  final _auth = AuthService();
+  // final _auth = AuthService();
   final data = DataBaseService();
   final userCubit = GetIt.I.get<UserCubit>();
-  final authCubit = GetIt.I.get<AuthorizeCubit>();
+  final authCubit = GetIt.I.get<AuthCubit>();
 
-  String email = '';
-  String password = '';
-  String error = '';
-  String name = '';
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  // String email = '';
+  // Sng email = '';
+  // String email = '';
+  // String password = '';
+  // String error = 'this';
+  // String name = '';
 
   @override
   Widget build(BuildContext context) {
@@ -55,43 +60,46 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               children: [
                 TextFormField(
+                  controller: _nameController,
                   decoration: textInputDecoration.copyWith(
                       hintText: 'What`s your name?'),
                   validator: (val) =>
                       val!.isEmpty ? "introduce yourself" : null,
-                  onChanged: (val) {
-                    setState(() {
-                      name = val;
-                      // data.updateCurrentUser(name);
-                    });
-                  },
+                  // onChanged: (val) {
+                  //   setState(() {
+                  //     name = val;
+                  //     // data.updateCurrentUser(name);
+                  //   });
+                  // },
                 ),
                 SizedBox(
                   height: 20,
                 ),
                 TextFormField(
+                  controller: _emailController,
                   decoration: textInputDecoration.copyWith(hintText: 'Email'),
                   validator: (val) => val!.isEmpty ? "Enter an email" : null,
-                  onChanged: (val) {
-                    setState(() {
-                      email = val;
-                    });
-                  },
+                  // onChanged: (val) {
+                  //   setState(() {
+                  //     email = val;
+                  //   });
+                  // },
                 ), // email
                 SizedBox(
                   height: 20,
                 ),
                 TextFormField(
+                  controller: _passwordController,
                   decoration:
                       textInputDecoration.copyWith(hintText: 'Password'),
                   validator: (val) =>
                       val!.length < 6 ? "Enter an password 6+ long" : null,
                   obscureText: true,
-                  onChanged: (val) {
-                    setState(() {
-                      password = val;
-                    });
-                  },
+                  // onChanged: (val) {
+                  //   setState(() {
+                  //     password = val;
+                  //   });
+                  // },
                 ), // password
                 SizedBox(height: 20),
                 ElevatedButton(
@@ -102,7 +110,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       Text('Register', style: TextStyle(color: Colors.white)),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      authCubit.registrate(name, email, password);
+                      authCubit.registrate(_nameController.text,
+                          _emailController.text, _passwordController.text);
                       // setState(() => loading = true);
                       // dynamic result = await _auth.registerWithEmailandPassword(
                       //     name, email, password);
@@ -120,7 +129,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 SizedBox(
                   height: 20,
                 ),
-                Text(error)
+                Text('')
               ],
             ),
           ),
