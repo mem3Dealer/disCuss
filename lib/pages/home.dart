@@ -5,8 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/auth_state.dart';
+import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
+
+import 'package:my_chat_app/cubit/cubit/room_state.dart';
+
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
-import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
+
 import 'package:my_chat_app/cubit/cubit/user_state.dart';
 import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
@@ -24,12 +28,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // List<MyUser>? listUsers;
   List<Room>? listRooms;
-  DataBaseService data = GetIt.I.get<DataBaseService>();
+  final data = GetIt.I.get<DataBaseService>();
   // TextEditingController _textFieldController = TextEditingController();
   // String? groupName;
   // List avavailfableChats = [];
   final userCubit = GetIt.I.get<UserCubit>();
   final authCubit = GetIt.I.get<AuthCubit>();
+  final roomCubit = GetIt.I.get<RoomCubit>();
 
   @override
   void initState() {
@@ -43,11 +48,6 @@ class _HomePageState extends State<HomePage> {
         // print("currentUser is $currentUser");
         // final usersData = await data.getUsers();
         // listUsers = usersData?.toList();
-
-        // final roomsData = await data.getRooms();
-        // listRooms = roomsData?.toList();
-
-        //setState(() {});
       }
     });
     super.initState();
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final currentUser = authCubit.state.currentUser;
     // final AuthService _auth = AuthService();
-
+    var senderId = FirebaseAuth.instance.currentUser?.uid;
     return BlocBuilder<AuthCubit, AuthState>(
       bloc: authCubit,
       builder: (context, state) {
@@ -93,48 +93,42 @@ class _HomePageState extends State<HomePage> {
                 // label: Text('Log out'),
               ),
             )
-          ], title: Text("${currentUser?.name}`s chats")
-              // Text('`s chats, ${listUsers?.length.toString()}'),
-              ),
-          // drawer: Drawer(
-          //   child: StreamBuilder<QuerySnapshot>(
-          //     stream: data.usersStream(),
-          //     builder: (context, snapshot) {
-          //       if (snapshot.hasData) {
-          //         return ListView.builder(
-          //             itemCount: listUsers?.length,
-          //             itemBuilder: (context, index) {
-          //               return Column(
-          //                 children: [
-          //                   ListTile(
-          //                     title: Text(listUsers![index].name.toString()),
-          //                     leading: CircleAvatar(
-          //                       child: Icon(Icons.person),
-          //                     ),
-          //                     subtitle: Text(listUsers![index].email.toString()),
-          //                   ),
-          //                   Divider()
-          //                 ],
-          //               );
-          //             });
-          //       } else {
-          //         return Text('loading...');
-          //       }
-          //     },
-          //   ),
-          // ),
+          ], title: Text("${currentUser?.name}`s chats")),
           body: Center(
             child: Container(
-              child: BlocBuilder<UserCubit, UserListState>(
-                bloc: userCubit,
-                builder: (context, state) {
-                  return Text(userCubit.state.listUsers.toString());
-                },
-              ),
-            ),
+                child: BlocBuilder<RoomCubit, RoomState>(
+              bloc: roomCubit,
+              builder: (context, state) {
+                return Container(
+                  child:
+                      // Text("${currentUser?.uid.toString()} \n\n $senderId")
+                      roomCubit.displayRooms(),
+                );
+              },
+            )
+
+                // BlocBuilder<UserCubit, UserListState>(
+                //   bloc: userCubit,
+                //   builder: (context, state) {
+                //     return Column(
+                //       mainAxisAlignment: MainAxisAlignment.center,
+                //       children: [
+                //         BlocBuilder<AuthCubit, AuthState>(
+                //           bloc: authCubit,
+                //           builder: (context, state) {
+                //             return Text(state.currentUser.toString());
+                //           },
+                //         ),
+                //         SizedBox(
+                //           height: 30,
+                //         ),
+                //         Text(userCubit.state.listUsers.toString()),
+                //       ],
+                //     );
+                //   },
+                // ),
+                ),
           ),
-          // showRooms(),
-          // showRooms(),
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
@@ -150,48 +144,48 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget showRooms() {
-    return Container(
-        child: BlocBuilder<UserCubit, UserListState>(
-      bloc: userCubit,
-      builder: (context, state) {
-        return StreamBuilder<QuerySnapshot>(
-          stream: data.roomsStream(),
-          builder: (context, snapshot) {
-            var roomData = snapshot.data?.docs;
-            if (snapshot.hasData)
-              return ListView.builder(
-                itemCount: snapshot.data?.docs.length,
-                itemBuilder: (context, index) {
-                  // if (roomData[index]['members'].contains(_currentUserId))
-                  return Column(
-                    children: [
-                      // if (listRooms![index].members.contains(_currentUserId))
-                      ListTile(
-                        title: Text(
-                            "${roomData?[index]['groupName']} + ${roomData?[index]['groupID']}"),
-                        subtitle:
-                            Text("Created by: ${listRooms?[index].admin}"),
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      ChatPage(roomData?[index]['groupID'])));
-                        },
-                      ),
-                      Divider()
-                    ],
-                  );
-                },
-              );
-            else
-              return Center(child: CircularProgressIndicator());
-          },
-        );
-      },
-    ));
-  }
+  // Widget showRooms() {
+  //   return Container(
+  //       child: BlocBuilder<UserCubit, UserListState>(
+  //     bloc: userCubit,
+  //     builder: (context, state) {
+  //       return StreamBuilder<QuerySnapshot>(
+  //         stream: data.roomsStream(),
+  //         builder: (context, snapshot) {
+  //           var roomData = snapshot.data?.docs;
+  //           if (snapshot.hasData)
+  //             return ListView.builder(
+  //               itemCount: snapshot.data?.docs.length,
+  //               itemBuilder: (context, index) {
+  //                 // if (roomData[index]['members'].contains(_currentUserId))
+  //                 return Column(
+  //                   children: [
+  //                     // if (listRooms![index].members.contains(_currentUserId))
+  //                     ListTile(
+  //                       title: Text(
+  //                           "${roomData?[index]['groupName']} + ${roomData?[index]['groupID']}"),
+  //                       subtitle:
+  //                           Text("Created by: ${listRooms?[index].admin}"),
+  //                       onTap: () {
+  //                         Navigator.push(
+  //                             context,
+  //                             MaterialPageRoute(
+  //                                 builder: (context) =>
+  //                                     ChatPage(roomData?[index]['groupID'])));
+  //                       },
+  //                     ),
+  //                     Divider()
+  //                   ],
+  //                 );
+  //               },
+  //             );
+  //           else
+  //             return Center(child: CircularProgressIndicator());
+  //         },
+  //       );
+  //     },
+  //   ));
+  // }
 
   // void _showDialog() {
   //   // flutter defined function
@@ -225,193 +219,193 @@ class _HomePageState extends State<HomePage> {
   // }
 }
 
-class GroupCreator extends StatefulWidget {
-  List<MyUser>? listUsers;
-  // const GroupCreator({Key? key}) : super(key: key);
-  GroupCreator(this.listUsers);
+// class GroupCreator extends StatefulWidget {
+//   List<MyUser>? listUsers;
+//   // const GroupCreator({Key? key}) : super(key: key);
+//   GroupCreator(this.listUsers);
 
-  @override
-  _GroupCreatorState createState() => _GroupCreatorState();
-}
+//   @override
+//   _GroupCreatorState createState() => _GroupCreatorState();
+// }
 
-class _GroupCreatorState extends State<GroupCreator> {
-  DataBaseService data = DataBaseService();
-  // List<MyUser> listUsers = [];
-  String _currentUserId = FirebaseAuth.instance.currentUser!.uid.toString();
+// class _GroupCreatorState extends State<GroupCreator> {
+//   DataBaseService data = DataBaseService();
+//   // List<MyUser> listUsers = [];
+//   String _currentUserId = FirebaseAuth.instance.currentUser!.uid.toString();
 
-  List<MyUser> availableUsers = [];
-  int _currentStep = 0;
-  StepperType stepperType = StepperType.vertical;
-  // bool isSelected = true;
-  List<MyUser> selectedUsers = [];
-  final _groupNameController = TextEditingController();
+//   List<MyUser> availableUsers = [];
+//   int _currentStep = 0;
+//   StepperType stepperType = StepperType.vertical;
+//   // bool isSelected = true;
+//   List<MyUser> selectedUsers = [];
+//   final _groupNameController = TextEditingController();
 
-  @override
-  Widget build(BuildContext context) {
-    // bool amIHere = widget.listUsers!.contains(_currentUserId);
+//   @override
+//   Widget build(BuildContext context) {
+//     // bool amIHere = widget.listUsers!.contains(_currentUserId);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('create new room'),
-      ),
-      body: Container(
-        child: Column(
-          children: [
-            Expanded(
-                child: Stepper(
-              type: stepperType,
-              physics: ScrollPhysics(),
-              currentStep: _currentStep,
-              onStepTapped: (step) => tapped(step),
-              onStepContinue: continued,
-              onStepCancel: cancel,
-              steps: <Step>[
-                Step(
-                    // isActive: _currentStep >= 0,
-                    // state: _currentStep == 0
-                    //     ? StepState.complete
-                    //     : StepState.disabled,
-                    title: Text('Enter group`s name'),
-                    content: TextField(
-                      controller: _groupNameController,
-                      decoration: InputDecoration(hintText: 'type here'),
-                    )),
-                Step(
-                  title: Text('Pick members, $_currentStep'),
-                  content: SizedBox(
-                    child: Column(
-                      children: [
-                        // Text(widget.listUsers.toString()),
-                        ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: widget.listUsers?.length,
-                            itemBuilder: (context, index) {
-                              // var listData = ;
-                              bool isSelected = selectedUsers
-                                  .contains(widget.listUsers![index].uid);
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('create new room'),
+//       ),
+//       body: Container(
+//         child: Column(
+//           children: [
+//             Expanded(
+//                 child: Stepper(
+//               type: stepperType,
+//               physics: ScrollPhysics(),
+//               currentStep: _currentStep,
+//               onStepTapped: (step) => tapped(step),
+//               onStepContinue: continued,
+//               onStepCancel: cancel,
+//               steps: <Step>[
+//                 Step(
+//                     // isActive: _currentStep >= 0,
+//                     // state: _currentStep == 0
+//                     //     ? StepState.complete
+//                     //     : StepState.disabled,
+//                     title: Text('Enter group`s name'),
+//                     content: TextField(
+//                       controller: _groupNameController,
+//                       decoration: InputDecoration(hintText: 'type here'),
+//                     )),
+//                 Step(
+//                   title: Text('Pick members, $_currentStep'),
+//                   content: SizedBox(
+//                     child: Column(
+//                       children: [
+//                         // Text(widget.listUsers.toString()),
+//                         ListView.builder(
+//                             shrinkWrap: true,
+//                             itemCount: widget.listUsers?.length,
+//                             itemBuilder: (context, index) {
+//                               // var listData = ;
+//                               bool isSelected = selectedUsers
+//                                   .contains(widget.listUsers![index].uid);
 
-                              if (widget.listUsers![index].uid!
-                                  .contains(_currentUserId))
-                                Container();
-                              else
-                                return ListTile(
-                                  // trailing: GestureDetector(
-                                  //   child: Icon(Icons.close),
-                                  //   onTap: () {
-                                  //     selectedUsers.removeAt(index);
-                                  //     print('pressed');
+//                               if (widget.listUsers![index].uid!
+//                                   .contains(_currentUserId))
+//                                 Container();
+//                               else
+//                                 return ListTile(
+//                                   // trailing: GestureDetector(
+//                                   //   child: Icon(Icons.close),
+//                                   //   onTap: () {
+//                                   //     selectedUsers.removeAt(index);
+//                                   //     print('pressed');
 
-                                  //     setState(() {
-                                  //       print(selectedUsers);
-                                  //     });
-                                  //   },
-                                  // ),
-                                  leading: isSelected
-                                      // isSelected
-                                      ? Icon(Icons.select_all_rounded)
-                                      : Icon(Icons.circle),
-                                  title: Text(
-                                    // myCurrentUser(),
-                                    widget.listUsers![index].name.toString(),
-                                    style: TextStyle(
-                                        color: isSelected
-                                            ? Colors.purple.shade900
-                                            : Colors.black),
-                                  ),
-                                  subtitle: Text(
-                                      widget.listUsers![index].email.toString(),
-                                      style: TextStyle(
-                                          color: isSelected
-                                              ? Colors.purple.shade900
-                                              : Colors.black)),
-                                  onTap: () {
-                                    availableUsers
-                                        .add(widget.listUsers![index]);
-                                    // availableUsers.add(_currentUserId);
-                                    selectedUsers =
-                                        availableUsers.toSet().toList();
-                                    print(selectedUsers);
-                                    setState(() {});
-                                  },
-                                );
-                              return SizedBox.shrink();
-                            }),
-                      ],
-                    ),
-                  ),
-                ),
-                // Step(
-                //     title: Text('we good with this?'),
-                //     content: Column(
-                //       children: [
-                //         Text('Group name: ${_groupNameController.text}'),
-                //         SizedBox(
-                //           height: 20,
-                //         ),
-                //         Text(getSelectedNames().toString()),
-                //       ],
-                //     ))
-              ],
-            ))
-          ],
-        ),
-      ),
-    );
-  }
+//                                   //     setState(() {
+//                                   //       print(selectedUsers);
+//                                   //     });
+//                                   //   },
+//                                   // ),
+//                                   leading: isSelected
+//                                       // isSelected
+//                                       ? Icon(Icons.select_all_rounded)
+//                                       : Icon(Icons.circle),
+//                                   title: Text(
+//                                     // myCurrentUser(),
+//                                     widget.listUsers![index].name.toString(),
+//                                     style: TextStyle(
+//                                         color: isSelected
+//                                             ? Colors.purple.shade900
+//                                             : Colors.black),
+//                                   ),
+//                                   subtitle: Text(
+//                                       widget.listUsers![index].email.toString(),
+//                                       style: TextStyle(
+//                                           color: isSelected
+//                                               ? Colors.purple.shade900
+//                                               : Colors.black)),
+//                                   onTap: () {
+//                                     availableUsers
+//                                         .add(widget.listUsers![index]);
+//                                     // availableUsers.add(_currentUserId);
+//                                     selectedUsers =
+//                                         availableUsers.toSet().toList();
+//                                     print(selectedUsers);
+//                                     setState(() {});
+//                                   },
+//                                 );
+//                               return SizedBox.shrink();
+//                             }),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//                 // Step(
+//                 //     title: Text('we good with this?'),
+//                 //     content: Column(
+//                 //       children: [
+//                 //         Text('Group name: ${_groupNameController.text}'),
+//                 //         SizedBox(
+//                 //           height: 20,
+//                 //         ),
+//                 //         Text(getSelectedNames().toString()),
+//                 //       ],
+//                 //     ))
+//               ],
+//             ))
+//           ],
+//         ),
+//       ),
+//     );
+//   }
 
-  // String myCurrentUser() {
-  //   String myCurrentUser = '';
-  //   widget.listUsers!.firstWhere((e) {
+//   // String myCurrentUser() {
+//   //   String myCurrentUser = '';
+//   //   widget.listUsers!.firstWhere((e) {
 
-  //   });
-  //   // print(widget.listUsers.contains(_currentUserId));
-  //   return myCurrentUser;
-  // }
-  // List<String> getSelectedNames() {
-  //   List<String> selectedNames = [];
-  //   selectedUsers.forEach((element) {
-  //     var name = data.getUserName(element.toString(), selectedUsers);
-  //     selectedNames.add(name!);
-  //   });
-  //   return selectedNames;
-  // }
+//   //   });
+//   //   // print(widget.listUsers.contains(_currentUserId));
+//   //   return myCurrentUser;
+//   // }
+//   // List<String> getSelectedNames() {
+//   //   List<String> selectedNames = [];
+//   //   selectedUsers.forEach((element) {
+//   //     var name = data.getUserName(element.toString(), selectedUsers);
+//   //     selectedNames.add(name!);
+//   //   });
+//   //   return selectedNames;
+//   // }
 
-  tapped(int step) {
-    setState(() => _currentStep = step);
-  }
+//   tapped(int step) {
+//     setState(() => _currentStep = step);
+//   }
 
-  continued() {
-    _currentStep < 1 ? setState(() => _currentStep += 1) : print("hello");
-  }
+//   continued() {
+//     _currentStep < 1 ? setState(() => _currentStep += 1) : print("hello");
+//   }
 
-  // createGroup() {
-  //   String? currentUserName =
-  //       data.getUserName(_currentUserId, widget.listUsers!);
+//   // createGroup() {
+//   //   String? currentUserName =
+//   //       data.getUserName(_currentUserId, widget.listUsers!);
 
-  //   data.createGroup(selectedUsers, currentUserName, _groupNameController.text);
+//   //   data.createGroup(selectedUsers, currentUserName, _groupNameController.text);
 
-  //   // print('$currentUserName');
-  //   // print("${widget.listUsers!}");
-  // }
+//   //   // print('$currentUserName');
+//   //   // print("${widget.listUsers!}");
+//   // }
 
-  // continued() {
-  //   // String? currentUserName = data.getUserName(_currentUserId, listUsers!);
-  //   setState(() {
-  //     _currentStep < 1 ? _currentStep += 1 : _currentStep = 0;
+//   // continued() {
+//   //   // String? currentUserName = data.getUserName(_currentUserId, listUsers!);
+//   //   setState(() {
+//   //     _currentStep < 1 ? _currentStep += 1 : _currentStep = 0;
 
-  //     // if (_currentStep > 1)
-  //     //   data.createGroup(
-  //     //       selectedUsers, currentUserName, _groupNameController.text);
+//   //     // if (_currentStep > 1)
+//   //     //   data.createGroup(
+//   //     //       selectedUsers, currentUserName, _groupNameController.text);
 
-  //     Navigator.pop(context
-  //         // context, MaterialPageRoute(builder: (context) => ChatPage())
-  //         );
-  //   });
-  // }
+//   //     Navigator.pop(context
+//   //         // context, MaterialPageRoute(builder: (context) => ChatPage())
+//   //         );
+//   //   });
+//   // }
 
-  cancel() {
-    setState(() {
-      _currentStep > 0 ? _currentStep -= 1 : _currentStep = 0;
-    });
-  }
-}
+//   cancel() {
+//     setState(() {
+//       _currentStep > 0 ? _currentStep -= 1 : _currentStep = 0;
+//     });
+//   }
+// }

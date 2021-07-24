@@ -12,11 +12,13 @@ import 'package:my_chat_app/pages/home.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/services/wrapper.dart';
+import 'package:my_chat_app/widgets/groupCreator.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() async {
+  // final userCubit = GetIt.I.get<UserCubit>();
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
@@ -31,6 +33,7 @@ void main() async {
     ..registerFactory(() => RoomCubit())
     ..registerFactory(() => AuthService())
     ..registerSingleton<AuthCubit>(AuthCubit());
+  // await userCubit.getUsersList();
   runApp(MyApp());
 }
 
@@ -54,7 +57,10 @@ class MyApp extends StatelessWidget {
             builder: (context, state) {
               // authCubit.checkUser();
 
-              return Wrapper();
+              return
+                  // GroupCreator();
+
+                  Wrapper();
             }));
   }
   // else {

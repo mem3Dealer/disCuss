@@ -7,26 +7,31 @@ import 'package:my_chat_app/models/room.dart';
 class RoomState {
   Room? room;
   int? version;
+  int currentStep = 0;
 
   RoomState({
     this.room,
     this.version,
+    required this.currentStep,
   });
 
   RoomState copyWith({
     Room? room,
     int? version,
+    int? currentStep,
   }) {
     return RoomState(
       room: room ?? this.room,
       version: version ?? this.version,
+      currentStep: currentStep ?? this.currentStep,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'room': room!.toMap(),
+      'room': room?.toMap(),
       'version': version,
+      'currentStep': currentStep,
     };
   }
 
@@ -34,6 +39,7 @@ class RoomState {
     return RoomState(
       room: Room.fromMap(map['room']),
       version: map['version'],
+      currentStep: map['currentStep'],
     );
   }
 
@@ -43,15 +49,19 @@ class RoomState {
       RoomState.fromMap(json.decode(source));
 
   @override
-  String toString() => 'RoomState(room: $room, version: $version)';
+  String toString() =>
+      'RoomState(room: $room, version: $version, currentStep: $currentStep)';
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is RoomState && other.room == room && other.version == version;
+    return other is RoomState &&
+        other.room == room &&
+        other.version == version &&
+        other.currentStep == currentStep;
   }
 
   @override
-  int get hashCode => room.hashCode ^ version.hashCode;
+  int get hashCode => room.hashCode ^ version.hashCode ^ currentStep.hashCode;
 }

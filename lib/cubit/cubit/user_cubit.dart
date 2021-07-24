@@ -23,7 +23,7 @@ class UserCubit extends Cubit<UserListState> {
   Future<void> getUsersList() async {
     List<MyUser>? _usersList = await data.getUsers();
     state.listUsers = _usersList;
-    emit(state.copyWith(version: state.version! + 1));
+    emit(state.copyWith(version: state.version));
   }
 
   MyUser? getCurrentUser() {
