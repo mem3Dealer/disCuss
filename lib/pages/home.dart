@@ -17,6 +17,8 @@ import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
+import 'package:my_chat_app/widgets/groupCreator.dart';
+import 'package:provider/single_child_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -29,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   // List<MyUser>? listUsers;
   List<Room>? listRooms;
   final data = GetIt.I.get<DataBaseService>();
-  // TextEditingController _textFieldController = TextEditingController();
+  TextEditingController _textFieldController = TextEditingController();
   // String? groupName;
   // List avavailfableChats = [];
   final userCubit = GetIt.I.get<UserCubit>();
@@ -73,7 +75,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final currentUser = authCubit.state.currentUser;
     // final AuthService _auth = AuthService();
-    var senderId = FirebaseAuth.instance.currentUser?.uid;
+    // var senderId = FirebaseAuth.instance.currentUser?.uid;
     return BlocBuilder<AuthCubit, AuthState>(
       bloc: authCubit,
       builder: (context, state) {
@@ -106,7 +108,6 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             )
-
                 // BlocBuilder<UserCubit, UserListState>(
                 //   bloc: userCubit,
                 //   builder: (context, state) {
@@ -132,11 +133,13 @@ class _HomePageState extends State<HomePage> {
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
+              print('senderId is: ${FirebaseAuth.instance.currentUser?.uid}');
+              print("currentUser is: ${currentUser!.uid}");
               // Navigator.push(context,
-              //     MaterialPageRoute(builder: (context) => GroupCreator([])));
-              // _showDialog();
+              //     MaterialPageRoute(builder: (context) => GroupCreator()));
+              _showDialog();
               // GroupCreator(listUsers);
-              print('pressed');
+              // print('pressed');
             },
           ),
         );
@@ -187,38 +190,104 @@ class _HomePageState extends State<HomePage> {
   //   ));
   // }
 
-  // void _showDialog() {
-  //   // flutter defined function
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       String? currentUserName = data.getUserName(_currentUserId, listUsers!);
-  //       return AlertDialog(
-  //         title: Text("Create new room"),
-  //         content: TextField(
-  //           decoration: InputDecoration(hintText: 'Enter group`s name...'),
-  //           controller: _textFieldController,
-  //         ),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             child: Text("Create"),
-  //             onPressed: () {
-  //               data.createGroup(currentUserName!, _textFieldController.text,
-  //                   _currentUserId);
-  //               // data.updateRoomData(_textFieldController.text);
-  //               Navigator.of(context).pop();
-  //               // print(_textFieldController.text);
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   ).then((value) => setState(() {
-  //         // groupName = _textFieldController.text;
-  //       }));
-  // }
+  void _showDialog() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // String? currentUserName = data.getUserName(_currentUserId, listUsers!);
+        return AlertDialog(
+          title: Text("Create new room"),
+          content: SingleChildScrollView(
+            child: Container(
+              child: Column(
+                children: [
+                  TextField(
+                    decoration:
+                        InputDecoration(hintText: 'Enter group`s name...'),
+                    controller: _textFieldController,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  BlocBuilder<UserCubit, UserListState>(
+                    bloc: userCubit,
+                    builder: (context, state) {
+                      state.selectedUsers = [];
+                      // List _list = [];
+                      // state.selectedUsers?.forEach((element) {
+                      //   _list.add(element.name);
+                      // });
+                      return Column(
+                        children: [
+                          // (state.selectedUsers == null)
+                          //     ? Text('')
+                          //     : Text('Selected Members: ${_list.toString()}'),
+                          // SizedBox(
+                          //   height: 20,
+                          // ),
+                          Text(state.selectedUsers.toString()),
+                          Container(
+                            height: 300,
+                            width: 300,
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: state.listUsers!.length,
+                                itemBuilder: (context, index) {
+                                  List<MyUser>? listUsers = state.listUsers!;
+                                  // bool selected ;
+                                  return ListTile(
+                                    onTap: () {
+                                      userCubit.selectUser(listUsers[index]);
+                                      // print(state.selectedUsers);
+                                    },
+                                    // trailing: userCubit.selected(index)
+                                    //     ? Icon(Icons.check_box)
+                                    //     : Container(),
+                                    title: Text(
+                                      listUsers[index].name.toString(),
+                                      style: TextStyle(
+                                          color: state.selectedUsers!
+                                                  .contains(listUsers[index])
+                                              ? Colors.green
+                                              : Colors.red),
+                                    ),
+                                    subtitle:
+                                        Text(listUsers[index].email.toString()),
+                                  );
+                                }),
+                          )
+                        ],
+                      );
+                    },
+                  )
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Next"),
+              onPressed: () {
+                // data.createGroup(
+                //   authCubit.state.currentUser!,
+                //   _textFieldController.text,
+                // );
+                // data.updateRoomData(_textFieldController.text);
+                // Navigator.of(context).pop();
+                // print(_textFieldController.text);
+              },
+            ),
+          ],
+        );
+      },
+    ).then((value) {
+      userCubit.state.selectedUsers?.clear();
+      _textFieldController.clear();
+    });
+  }
+// }
 }
-
 // class GroupCreator extends StatefulWidget {
 //   List<MyUser>? listUsers;
 //   // const GroupCreator({Key? key}) : super(key: key);

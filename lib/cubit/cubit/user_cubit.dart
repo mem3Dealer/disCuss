@@ -16,9 +16,7 @@ class UserCubit extends Cubit<UserListState> {
   final data = GetIt.I.get<DataBaseService>();
   // dynamic auth = FirebaseAuth.instance.currentUser!();
 
-  UserCubit() : super(UserListState());
-
-  // void collectUserData() {}
+  UserCubit() : super(UserListState(version: 0));
 
   Future<void> getUsersList() async {
     List<MyUser>? _usersList = await data.getUsers();
@@ -30,5 +28,22 @@ class UserCubit extends Cubit<UserListState> {
     state.listUsers?.firstWhere((e) {
       return e.uid == FirebaseAuth.instance.currentUser?.uid;
     });
+  }
+
+  void selectUser(MyUser user) {
+    print("first SELECTED users: ${state.selectedUsers}");
+    var _selectedUsers = state.selectedUsers!;
+
+    if (!_selectedUsers.contains(user)) {
+      _selectedUsers.add(user);
+    }
+
+    // List<MyUser> _filteredList = _selectedUsers.toSet().toList();
+    // print(_filteredList);
+    // print('SOMETHING HAPPENED');
+    //  var selected = state.selectedUsers?.add(user);
+    print("SELECTED users: $_selectedUsers");
+    emit(state.copyWith(
+        selectedUsers: _selectedUsers, version: state.version! + 1));
   }
 }

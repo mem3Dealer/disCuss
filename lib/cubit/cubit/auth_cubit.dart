@@ -25,14 +25,18 @@ class AuthCubit extends HydratedCubit<AuthState> {
 
     if (signInRes != null) {
       print("I see $signInRes");
-      emit(state.copyWith(isLoggedIn: true, currentUser: signInRes, version: state.version! + 1));
+      emit(state.copyWith(
+          isLoggedIn: true,
+          currentUser: signInRes,
+          version: state.version! + 1));
     }
   }
 
   Future<void> logOut() async {
     // print('AYYY');
     try {
-      emit(state.copyWith(isLoggedIn: false));
+      emit(state.copyWith(isLoggedIn: false, version: state.version! - 1));
+      print(state.version);
       return await auth.signOut();
     } catch (e) {
       print(e.toString());
@@ -41,16 +45,25 @@ class AuthCubit extends HydratedCubit<AuthState> {
   }
 
   Future<void> registrate(String name, String email, String password) async {
-    MyUser? regResult = await auth.registerWithEmailandPassword(name, email, password);
+    MyUser? regResult =
+        await auth.registerWithEmailandPassword(name, email, password);
     if (regResult != null) {
       // final currentUser = MyUser(
       //     name: regResult.displayName,
       //     email: regResult.email,
       //     uid: regResult.uid);
-      emit(state.copyWith(currentUser: regResult, isLoggedIn: true, error: ''));
+      print("I watch $regResult");
+      emit(state.copyWith(
+          currentUser: regResult.copyWith(
+              name: regResult.name), //ПРИ РЕГЕ НЕ СОБИРАЕТ ИМЯ ПОЧЕМУ-ТО
+          isLoggedIn: true,
+          error: '',
+          version: state.version! + 1));
+      print(state.currentUser);
     } else {
       emit(
-        state.copyWith(isLoggedIn: false, error: 'We did not manage to register you.'),
+        state.copyWith(
+            isLoggedIn: false, error: 'We did not manage to register you.'),
       );
     }
     // print(myUser);
@@ -58,7 +71,8 @@ class AuthCubit extends HydratedCubit<AuthState> {
 
   @override
   AuthState? fromJson(Map<String, dynamic> json) {
-    return AuthState(currentUser: MyUser.fromHydrant(json), version: 0, isLoggedIn: false);
+    return AuthState(
+        currentUser: MyUser.fromHydrant(json), version: 0, isLoggedIn: false);
   }
 
   @override
@@ -68,7 +82,8 @@ class AuthCubit extends HydratedCubit<AuthState> {
 
   void checkUser() {
     if (state.currentUser != null) {
-      auth.signInWithEmailandPassword(state.currentUser!.email.toString(), state.currentUser!.password.toString());
+      auth.signInWithEmailandPassword(state.currentUser!.email.toString(),
+          state.currentUser!.password.toString());
     }
   }
 }

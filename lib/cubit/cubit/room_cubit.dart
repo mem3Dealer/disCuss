@@ -21,10 +21,18 @@ class RoomCubit extends Cubit<RoomState> {
       stream: data.roomsStream(),
       builder: (context, snapshot) {
         var roomDataList = snapshot.data?.docs;
-        if (snapshot.hasData)
+        if (snapshot.hasData) {
+          // print(roomDataList);
           return ListView.builder(
             itemCount: roomDataList?.length,
             itemBuilder: (context, index) {
+              if (roomDataList?.length == 0) {
+                return Center(
+                  child: Container(
+                    child: Text('hey'),
+                  ),
+                );
+              }
               return Column(
                 children: [
                   ListTile(
@@ -45,7 +53,7 @@ class RoomCubit extends Cubit<RoomState> {
               );
             },
           );
-        else
+        } else
           return Center(child: CircularProgressIndicator());
       },
     );
@@ -65,14 +73,20 @@ class RoomCubit extends Cubit<RoomState> {
 
   void stepTapped(int step) {
     // print('this shit');
-    emit(state.copyWith(currentStep: state.currentStep = step));
+    emit(state.copyWith(
+        currentStep: state.currentStep = step, version: state.version! + 1));
   }
 
   void stepContinue() {
-    print('hey');
-    if (state.currentStep < 1) {
-      print('ayy');
-      emit(state.copyWith(currentStep: state.currentStep++));
+    // print('hey');
+    if (state.currentStep < 3) {
+      // print('ayy');
+      emit(state.copyWith(
+          currentStep: state.currentStep + 1, version: state.version! + 1));
+    } else if (state.currentStep <= 3) {
+      emit(state.copyWith(
+          currentStep: state.currentStep = 0, version: state.version! - 1));
+      print('CREATED');
     }
   }
 

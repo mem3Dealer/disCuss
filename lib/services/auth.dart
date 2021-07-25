@@ -8,8 +8,15 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final dbService = GetIt.I.get<DataBaseService>();
   //create User object based on FB
+
   MyUser? _userFromFirebase(User? user, String password) {
-    return user != null ? MyUser(uid: user.uid, name: user.displayName, email: user.email, password: password) : null;
+    return user != null
+        ? MyUser(
+            uid: user.uid,
+            name: user.displayName,
+            email: user.email,
+            password: password)
+        : null;
   }
 
   // // auth change user stream!
@@ -31,9 +38,11 @@ class AuthService {
   }
 
   // register with email and passw
-  Future<MyUser?> registerWithEmailandPassword(String name, String email, String password) async {
+  Future<MyUser?> registerWithEmailandPassword(
+      String name, String email, String password) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
 
       User? _fbUser = result.user;
       _fbUser?.updateDisplayName(name);
@@ -49,7 +58,8 @@ class AuthService {
   }
 
   //sign in with email and password
-  Future<MyUser?> signInWithEmailandPassword(String email, String password) async {
+  Future<MyUser?> signInWithEmailandPassword(
+      String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
         email: email,

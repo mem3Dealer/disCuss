@@ -7,7 +7,7 @@ import 'package:my_chat_app/models/room.dart';
 class RoomState {
   Room? room;
   int? version;
-  int currentStep = 0;
+  int currentStep;
 
   RoomState({
     this.room,
