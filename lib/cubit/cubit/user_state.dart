@@ -14,6 +14,7 @@ class UserListState {
   int? version;
   List<MyUser>? listUsers;
   List<MyUser>? selectedUsers;
+  // String error;
   UserListState({
     this.version,
     this.listUsers,

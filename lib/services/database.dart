@@ -42,23 +42,28 @@ class DataBaseService {
   // }
 
   Future createGroup(
-    // List<MyUser> selectedUsers,
+    List<MyUser>? selectedUsers,
     MyUser? user,
     String groupName,
     // String userId,
   ) async {
+    List _list = [];
+    selectedUsers!.forEach((element) {
+      _list.add(element.uid);
+    });
+
     DocumentReference roomDocRef = await dummyChats.add({
       'groupName': groupName,
-      'members': [user!.uid],
+      'members': _list,
       'groupID': '',
-      'admin': user.name
+      'admin': user!.name,
+      'creationTime': DateTime.now().toUtc()
     });
 
     await roomDocRef.update({'groupID': roomDocRef.id});
 
-    await roomDocRef.update({
-      'members': FieldValue.arrayUnion([user.uid])
-    });
+    // await roomDocRef
+    //     .update({'members': FieldValue.arrayUnion(selectedUsers.toList())});
 
     await FirebaseFirestore.instance
         .collection('chatsCollection')

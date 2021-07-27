@@ -93,20 +93,6 @@ class _SignInPageState extends State<SignInPage> {
                     if (_formKey.currentState!.validate()) {
                       await authCubit.signIn(
                           _emailController.text, _passwordController.text);
-                      // print(
-                      //     "THAT PRING IS FROM PAGE IT IS ${authCubit.state.isLoggedIn}");
-                      // print(
-                      //     'THIS IS page signIN VERSION PRINT: ${authCubit.state.version}');
-                      // setState(() => loading = true);
-                      // final result = await _auth.signInWithEmailandPassword(
-                      //     email, password);
-                      // print(result);
-                      // if (result == null) {
-                      //   setState(() {
-                      //     // loading = false;
-                      //     error = 'we didnt manage to sign u in';
-                      //   });
-                      // }
                     }
                   },
                 ),

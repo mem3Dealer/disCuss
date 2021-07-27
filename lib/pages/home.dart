@@ -17,6 +17,7 @@ import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
+import 'package:my_chat_app/widgets/anotherGroupCreator.dart';
 import 'package:my_chat_app/widgets/groupCreator.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -31,12 +32,14 @@ class _HomePageState extends State<HomePage> {
   // List<MyUser>? listUsers;
   List<Room>? listRooms;
   final data = GetIt.I.get<DataBaseService>();
-  TextEditingController _textFieldController = TextEditingController();
+
   // String? groupName;
   // List avavailfableChats = [];
   final userCubit = GetIt.I.get<UserCubit>();
   final authCubit = GetIt.I.get<AuthCubit>();
   final roomCubit = GetIt.I.get<RoomCubit>();
+  final formKey = GlobalKey<FormState>();
+  // final dialog = GetIt.I.get<AnotherGroupCreator>();
 
   @override
   void initState() {
@@ -90,6 +93,8 @@ class _HomePageState extends State<HomePage> {
                 child: Icon(Icons.exit_to_app),
                 onPressed: () async {
                   await authCubit.logOut();
+                  print(
+                      'THIS IS LOG OUT PRINT. first param: ${authCubit.fbAuth}, second: ${authCubit.state.isLoggedIn}');
                   // await _auth.signOut();
                 },
                 // label: Text('Log out'),
@@ -133,11 +138,13 @@ class _HomePageState extends State<HomePage> {
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
-              print('senderId is: ${FirebaseAuth.instance.currentUser?.uid}');
-              print("currentUser is: ${currentUser!.uid}");
+              // print(authCubit.state.currentUser);
+              // print('senderId is: ${FirebaseAuth.instance.currentUser?.uid}');
+              // print("currentUser is: ${currentUser!.uid}");
+              // print("this is state: ${userCubit.state.selectedUsers}");
               // Navigator.push(context,
               //     MaterialPageRoute(builder: (context) => GroupCreator()));
-              _showDialog();
+              AnotherGroupCreator();
               // GroupCreator(listUsers);
               // print('pressed');
             },
@@ -190,291 +197,139 @@ class _HomePageState extends State<HomePage> {
   //   ));
   // }
 
-  void _showDialog() {
-    // flutter defined function
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // String? currentUserName = data.getUserName(_currentUserId, listUsers!);
-        return AlertDialog(
-          title: Text("Create new room"),
-          content: SingleChildScrollView(
-            child: Container(
-              child: Column(
-                children: [
-                  TextField(
-                    decoration:
-                        InputDecoration(hintText: 'Enter group`s name...'),
-                    controller: _textFieldController,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  BlocBuilder<UserCubit, UserListState>(
-                    bloc: userCubit,
-                    builder: (context, state) {
-                      state.selectedUsers = [];
-                      // List _list = [];
-                      // state.selectedUsers?.forEach((element) {
-                      //   _list.add(element.name);
-                      // });
-                      return Column(
-                        children: [
-                          // (state.selectedUsers == null)
-                          //     ? Text('')
-                          //     : Text('Selected Members: ${_list.toString()}'),
-                          // SizedBox(
-                          //   height: 20,
-                          // ),
-                          Text(state.selectedUsers.toString()),
-                          Container(
-                            height: 300,
-                            width: 300,
-                            child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: state.listUsers!.length,
-                                itemBuilder: (context, index) {
-                                  List<MyUser>? listUsers = state.listUsers!;
-                                  // bool selected ;
-                                  return ListTile(
-                                    onTap: () {
-                                      userCubit.selectUser(listUsers[index]);
-                                      // print(state.selectedUsers);
-                                    },
-                                    // trailing: userCubit.selected(index)
-                                    //     ? Icon(Icons.check_box)
-                                    //     : Container(),
-                                    title: Text(
-                                      listUsers[index].name.toString(),
-                                      style: TextStyle(
-                                          color: state.selectedUsers!
-                                                  .contains(listUsers[index])
-                                              ? Colors.green
-                                              : Colors.red),
-                                    ),
-                                    subtitle:
-                                        Text(listUsers[index].email.toString()),
-                                  );
-                                }),
-                          )
-                        ],
-                      );
-                    },
-                  )
-                ],
-              ),
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text("Next"),
-              onPressed: () {
-                // data.createGroup(
-                //   authCubit.state.currentUser!,
-                //   _textFieldController.text,
-                // );
-                // data.updateRoomData(_textFieldController.text);
-                // Navigator.of(context).pop();
-                // print(_textFieldController.text);
-              },
-            ),
-          ],
-        );
-      },
-    ).then((value) {
-      userCubit.state.selectedUsers?.clear();
-      _textFieldController.clear();
-    });
-  }
-// }
-}
-// class GroupCreator extends StatefulWidget {
-//   List<MyUser>? listUsers;
-//   // const GroupCreator({Key? key}) : super(key: key);
-//   GroupCreator(this.listUsers);
+//   void _showDialog() {
+//     userCubit.state.selectedUsers?.add(authCubit.state.currentUser!);
 
-//   @override
-//   _GroupCreatorState createState() => _GroupCreatorState();
-// }
-
-// class _GroupCreatorState extends State<GroupCreator> {
-//   DataBaseService data = DataBaseService();
-//   // List<MyUser> listUsers = [];
-//   String _currentUserId = FirebaseAuth.instance.currentUser!.uid.toString();
-
-//   List<MyUser> availableUsers = [];
-//   int _currentStep = 0;
-//   StepperType stepperType = StepperType.vertical;
-//   // bool isSelected = true;
-//   List<MyUser> selectedUsers = [];
-//   final _groupNameController = TextEditingController();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // bool amIHere = widget.listUsers!.contains(_currentUserId);
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('create new room'),
-//       ),
-//       body: Container(
-//         child: Column(
-//           children: [
-//             Expanded(
-//                 child: Stepper(
-//               type: stepperType,
-//               physics: ScrollPhysics(),
-//               currentStep: _currentStep,
-//               onStepTapped: (step) => tapped(step),
-//               onStepContinue: continued,
-//               onStepCancel: cancel,
-//               steps: <Step>[
-//                 Step(
-//                     // isActive: _currentStep >= 0,
-//                     // state: _currentStep == 0
-//                     //     ? StepState.complete
-//                     //     : StepState.disabled,
-//                     title: Text('Enter group`s name'),
-//                     content: TextField(
-//                       controller: _groupNameController,
-//                       decoration: InputDecoration(hintText: 'type here'),
-//                     )),
-//                 Step(
-//                   title: Text('Pick members, $_currentStep'),
-//                   content: SizedBox(
-//                     child: Column(
-//                       children: [
-//                         // Text(widget.listUsers.toString()),
-//                         ListView.builder(
-//                             shrinkWrap: true,
-//                             itemCount: widget.listUsers?.length,
-//                             itemBuilder: (context, index) {
-//                               // var listData = ;
-//                               bool isSelected = selectedUsers
-//                                   .contains(widget.listUsers![index].uid);
-
-//                               if (widget.listUsers![index].uid!
-//                                   .contains(_currentUserId))
-//                                 Container();
-//                               else
-//                                 return ListTile(
-//                                   // trailing: GestureDetector(
-//                                   //   child: Icon(Icons.close),
-//                                   //   onTap: () {
-//                                   //     selectedUsers.removeAt(index);
-//                                   //     print('pressed');
-
-//                                   //     setState(() {
-//                                   //       print(selectedUsers);
-//                                   //     });
-//                                   //   },
-//                                   // ),
-//                                   leading: isSelected
-//                                       // isSelected
-//                                       ? Icon(Icons.select_all_rounded)
-//                                       : Icon(Icons.circle),
-//                                   title: Text(
-//                                     // myCurrentUser(),
-//                                     widget.listUsers![index].name.toString(),
-//                                     style: TextStyle(
-//                                         color: isSelected
-//                                             ? Colors.purple.shade900
-//                                             : Colors.black),
-//                                   ),
-//                                   subtitle: Text(
-//                                       widget.listUsers![index].email.toString(),
-//                                       style: TextStyle(
-//                                           color: isSelected
-//                                               ? Colors.purple.shade900
-//                                               : Colors.black)),
-//                                   onTap: () {
-//                                     availableUsers
-//                                         .add(widget.listUsers![index]);
-//                                     // availableUsers.add(_currentUserId);
-//                                     selectedUsers =
-//                                         availableUsers.toSet().toList();
-//                                     print(selectedUsers);
-//                                     setState(() {});
-//                                   },
-//                                 );
-//                               return SizedBox.shrink();
-//                             }),
-//                       ],
-//                     ),
+//     // String error = '';
+//     // flutter defined function
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         // String? currentUserName = data.getUserName(_currentUserId, listUsers!);
+//         return AlertDialog(
+//           title: Text("Create new room"),
+//           content: SingleChildScrollView(
+//             child: Container(
+//               child: Column(
+//                 children: [
+//                   TextFormField(
+//                     controller: _textFieldController,
+//                     key: formKey,
+//                     validator: (val) =>
+//                         val!.isEmpty ? "Please enter group`s name" : null,
+//                     decoration:
+//                         InputDecoration(hintText: 'Enter group`s name...'),
 //                   ),
-//                 ),
-//                 // Step(
-//                 //     title: Text('we good with this?'),
-//                 //     content: Column(
-//                 //       children: [
-//                 //         Text('Group name: ${_groupNameController.text}'),
-//                 //         SizedBox(
-//                 //           height: 20,
-//                 //         ),
-//                 //         Text(getSelectedNames().toString()),
-//                 //       ],
-//                 //     ))
-//               ],
-//             ))
+//                   SizedBox(
+//                     height: 10,
+//                   ),
+//                   SizedBox(
+//                     height: 10,
+//                   ),
+//                   BlocBuilder<UserCubit, UserListState>(
+//                     bloc: userCubit,
+//                     builder: (context, state) {
+//                       // state.selectedUsers = [];
+//                       List _list = [];
+//                       return Column(
+//                         children: [
+//                           // (state.selectedUsers == null)
+//                           //     ? Text('')
+//                           //     : Text('Selected Members: ${_list.toString()}'),
+//                           // SizedBox(
+//                           //   height: 20,
+//                           // ),
+
+//                           // Column(
+//                           //   children: [
+//                           //     Text(
+//                           //         "SELS ARE ${state.selectedUsers.toString()}"),
+//                           //     Container(child: Text(_list.toString())),
+//                           //     Text(state.version.toString()),
+//                           //   ],
+//                           // ),
+
+//                           Container(
+//                             height: 300,
+//                             width: 300,
+//                             child: ListView.builder(
+//                                 shrinkWrap: true,
+//                                 itemCount: state.listUsers!.length,
+//                                 itemBuilder: (context, index) {
+//                                   // List<MyUser>? selected = state.selectedUsers;
+//                                   List<MyUser>? listUsers = state.listUsers!;
+//                                   // bool selected ;
+//                                   // state.selectedUsers = [];
+//                                   // if (state.selectedUsers!
+//                                   //     .contains(listUsers[index]))
+//                                   if (listUsers[index] ==
+//                                       authCubit.state.currentUser)
+//                                     return SizedBox.shrink();
+//                                   else
+//                                     return ListTile(
+//                                       onTap: () {
+//                                         userCubit.selectUser(listUsers[index]);
+//                                         // print(
+//                                         //     "THIS IS PRINT FROM TILE ${state.selectedUsers}");
+//                                         // print(state.version);
+//                                         // state.selectedUsers?.forEach((element) {
+//                                         //   _list.add(element.name);
+//                                         //   print(_list);
+//                                         // });
+//                                       },
+//                                       trailing: state.selectedUsers!
+//                                               .contains(listUsers[index])
+//                                           // ==
+//                                           //     selected.contains(listUsers[index])
+//                                           ? Icon(Icons.check_box)
+//                                           : Icon(Icons.check_box_outline_blank),
+//                                       title: Text(
+//                                         listUsers[index].name.toString(),
+//                                       ),
+//                                       subtitle: Text(
+//                                           listUsers[index].email.toString()),
+//                                     );
+//                                 }),
+//                           )
+//                         ],
+//                       );
+//                     },
+//                   )
+//                 ],
+//               ),
+//             ),
+//           ),
+//           actions: <Widget>[
+//             TextButton(
+//               child: Text("Create"),
+//               onPressed: () {
+//                 // print(formKey.currentState);
+//                 // bool aga = _textFieldController.text.isNotEmpty;
+//                 // print(aga);
+//                 if (formKey.currentState!.validate()) {
+//                   data.createGroup(
+//                     userCubit.state.selectedUsers!,
+//                     authCubit.state.currentUser!,
+//                     _textFieldController.text,
+//                   );
+//                 } else {
+//                   // userCubit.state.error = 'please enter group name';
+//                   // print(error);
+//                 }
+//                 // data.updateRoomData(_textFieldController.text);
+//                 // Navigator.of(context).pop();
+//                 // print(_textFieldController.text);
+//               },
+//             ),
 //           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   // String myCurrentUser() {
-//   //   String myCurrentUser = '';
-//   //   widget.listUsers!.firstWhere((e) {
-
-//   //   });
-//   //   // print(widget.listUsers.contains(_currentUserId));
-//   //   return myCurrentUser;
-//   // }
-//   // List<String> getSelectedNames() {
-//   //   List<String> selectedNames = [];
-//   //   selectedUsers.forEach((element) {
-//   //     var name = data.getUserName(element.toString(), selectedUsers);
-//   //     selectedNames.add(name!);
-//   //   });
-//   //   return selectedNames;
-//   // }
-
-//   tapped(int step) {
-//     setState(() => _currentStep = step);
-//   }
-
-//   continued() {
-//     _currentStep < 1 ? setState(() => _currentStep += 1) : print("hello");
-//   }
-
-//   // createGroup() {
-//   //   String? currentUserName =
-//   //       data.getUserName(_currentUserId, widget.listUsers!);
-
-//   //   data.createGroup(selectedUsers, currentUserName, _groupNameController.text);
-
-//   //   // print('$currentUserName');
-//   //   // print("${widget.listUsers!}");
-//   // }
-
-//   // continued() {
-//   //   // String? currentUserName = data.getUserName(_currentUserId, listUsers!);
-//   //   setState(() {
-//   //     _currentStep < 1 ? _currentStep += 1 : _currentStep = 0;
-
-//   //     // if (_currentStep > 1)
-//   //     //   data.createGroup(
-//   //     //       selectedUsers, currentUserName, _groupNameController.text);
-
-//   //     Navigator.pop(context
-//   //         // context, MaterialPageRoute(builder: (context) => ChatPage())
-//   //         );
-//   //   });
-//   // }
-
-//   cancel() {
-//     setState(() {
-//       _currentStep > 0 ? _currentStep -= 1 : _currentStep = 0;
+//         );
+//       },
+//     ).then((value) {
+//       userCubit.dismissSelected();
+//       // userCubit.state.selectedUsers?.clear();
+//       print("this is state after dismiss: ${userCubit.state.selectedUsers}");
+//       _textFieldController.clear();
 //     });
 //   }
-// }
+// // }
+}
