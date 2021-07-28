@@ -34,26 +34,8 @@ class UserCubit extends Cubit<UserListState> {
   }
 
   void selectUser(MyUser user) {
-    // List<MyUser>? filtered = collected?.toSet().toList();
-    // state.selectedUsers = filtered;
-    // print("first SELECTED users: ${state.selectedUsers}");
-    // _selectedUsers?.add(user);
-    // if (!_selectedUsers.contains(user)) {
-    //   _selectedUsers.add(user);
-    // } else {
-    //   _selectedUsers.add(user);
-    // }
-
-    // // _selectedUsers.add(user);
-    // print("SELECTED users: $_selectedUsers");
-
     state.selectedUsers?.add(user);
-    // List<MyUser> _filteredList = state.selectedUsers.toSet().toList();
 
-    // print("FILTERED LIST IS:  $_filteredList");
-    // print('SOMETHING HAPPENED');
-    //  var selected = state.selectedUsers?.add(user);
-    // state.selectedUsers = _filteredList;
     var clear = state.selectedUsers?.toSet().toList();
     emit(state.copyWith(selectedUsers: clear, version: state.version! + 1));
     // _filteredList.clear();

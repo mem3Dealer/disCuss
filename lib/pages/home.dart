@@ -58,22 +58,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  // Future<List> availableChats() async {
-  //   List avavailableChats = [];
-  //   // var res =
-  //   //     await roomsCollection.where('admin', whereIn: ['someone']).get();
-  //   var res = await roomsCollection
-  //       .where('members', arrayContains: _currentUserId)
-  //       .get();
-
-  //   res.docs.forEach((res) {
-  //     avavailableChats.add(res.id);
-  //     print(res.id);
-  //   });
-  //   print(avavailableChats);
-  //   return avavailableChats;
-  // }
-
   @override
   Widget build(BuildContext context) {
     final currentUser = authCubit.state.currentUser;
@@ -138,13 +122,35 @@ class _HomePageState extends State<HomePage> {
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
+              // print(userCubit.state.listUsers?.map((e) => e.name));
+              // print(userCubit.state.listUsers?.map((e) => e.email));
               // print(authCubit.state.currentUser);
               // print('senderId is: ${FirebaseAuth.instance.currentUser?.uid}');
               // print("currentUser is: ${currentUser!.uid}");
               // print("this is state: ${userCubit.state.selectedUsers}");
               // Navigator.push(context,
               //     MaterialPageRoute(builder: (context) => GroupCreator()));
-              AnotherGroupCreator();
+
+              showModalBottomSheet(
+                  isScrollControlled: true,
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20), bottom: Radius.zero),
+                  ),
+                  // useRootNavigator: true,
+                  context: context,
+                  builder: (context) {
+                    return AnotherGroupCreator();
+                  });
+
+              //     .then((value) {
+              //   userCubit.dismissSelected();
+              //   userCubit.state.selectedUsers?.clear();
+              //   print(
+              //       "this is state after dismiss: ${userCubit.state.selectedUsers}");
+              //   // _textFieldController.clear();
+              // });
               // GroupCreator(listUsers);
               // print('pressed');
             },
@@ -153,183 +159,4 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
-  // Widget showRooms() {
-  //   return Container(
-  //       child: BlocBuilder<UserCubit, UserListState>(
-  //     bloc: userCubit,
-  //     builder: (context, state) {
-  //       return StreamBuilder<QuerySnapshot>(
-  //         stream: data.roomsStream(),
-  //         builder: (context, snapshot) {
-  //           var roomData = snapshot.data?.docs;
-  //           if (snapshot.hasData)
-  //             return ListView.builder(
-  //               itemCount: snapshot.data?.docs.length,
-  //               itemBuilder: (context, index) {
-  //                 // if (roomData[index]['members'].contains(_currentUserId))
-  //                 return Column(
-  //                   children: [
-  //                     // if (listRooms![index].members.contains(_currentUserId))
-  //                     ListTile(
-  //                       title: Text(
-  //                           "${roomData?[index]['groupName']} + ${roomData?[index]['groupID']}"),
-  //                       subtitle:
-  //                           Text("Created by: ${listRooms?[index].admin}"),
-  //                       onTap: () {
-  //                         Navigator.push(
-  //                             context,
-  //                             MaterialPageRoute(
-  //                                 builder: (context) =>
-  //                                     ChatPage(roomData?[index]['groupID'])));
-  //                       },
-  //                     ),
-  //                     Divider()
-  //                   ],
-  //                 );
-  //               },
-  //             );
-  //           else
-  //             return Center(child: CircularProgressIndicator());
-  //         },
-  //       );
-  //     },
-  //   ));
-  // }
-
-//   void _showDialog() {
-//     userCubit.state.selectedUsers?.add(authCubit.state.currentUser!);
-
-//     // String error = '';
-//     // flutter defined function
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         // String? currentUserName = data.getUserName(_currentUserId, listUsers!);
-//         return AlertDialog(
-//           title: Text("Create new room"),
-//           content: SingleChildScrollView(
-//             child: Container(
-//               child: Column(
-//                 children: [
-//                   TextFormField(
-//                     controller: _textFieldController,
-//                     key: formKey,
-//                     validator: (val) =>
-//                         val!.isEmpty ? "Please enter group`s name" : null,
-//                     decoration:
-//                         InputDecoration(hintText: 'Enter group`s name...'),
-//                   ),
-//                   SizedBox(
-//                     height: 10,
-//                   ),
-//                   SizedBox(
-//                     height: 10,
-//                   ),
-//                   BlocBuilder<UserCubit, UserListState>(
-//                     bloc: userCubit,
-//                     builder: (context, state) {
-//                       // state.selectedUsers = [];
-//                       List _list = [];
-//                       return Column(
-//                         children: [
-//                           // (state.selectedUsers == null)
-//                           //     ? Text('')
-//                           //     : Text('Selected Members: ${_list.toString()}'),
-//                           // SizedBox(
-//                           //   height: 20,
-//                           // ),
-
-//                           // Column(
-//                           //   children: [
-//                           //     Text(
-//                           //         "SELS ARE ${state.selectedUsers.toString()}"),
-//                           //     Container(child: Text(_list.toString())),
-//                           //     Text(state.version.toString()),
-//                           //   ],
-//                           // ),
-
-//                           Container(
-//                             height: 300,
-//                             width: 300,
-//                             child: ListView.builder(
-//                                 shrinkWrap: true,
-//                                 itemCount: state.listUsers!.length,
-//                                 itemBuilder: (context, index) {
-//                                   // List<MyUser>? selected = state.selectedUsers;
-//                                   List<MyUser>? listUsers = state.listUsers!;
-//                                   // bool selected ;
-//                                   // state.selectedUsers = [];
-//                                   // if (state.selectedUsers!
-//                                   //     .contains(listUsers[index]))
-//                                   if (listUsers[index] ==
-//                                       authCubit.state.currentUser)
-//                                     return SizedBox.shrink();
-//                                   else
-//                                     return ListTile(
-//                                       onTap: () {
-//                                         userCubit.selectUser(listUsers[index]);
-//                                         // print(
-//                                         //     "THIS IS PRINT FROM TILE ${state.selectedUsers}");
-//                                         // print(state.version);
-//                                         // state.selectedUsers?.forEach((element) {
-//                                         //   _list.add(element.name);
-//                                         //   print(_list);
-//                                         // });
-//                                       },
-//                                       trailing: state.selectedUsers!
-//                                               .contains(listUsers[index])
-//                                           // ==
-//                                           //     selected.contains(listUsers[index])
-//                                           ? Icon(Icons.check_box)
-//                                           : Icon(Icons.check_box_outline_blank),
-//                                       title: Text(
-//                                         listUsers[index].name.toString(),
-//                                       ),
-//                                       subtitle: Text(
-//                                           listUsers[index].email.toString()),
-//                                     );
-//                                 }),
-//                           )
-//                         ],
-//                       );
-//                     },
-//                   )
-//                 ],
-//               ),
-//             ),
-//           ),
-//           actions: <Widget>[
-//             TextButton(
-//               child: Text("Create"),
-//               onPressed: () {
-//                 // print(formKey.currentState);
-//                 // bool aga = _textFieldController.text.isNotEmpty;
-//                 // print(aga);
-//                 if (formKey.currentState!.validate()) {
-//                   data.createGroup(
-//                     userCubit.state.selectedUsers!,
-//                     authCubit.state.currentUser!,
-//                     _textFieldController.text,
-//                   );
-//                 } else {
-//                   // userCubit.state.error = 'please enter group name';
-//                   // print(error);
-//                 }
-//                 // data.updateRoomData(_textFieldController.text);
-//                 // Navigator.of(context).pop();
-//                 // print(_textFieldController.text);
-//               },
-//             ),
-//           ],
-//         );
-//       },
-//     ).then((value) {
-//       userCubit.dismissSelected();
-//       // userCubit.state.selectedUsers?.clear();
-//       print("this is state after dismiss: ${userCubit.state.selectedUsers}");
-//       _textFieldController.clear();
-//     });
-//   }
-// // }
 }

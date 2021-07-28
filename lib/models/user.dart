@@ -75,4 +75,12 @@ class MyUser {
       email: e.get('email'),
     );
   }
+
+  static myFromSnapshot(QueryDocumentSnapshot<Object?> e) {
+    return MyUser(
+      uid: e.get('uid'),
+      name: e.get('name'),
+      email: e.get('email'),
+    );
+  }
 }

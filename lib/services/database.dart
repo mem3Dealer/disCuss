@@ -62,19 +62,46 @@ class DataBaseService {
 
     await roomDocRef.update({'groupID': roomDocRef.id});
 
-    // await roomDocRef
-    //     .update({'members': FieldValue.arrayUnion(selectedUsers.toList())});
-
-    await FirebaseFirestore.instance
+    var memberDocRef = FirebaseFirestore.instance
         .collection('chatsCollection')
         .doc(roomDocRef.id)
-        .collection('messages')
-        .add({
-      'recentMessage': 'this is test message',
-      'time': DateTime.now().toUtc(),
-      'sender': user.name
+        .collection('members');
+
+    selectedUsers.forEach((element) {
+      memberDocRef.doc(element.name).set(
+          {'name': element.name, 'uid': element.uid, 'email': element.email});
     });
   }
+
+  Future addNewUserToRoom(String groupID, List<MyUser>? selectedUsers) async {
+    List _list = [];
+    var memberDocRef = FirebaseFirestore.instance
+        .collection('chatsCollection')
+        .doc(groupID)
+        .collection('members');
+
+    selectedUsers?.forEach((element) {
+      _list.add(element.uid);
+    });
+    dummyChats.doc(groupID).update({'members': FieldValue.arrayUnion(_list)});
+
+    selectedUsers?.forEach((element) {
+      memberDocRef.doc(element.name).set(
+          {'name': element.name, 'uid': element.uid, 'email': element.email});
+    });
+  }
+  // await roomDocRef
+  //     .update({'members': FieldValue.arrayUnion(selectedUsers.toList())});
+
+  // await FirebaseFirestore.instance
+  //     .collection('chatsCollection')
+  //     .doc(roomDocRef.id)
+  //     .collection('messages')
+  //     .add({
+  //   'recentMessage': 'this is test message',
+  //   'time': DateTime.now().toUtc(),
+  //   'sender': user.name
+  // });
 
   Stream<QuerySnapshot> usersStream() => FirebaseFirestore.instance
       .collection('users')
@@ -92,6 +119,14 @@ class DataBaseService {
       .collection('messages')
       .orderBy('time', descending: true)
       .snapshots();
+
+  Stream<QuerySnapshot> roomMembers(String groupId) =>
+      FirebaseFirestore.instance
+          .collection('chatsCollection')
+          .doc(groupId)
+          .collection('members')
+          .orderBy('name', descending: true)
+          .snapshots();
 
   Future<void> addUser(String email, String name, String password) {
     return userCollection.add({
@@ -116,10 +151,10 @@ class DataBaseService {
       // 'author':
     };
     print(message);
-    // if (_controller.text.isNotEmpty) {
-    //   testChat.add(message).then(
-    //       (doc) => chat.doc(doc.id).get().then((value) => print(value.data())));
-    // }
+    if (_controller.text.isNotEmpty) {
+      testChat.add(message).then((doc) =>
+          testChat.doc(doc.id).get().then((value) => print(value.data())));
+    }
     // } catch (e, trace) {
     //   debugPrint("Error is $e. Stack = $trace");
     // }
