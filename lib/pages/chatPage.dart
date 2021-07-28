@@ -13,6 +13,7 @@ import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/room_state.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/models/message.dart';
+import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/pages/register.dart';
 import 'package:my_chat_app/services/auth.dart';
@@ -48,7 +49,7 @@ class _ChatPageState extends State<ChatPage> {
   // var currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
   List<MyUser>? listUsers;
-
+  List<Room>? listRooms;
   final userCubit = GetIt.I.get<UserCubit>();
   final authCubit = GetIt.I.get<AuthCubit>();
   final roomCubit = GetIt.I.get<RoomCubit>();
@@ -66,110 +67,32 @@ class _ChatPageState extends State<ChatPage> {
       if (listUsers == null) {
         final usersData = await data.getUsers();
         listUsers = usersData?.reversed.toList();
+
+        final roomsData = await data.getRooms();
+        listRooms = roomsData?.toList();
         setState(() {});
       }
     });
     super.initState();
   }
 
-  // Widget _chatMessages(List<Message> messageDataList) {
-  //   return Container(
-  //     child: listUsers == null
-  //         ? Center(
-  //             child: CircularProgressIndicator(),
-  //           )
-  //         : ListView.builder(
-  //             controller: _scrollController,
-  //             reverse: true,
-  //             shrinkWrap: true,
-  //             itemCount: messageDataList.length,
-  //             itemBuilder: (context, index) {
-  //               // String localeTag =
-  //               //     Localizations.localeOf(context).toLanguageTag();
-  //               int _timeStamp = messageDataList[index].time!.seconds;
-  //               var date =
-  //                   DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
-  //               var formattedDate =
-  //                   DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
-
-  //               final message = messageDataList[index];
-
-  //               return MessageTile(
-  //                   time: formattedDate,
-  //                   firstMessageOfAuthor: message.isFirst,
-  //                   lastMessageOfAuthor: message.isLast,
-  //                   author: message.isFirst
-  //                       ? message.getUserName(message.sender, listUsers)
-  //                       : '',
-  //                   message: message.content,
-  //                   sentByMe: senderId == message.sender);
-  //             }),
-  //   );
-  //   ;
-  // }
-
-  // List<Message> makeMessagesDataList(
-  //     AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
-  //   List<Message>? _messages = snapshot.data?.docs
-  //       .map<Message>((e) => Message.fromSnapshot(e))
-  //       .toList();
-  //   for (int i = 0; i < _messages!.length; i++) {
-  //     if (i > 0 && i < _messages.length - 1)
-  //       _messages[i].isFirst = _messages[i + 1].sender != _messages[i].sender;
-  //     else
-  //       _messages[i].isFirst = false;
-
-  //     if (i > 0 && i < _messages.length)
-  //       _messages[i].isLast = _messages[i - 1].sender != _messages[i].sender;
-  //     else
-  //       _messages[i].isLast = true;
-  //   }
-  //   return _messages;
-  // }
-
-  // String? getUserName(String uid) {
-  //   return listUsers!
-  //       .firstWhere((element) => element.uid == uid,
-  //           orElse: () => MyUser(name: 'null name'))
-  //       .name;
-  // }
-
-  // Widget buttonSend() {
-  //   return GestureDetector(
-  //     // behavior: HitTestBehavior.translucent,
-  //     onTap: () {
-  //       data.sendMessage(
-  //           messageEditingController, senderId.toString(), widget.groupID);
-  //       // print(snapshot.docs.length);
-  //       setState(() {
-  //         messageEditingController.text = '';
-  //       });
-  //       print('pressed');
-  //     },
-  //     child: Container(
-  //       height: 50.0,
-  //       width: 50.0,
-  //       decoration: BoxDecoration(
-  //           color: Colors.blueAccent, borderRadius: BorderRadius.circular(50)),
-  //       child: Center(child: Icon(Icons.send, color: Colors.white)),
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
+    // print("ROOMS ARE: $listRooms");
+    // print("CURRENT IS: ${widget.groupID}");
     // final AuthService _auth = AuthService();
     return BlocBuilder<RoomCubit, RoomState>(
       bloc: roomCubit,
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(authCubit.state.currentUser?.name
-                // listUsers
-                //       ?.firstWhere((element) => element.uid == senderId)
-                //       .name
-                ??
-                'Loading'), //TODO change to group name here
+            title: Text(
+                // authCubit.state.currentUser?.name
+                listRooms
+                        ?.firstWhere(
+                            (element) => element.groupID == widget.groupID)
+                        .groupName ??
+                    'Loading'),
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 15.0),
@@ -203,14 +126,7 @@ class _ChatPageState extends State<ChatPage> {
                               padding: EdgeInsets.symmetric(horizontal: 15.0),
                               width: MediaQuery.of(context).size.width,
                               child: roomCubit
-                                  .messageInputAndSendButton(widget.groupID)
-                              // Row(
-                              //   children: [
-                              //     // textField(messageEditingController),
-                              //     // roomCubit.buttonSend(widget.groupID)
-                              //   ],
-                              // ),
-                              ),
+                                  .messageInputAndSendButton(widget.groupID)),
                         ),
                       ]);
                     } else {
@@ -227,18 +143,3 @@ class _ChatPageState extends State<ChatPage> {
 
   // makeMessagesDataList(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {}
 }
-
-// Widget textField(TextEditingController messageEditingController) {
-//   return Expanded(
-//     child: Container(
-//       child: TextField(
-//         controller: messageEditingController,
-//         style: TextStyle(color: Colors.black),
-//         decoration: InputDecoration(
-//           // fillColor: Colors.pink,
-//           hintText: 'type here',
-//         ),
-//       ),
-//     ),
-//   );
-// }

@@ -182,6 +182,11 @@ class DataBaseService {
     return serverUsers.docs.map<MyUser>((e) => MyUser.fromSnapshot(e)).toList();
   }
 
+  Future<List<Room>?> getRooms() async {
+    var serverRooms = await dummyChats.get();
+    return serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+  }
+
   Future<List<Message>> getChat() async {
     return [];
     // var serverChat = await chat.orderBy('time').get();
