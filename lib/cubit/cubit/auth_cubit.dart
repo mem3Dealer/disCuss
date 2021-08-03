@@ -1,10 +1,6 @@
-import 'dart:convert';
-
-import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:meta/meta.dart';
 import 'package:my_chat_app/cubit/cubit/auth_state.dart';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/services/auth.dart';
@@ -35,12 +31,12 @@ class AuthCubit extends HydratedCubit<AuthState> {
   Future<void> logOut() async {
     // print('AYYY');
     try {
+      await auth.signOut();
       emit(state.copyWith(isLoggedIn: false, version: state.version! - 1));
       print(state.version);
-      return await auth.signOut();
     } catch (e) {
       print(e.toString());
-      return null;
+      // return null;
     }
   }
 

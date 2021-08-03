@@ -1,20 +1,14 @@
-import 'dart:convert';
 import 'dart:core';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:meta/meta.dart';
-import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_state.dart';
 import 'package:my_chat_app/models/user.dart';
-import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
 
 // part 'user_state.dart';
 
 class UserCubit extends Cubit<UserListState> {
-  List<MyUser>? _selectedUsers = [];
   final data = GetIt.I.get<DataBaseService>();
   // final authCubit = GetIt.I.get<AuthCubit>();
   // dynamic auth = FirebaseAuth.instance.currentUser!();

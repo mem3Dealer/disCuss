@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,14 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import 'package:meta/meta.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/room_state.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_state.dart';
 import 'package:my_chat_app/models/message.dart';
-// import 'dart:js';
 import 'package:my_chat_app/models/room.dart';
+// import 'dart:js';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/services/database.dart';
@@ -24,8 +22,9 @@ import 'package:my_chat_app/widgets/messageTile.dart';
 class RoomCubit extends Cubit<RoomState> {
   final authCubit = GetIt.I.get<AuthCubit>();
   final userCubit = GetIt.I.get<UserCubit>();
+  // final roomCubit = GetIt.I.get<RoomCubit>();
   final data = GetIt.I.get<DataBaseService>();
-  RoomCubit() : super(RoomState(version: 0, currentStep: 0));
+  RoomCubit() : super(RoomState(version: 0, room: Room()));
 
   StreamBuilder displayRooms() {
     return StreamBuilder<QuerySnapshot>(
@@ -46,10 +45,9 @@ class RoomCubit extends Cubit<RoomState> {
                 return Column(
                   children: [
                     ListTile(
-                      title: Text(
-                          "${roomDataList?[index]['groupName']} + ${roomDataList?[index]['groupID']}"),
+                      title: Text("${roomDataList?[index]['groupName']}"),
                       subtitle: Text(
-                          "Created by: ${roomDataList?[index]['admin'].toString()}"),
+                          "Created by: ${roomDataList?[index]['admin']['name'].toString()}"),
                       onTap: () {
                         Navigator.push(
                             context,
@@ -77,82 +75,124 @@ class RoomCubit extends Cubit<RoomState> {
 
   void loadMessages() {}
 
-  Widget addUserToThisRoom(String groupID) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: data.roomMembers(groupID),
-      builder: (context, snapshot) {
-        List<MyUser>? _localUsers = snapshot.data?.docs
-            .map<MyUser>((e) => MyUser.myFromSnapshot(e))
-            .toList();
-        return SingleChildScrollView(
-            child: BlocBuilder<UserCubit, UserListState>(
-                bloc: userCubit,
-                builder: (context, state) {
-                  return Container(
-                    height: 300,
-                    width: 400,
-                    child: Column(children: [
-                      Text('who to add', style: TextStyle(fontSize: 25)),
-                      Expanded(
-                          child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: state.listUsers?.length,
-                              itemBuilder: (context, index) {
-                                List<MyUser>? listUsers = state.listUsers;
-                                if (snapshot.hasData &&
-                                    !_localUsers!.contains(listUsers?[index])) {
-                                  return BlocBuilder<UserCubit, UserListState>(
-                                    bloc: userCubit,
-                                    builder: (context, state) {
-                                      return Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 10.0, right: 10),
-                                        child: ListTile(
-                                          onTap: () {
-                                            userCubit
-                                                .selectUser(listUsers![index]);
-                                          },
-                                          trailing: state.selectedUsers!
-                                                  .contains(listUsers![index])
-                                              // ==
-                                              //     selected.contains(listUsers[index])
-                                              ? Icon(Icons.check_box)
-                                              : Icon(Icons
-                                                  .check_box_outline_blank),
-                                          title: Text(
-                                            listUsers[index].name.toString(),
-                                          ),
-                                          subtitle: Text(listUsers[index]
-                                              .email
-                                              .toString()),
-                                        ),
-                                      );
-                                    },
+  Widget addUserToThisRoom(
+    String groupID,
+  ) {
+    Room? localRoom = state.room;
+    // return StreamBuilder<QuerySnapshot>(
+    //   stream: data.roomMembers(groupID),
+    //   builder: (context, snapshot) {
+
+    // List<MyUser>? _localUsers = snapshot.data?.docs
+    //     .map<MyUser>((e) => MyUser.myFromSnapshot(e))
+    //     .toList();
+
+    return SingleChildScrollView(
+        child: BlocBuilder<UserCubit, UserListState>(
+            bloc: userCubit,
+            builder: (context, state) {
+              return Container(
+                height: 300,
+                width: 400,
+                child: Column(children: [
+                  Text('whom to add', style: TextStyle(fontSize: 25)),
+                  Expanded(
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: state.listUsers?.length,
+                          itemBuilder: (context, index) {
+                            List<MyUser>? listUsers = state.listUsers;
+
+                            if (!localRoom!.members!
+                                .contains(listUsers?[index])) {
+                              return BlocBuilder<UserCubit, UserListState>(
+                                bloc: userCubit,
+                                builder: (context, state) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 10.0, right: 10),
+                                    child: ListTile(
+                                      onTap: () {
+                                        userCubit.selectUser(listUsers![index]);
+                                      },
+                                      trailing: state.selectedUsers!
+                                              .contains(listUsers![index])
+                                          // ==
+                                          //     selected.contains(listUsers[index])
+                                          ? Icon(Icons.check_box)
+                                          : Icon(Icons.check_box_outline_blank),
+                                      title: Text(
+                                        listUsers[index].name.toString(),
+                                      ),
+                                      subtitle: Text(
+                                          listUsers[index].email.toString()),
+                                    ),
                                   );
-                                } else {
-                                  return SizedBox.shrink();
-                                }
-                                //
-                              })),
-                      TextButton(
-                          onPressed: () {
-                            data
-                                .addNewUserToRoom(
-                                    groupID, userCubit.state.selectedUsers)
-                                .then((value) {
-                              userCubit.state.selectedUsers!.clear();
-                              Navigator.of(context).pop();
-                            });
-                          },
-                          child: Text('Add`em',
-                              style: TextStyle(
-                                  fontSize: 20, color: Colors.deepPurple)))
-                    ]),
-                  );
-                }));
-      },
-    );
+                                },
+                              );
+                            } else {
+                              return SizedBox.shrink();
+                            }
+                          })),
+                  TextButton(
+                      onPressed: () {
+                        data
+                            .addNewUserToRoom(
+                                groupID, userCubit.state.selectedUsers)
+                            .then((value) {
+                          userCubit.state.selectedUsers!.clear();
+                          Navigator.of(context).pop();
+                        });
+                      },
+                      child: Text('Add`em',
+                          style: TextStyle(
+                              fontSize: 20, color: Colors.deepPurple)))
+                ]),
+              );
+            }));
   }
+
+  void kickUser(String groupID, MyUser userToRemove) {
+    data.kickUser(groupID, [userToRemove.toMap()]);
+    var _newMembers = state.room!.members;
+    _newMembers!.remove(userToRemove);
+    emit(state.copyWith(
+        room: state.room?.copyWith(members: _newMembers),
+        version: state.version! + 1));
+    print('STATE ROOM: ${state.room}, ${state.version}');
+    // print('STATE ');
+  }
+
+  // Widget showRoomMembers(String groupID) {
+  //   return AlertDialog(
+  //     title: Text('Chat members'),
+  //     content: Container(
+  //       height: 300,
+  //       width: 300,
+  //       child: SingleChildScrollView(
+  //         child: ListView.builder(
+  //             shrinkWrap: true,
+  //             itemCount: state.room?.members?.length,
+  //             itemBuilder: (context, index) {
+  //               List? _members = state.room?.members;
+  //               return ListTile(
+  //                 trailing: IconButton(
+  //                   icon: Icon(Icons.delete),
+  //                   onPressed: () {
+  //                     kickUser(groupID, [_members?[index].toMap()]);
+  //                     // print([_members?[index]]
+  //                     //     .runtimeType);
+  //                   },
+  //                 ),
+  //                 title: Text(_members?[index].name),
+  //                 subtitle: Text(_members?[index].email),
+  //               );
+  //             }),
+  //       ),
+  //     ),
+  //     actions: [TextButton(onPressed: () {}, child: Text('shmyak'))],
+  //   );
+  // }
 
   Widget messageInputAndSendButton(String groupID) {
     TextEditingController messageEditingController = TextEditingController();
@@ -194,9 +234,14 @@ class RoomCubit extends Cubit<RoomState> {
     );
   }
 
-  void addUser() {}
+  // void kickUser(String groupID, List list) {
+  //   data.kickUser(groupID, list);
+  //   emit(state);
+  // }
 
-  void kickUser() {}
+  void setRoomAsCurrent(Room? thisRoom) {
+    emit(state.copyWith(room: thisRoom, version: state.version! + 1));
+  }
 
   void initRoom() {}
 
@@ -255,32 +300,5 @@ class RoomCubit extends Cubit<RoomState> {
         _messages[i].isLast = true;
     }
     return _messages;
-  }
-
-  void stepTapped(int step) {
-    // print('this shit');
-    emit(state.copyWith(
-        currentStep: state.currentStep = step, version: state.version! + 1));
-  }
-
-  void stepContinue() {
-    // print('hey');
-    if (state.currentStep < 3) {
-      // print('ayy');
-      emit(state.copyWith(
-          currentStep: state.currentStep + 1, version: state.version! + 1));
-    } else if (state.currentStep <= 3) {
-      emit(state.copyWith(
-          currentStep: state.currentStep = 0, version: state.version! - 1));
-      print('CREATED');
-    }
-  }
-
-  void stepCancel() {
-    if (state.currentStep > 0) {
-      emit(state.copyWith(currentStep: state.currentStep--));
-    } else {
-      emit(state.copyWith(currentStep: 0));
-    }
   }
 }

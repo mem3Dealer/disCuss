@@ -1,11 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_chat_app/models/user.dart';
-import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/widgets/messageTile.dart';
-import 'package:my_chat_app/widgets/sendFieldandButton.dart';
 
 class ChatMessages extends StatefulWidget {
   const ChatMessages({Key? key}) : super(key: key);
@@ -36,10 +33,10 @@ class _ChatMessagesState extends State<ChatMessages> {
     bool _isNewAuthor;
     bool _isAuthorOver;
     // HomePage home = HomePage();
-    DataBaseService data = DataBaseService();
+    // DataBaseService data = DataBaseService();
 
     return Container(
-      child: listUsers == null
+      child: listUsers.isEmpty
           ? Center(
               child: CircularProgressIndicator(),
             )

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/user.dart';
@@ -11,7 +11,7 @@ class Room {
   String? groupID;
   String? groupName;
   MyUser? admin; // Firebase does not accept MyUser class. I cant have it back
-  List? members; // тоже самое здесь
+  List<MyUser>? members; // тоже самое здесь
   List<Message>? chatMessages;
   // bool isActive;
 
@@ -32,7 +32,7 @@ class Room {
     String? groupID,
     String? groupName,
     MyUser? admin,
-    List<String>? members,
+    List<MyUser>? members,
     List<Message>? chatMessages,
   }) {
     return Room(
@@ -49,7 +49,7 @@ class Room {
       'groupID': groupID,
       'groupName': groupName,
       'admin': admin?.toMap(),
-      'members': members,
+      'members': members?.map((x) => x.toMap()).toList(),
       'chatMessages': chatMessages?.map((x) => x.toMap()).toList(),
     };
   }
@@ -59,7 +59,7 @@ class Room {
       groupID: map['groupID'],
       groupName: map['groupName'],
       admin: MyUser.fromMap(map['admin']),
-      members: List<String>.from(map['members']),
+      members: List<MyUser>.from(map['members']?.map((x) => MyUser.fromMap(x))),
       chatMessages: List<Message>.from(
           map['chatMessages']?.map((x) => Message.fromMap(x))),
     );
@@ -99,7 +99,10 @@ class Room {
     return Room(
         groupID: e.get('groupID'),
         groupName: e.get('groupName'),
-        // admin: e.get('admin')
-        members: e.get('members'));
+        admin: MyUser.fromMap(e.get('admin')),
+        members: e
+            .get('members')
+            .map<MyUser>((user) => MyUser.fromMap(user))
+            .toList());
   }
 }

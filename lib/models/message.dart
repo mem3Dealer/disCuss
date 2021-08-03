@@ -1,9 +1,6 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:my_chat_app/models/user.dart';
 
@@ -60,7 +57,8 @@ class Message {
 
   String toJson() => json.encode(toMap());
 
-  factory Message.fromJson(String source) => Message.fromMap(json.decode(source));
+  factory Message.fromJson(String source) =>
+      Message.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -81,11 +79,18 @@ class Message {
 
   @override
   int get hashCode {
-    return content.hashCode ^ sender.hashCode ^ time.hashCode ^ isFirst.hashCode ^ isLast.hashCode;
+    return content.hashCode ^
+        sender.hashCode ^
+        time.hashCode ^
+        isFirst.hashCode ^
+        isLast.hashCode;
   }
 
   static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
-    return Message(content: e.get('recentMessage'), sender: e.get('sender'), time: e.get('time'));
+    return Message(
+        content: e.get('recentMessage'),
+        sender: e.get('sender'),
+        time: e.get('time'));
   }
 
   // String? getUserName(String? sender) {
@@ -104,6 +109,9 @@ class Message {
   // }
 
   String? getUserName(String? sender, List<MyUser>? listUsers) {
-    return listUsers!.firstWhere((e) => e.uid == sender, orElse: () => MyUser(name: 'null name')).name;
+    return listUsers!
+        .firstWhere((e) => e.uid == sender,
+            orElse: () => MyUser(name: 'null name'))
+        .name;
   }
 }

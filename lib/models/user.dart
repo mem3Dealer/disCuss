@@ -68,7 +68,7 @@ class MyUser {
   @override
   int get hashCode => uid.hashCode ^ name.hashCode ^ email.hashCode;
 
-  static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
+  static fromSnapshot(QueryDocumentSnapshot e) {
     return MyUser(
       uid: e.id,
       name: e.get('name'),

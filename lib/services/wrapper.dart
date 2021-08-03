@@ -3,10 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/auth_state.dart';
-import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/pages/authenticate.dart';
-import 'package:my_chat_app/pages/his_home.dart';
-import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/pages/home.dart';
 
 class Wrapper extends StatelessWidget {

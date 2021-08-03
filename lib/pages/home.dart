@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -11,15 +9,10 @@ import 'package:my_chat_app/cubit/cubit/room_state.dart';
 
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 
-import 'package:my_chat_app/cubit/cubit/user_state.dart';
 import 'package:my_chat_app/models/room.dart';
-import 'package:my_chat_app/models/user.dart';
-import 'package:my_chat_app/pages/chatPage.dart';
-import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
+import 'package:my_chat_app/services/wrapper.dart';
 import 'package:my_chat_app/widgets/anotherGroupCreator.dart';
-import 'package:my_chat_app/widgets/groupCreator.dart';
-import 'package:provider/single_child_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -77,6 +70,8 @@ class _HomePageState extends State<HomePage> {
                 child: Icon(Icons.exit_to_app),
                 onPressed: () async {
                   await authCubit.logOut();
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => Wrapper()));
                   print(
                       'THIS IS LOG OUT PRINT. first param: ${authCubit.fbAuth}, second: ${authCubit.state.isLoggedIn}');
                   // await _auth.signOut();

@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-
 import 'package:my_chat_app/models/user.dart';
 
 class AuthState {
