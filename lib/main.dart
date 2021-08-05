@@ -35,35 +35,45 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     final authCubit = GetIt.I.get<AuthCubit>();
+    return FutureBuilder(
+        future: _initialization,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Container();
+          }
+          if (snapshot.connectionState == ConnectionState.done) {
+            return MaterialApp(
+                themeMode: ThemeMode.system,
+                theme: appThemeLight,
+                // darkTheme: appThemeDark,
+                // ThemeData(
+                //     brightness: Brightness.light, primaryColor: Colors.purple.shade400),
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                ],
+                supportedLocales: const [
+                  Locale('ru', ''), // English, no country code
+                  // Spanish, no country code
+                ],
+                home: BlocBuilder<AuthCubit, AuthState>(
+                    bloc: authCubit,
+                    // value: AuthService().user,
+                    builder: (context, state) {
+                      // authCubit.checkUser();
 
-    return MaterialApp(
-        themeMode: ThemeMode.system,
-        theme: appThemeLight,
-        // darkTheme: appThemeDark,
-        // ThemeData(
-        //     brightness: Brightness.light, primaryColor: Colors.purple.shade400),
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('ru', ''), // English, no country code
-          // Spanish, no country code
-        ],
-        home: BlocBuilder<AuthCubit, AuthState>(
-            bloc: authCubit,
-            // value: AuthService().user,
-            builder: (context, state) {
-              // authCubit.checkUser();
+                      return
+                          // GroupCreator();
 
-              return
-                  // GroupCreator();
-
-                  Wrapper();
-            }));
+                          Wrapper();
+                    }));
+          } else
+            return Container();
+        });
   }
   // else {
   //   return Container();

@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core_web/firebase_core_web_interop.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -39,7 +39,7 @@ class _ChatPageState extends State<ChatPage> {
   // var currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
   List<MyUser>? listUsers;
-  List<Room>? listRooms;
+  // List<Room>? listRooms;
   final data = GetIt.I.get<DataBaseService>();
   final userCubit = GetIt.I.get<UserCubit>();
   final authCubit = GetIt.I.get<AuthCubit>();
@@ -51,33 +51,38 @@ class _ChatPageState extends State<ChatPage> {
       if (listUsers == null) {
         final usersData = await data.getUsers();
         listUsers = usersData?.toList();
-
-        final roomsData = await data.getRooms();
-        listRooms = roomsData?.toList();
-        setState(() {});
       }
+      // if (listRooms == null) {
+      //   final roomsData = await data.getRooms();
+      //   listRooms = roomsData?.toList();
+      //   print('ITS FROM HERE: $listRooms');
+      //   // setState(() {});
+      // }
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    print("ROOMS ARE: $listRooms");
-    roomCubit.setRoomAsCurrent(
-        listRooms?.firstWhere((element) => element.groupID == widget.groupID));
+    // print("ROOMS ARE: $listRooms");
+    // roomCubit.setRoomAsCurrent(
+    //     listRooms?.firstWhere((element) => element.groupID == widget.groupID));
+    print("ROOM STATE AFTER CHECKING AND SETTING ${roomCubit.state}");
     // print("CURRENT IS: ${widget.groupID}");
     // final AuthService _auth = AuthService();
     // return BlocBuilder<RoomCubit, RoomState>(
     //   bloc: roomCubit,
     //   builder: (context, state) {
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: Text('something here'
             // authCubit.state.currentUser?.name
-            listRooms
-                    ?.firstWhere((element) => element.groupID == widget.groupID)
-                    .groupName ??
-                'Loading'),
+            // listRooms
+            //         ?.firstWhere((element) => element.groupID == widget.groupID)
+            //         .groupName ??
+            //     'Loading'
+            ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10.0),
@@ -94,13 +99,15 @@ class _ChatPageState extends State<ChatPage> {
                     icon: Icon(Icons.add)),
                 IconButton(
                     onPressed: () {
-                      // Navigator.of(context).push(
-                      //   MaterialPageRoute<void>(
-                      //       builder: (BuildContext context) =>
-                      //           RoomMembersPage(widget.groupID),
-                      //       fullscreenDialog: true),
-                      // );
-                      // print("State room is: ${state.room?.admin}");
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>
+                              RoomMembersPage(widget.groupID),
+                          // fullscreenDialog: true
+                        ),
+                      );
+                      print(
+                          "State room is: ${roomCubit.state.currentRoom?.admin}");
                     },
                     icon: Icon(Icons.people))
               ],
@@ -136,62 +143,69 @@ class _ChatPageState extends State<ChatPage> {
                 }
               })),
     );
-    ;
   }
 
   // makeMessagesDataList(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {}
 }
 
-// class RoomMembersPage extends StatelessWidget {
-//   final roomCubit = GetIt.I.get<RoomCubit>();
-//   RoomMembersPage(this.groupID, {Key? key}) : super(key: key);
-//   final String groupID;
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocBuilder<RoomCubit, RoomState>(
-//       bloc: roomCubit,
-//       builder: (context, state) {
-//         return Scaffold(
-//           appBar: AppBar(title: Text('Chat members')),
-//           body: Container(
-//             child: Column(
-//               children: [
-//                 Container(
-//                   height: 300,
-//                   width: 300,
-//                   child: SingleChildScrollView(
-//                     child: ListView.builder(
-//                         shrinkWrap: true,
-//                         itemCount: state.room?.members?.length,
-//                         itemBuilder: (context, index) {
-//                           List<MyUser>? _members = state.room?.members;
-//                           return ListTile(
-//                             trailing: state.room?.admin != _members?[index]
-//                                 ? IconButton(
-//                                     icon: Icon(Icons.delete),
-//                                     onPressed: () {
-//                                       roomCubit.kickUser(
-//                                           groupID, _members![index]);
-//                                       // print([_members?[index]]
-//                                       //     .runtimeType);
-//                                     },
-//                                   )
-//                                 : SizedBox.shrink(),
-//                             title: Text(_members![index].name!),
-//                             subtitle: Text(_members[index].email!),
-//                           );
-//                         }),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             // actions: [
-//             //   TextButton(
-//             //       onPressed: () {}, child: Text('shmyak'))
-//             // ],
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
+class RoomMembersPage extends StatelessWidget {
+  final roomCubit = GetIt.I.get<RoomCubit>();
+  RoomMembersPage(this.groupID, {Key? key}) : super(key: key);
+  final String groupID;
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<RoomCubit, RoomState>(
+      bloc: roomCubit,
+      builder: (context, state) {
+        return Scaffold(
+            appBar: AppBar(
+                title: Text(
+                    'Chat members, ${state.currentRoom?.members?.length}')),
+            body: Container(
+                child: Center(
+              child: Column(
+                children: [
+                  Container(
+                    child: Text(state.toString()),
+                  ),
+                  Container(
+                    height: 300,
+                    width: 300,
+                    child: SingleChildScrollView(
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: 5,
+                          // state.room?.members?.length,
+                          itemBuilder: (context, index) {
+                            List<MyUser>? _members = state.currentRoom?.members;
+                            return ListTile(
+                                // trailing: state.room?.admin != _members?[index]
+                                //     ? IconButton(
+                                //         icon: Icon(Icons.delete),
+                                //         onPressed: () {
+                                //           // roomCubit.kickUser(
+                                //           //     groupID, _members![index]);
+                                //           // print([_members?[index]]
+                                //           //     .runtimeType);
+                                //         },
+                                //       )
+                                //     : SizedBox.shrink(),
+                                title: Text('hi hi'),
+                                // Text(_members![index].name!),
+                                subtitle: Text('yo yo')
+                                // Text(_members[index].email!),
+                                );
+                          }),
+                    ),
+                  ),
+                ],
+              ),
+              // actions: [
+              //   TextButton(
+              //       onPressed: () {}, child: Text('shmyak'))
+              // ],
+            )));
+      },
+    );
+  }
+}

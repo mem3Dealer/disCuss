@@ -11,7 +11,6 @@ import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_state.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
-// import 'dart:js';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/services/database.dart';
@@ -22,63 +21,102 @@ import 'package:my_chat_app/widgets/messageTile.dart';
 class RoomCubit extends Cubit<RoomState> {
   final authCubit = GetIt.I.get<AuthCubit>();
   final userCubit = GetIt.I.get<UserCubit>();
-  // final roomCubit = GetIt.I.get<RoomCubit>();
   final data = GetIt.I.get<DataBaseService>();
-  RoomCubit() : super(RoomState(version: 0, room: Room()));
+  RoomCubit() : super(RoomState(version: 0, currentRoom: Room()));
 
-  StreamBuilder displayRooms() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: data.roomsStream(),
-      builder: (context, snapshot) {
-        var roomDataList = snapshot.data?.docs;
-        if (snapshot.hasData) {
-          // return Center(
-          //     child: Container(
-          //         child: Text(
-          //   roomDataList!.length.toString(),
-          // )));
-          // print(roomDataList);
-          if (roomDataList?.length != 0)
-            return ListView.builder(
-              itemCount: roomDataList?.length,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    ListTile(
-                      title: Text("${roomDataList?[index]['groupName']}"),
-                      subtitle: Text(
-                          "Created by: ${roomDataList?[index]['admin']['name'].toString()}"),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    ChatPage(roomDataList?[index]['groupID'])));
-                      },
-                    ),
-                    Divider()
-                  ],
-                );
-              },
-            );
-          else
-            return Center(
-              child: Container(
-                child: Text('There are no chats for you lmao'),
-              ),
-            );
-        } else
-          return Center(child: CircularProgressIndicator());
-      },
-    );
+  Future<void> loadRooms() async {
+    List<Room> listOfRooms = [];
+
+    // Stream filtered = data.roomsStream().where((event) {
+    //   return event.docs.contains(authCubit.state.currentUser?.toMap());
+    // });
+
+    // print(
+    //     'THESE ARE PRINTS FROM FUNC: ${filtered.length}, ${authCubit.state.currentUser} ');
+
+    data.roomsStream().listen((result) {
+      List<QueryDocumentSnapshot> someList = result.docs;
+
+      // if (result.docs.contains(authCubit.state.currentUser?.toMap())
+      // List someList = result.docs
+      // );
+      String? currentUser = authCubit.state.currentUser?.toString();
+
+      someList.where((element) {
+        // print(element['members']);
+
+        element['members'].forEach((Map user) {
+          print(user == authCubit.state.currentUser?.toMap());
+          // print(authCubit.state.currentUser?.toMap());
+        });
+        return true;
+
+        // .contains(authCubit.state.currentUser?.toMap());
+      }).forEach((element) {
+        listOfRooms.add(Room.fromSnapshot(element));
+      });
+      emit(state.copyWith(listRooms: listOfRooms));
+    });
+
+    // print(filtered.length);
+    // return listOfRooms;
+
+    // return StreamBuilder<QuerySnapshot>(
+    //   stream: data.roomsStream(),
+    //   builder: (context, snapshot) {
+    //     var roomDataList = snapshot.data?.docs;
+    //     if (snapshot.hasData) {
+    //       // return Center(
+    //       //     child: Container(
+    //       //         child: Text(
+    //       //   roomDataList!.length.toString(),
+    //       // )));
+    //       // print(roomDataList);
+    //       if (roomDataList?.length != 0)
+    //         return ListView.builder(
+    //           itemCount: roomDataList?.length,
+    //           itemBuilder: (context, index) {
+    //             return Column(
+    //               children: [
+    //                 ListTile(
+    //                   title: Text("${roomDataList?[index]['groupName']}"),
+    //                   subtitle: Text(
+    //                       "Created by: ${roomDataList?[index]['admin']['name'].toString()}"),
+    //                   onTap: () {
+    //                     Navigator.push(
+    //                         context,
+    //                         MaterialPageRoute(
+    //                             builder: (context) =>
+    //                                 ChatPage(roomDataList?[index]['groupID'])));
+    //                   },
+    //                 ),
+    //                 Divider()
+    //               ],
+    //             );
+    //           },
+    //         );
+    //       else
+    //         return Center(
+    //           child: Container(
+    //             child: Text('There are no chats for you lmao'),
+    //           ),
+    //         );
+    //     } else
+    //       return Center(child: CircularProgressIndicator());
+    //   },
+    // );
   }
+
+  // void loadRooms() {}
+
+  Future<void> loadChat(String groupId) async {}
 
   void loadMessages() {}
 
   Widget addUserToThisRoom(
     String groupID,
   ) {
-    Room? localRoom = state.room;
+    Room? localRoom = state.currentRoom;
     // return StreamBuilder<QuerySnapshot>(
     //   stream: data.roomMembers(groupID),
     //   builder: (context, snapshot) {
@@ -154,12 +192,12 @@ class RoomCubit extends Cubit<RoomState> {
 
   void kickUser(String groupID, MyUser userToRemove) {
     data.kickUser(groupID, [userToRemove.toMap()]);
-    var _newMembers = state.room!.members;
+    var _newMembers = state.currentRoom!.members;
     _newMembers!.remove(userToRemove);
     emit(state.copyWith(
-        room: state.room?.copyWith(members: _newMembers),
+        currentRoom: state.currentRoom?.copyWith(members: _newMembers),
         version: state.version! + 1));
-    print('STATE ROOM: ${state.room}, ${state.version}');
+    print('STATE ROOM: ${state.currentRoom}, ${state.version}');
     // print('STATE ');
   }
 
@@ -172,9 +210,9 @@ class RoomCubit extends Cubit<RoomState> {
   //       child: SingleChildScrollView(
   //         child: ListView.builder(
   //             shrinkWrap: true,
-  //             itemCount: state.room?.members?.length,
+  //             itemCount: state.currentRoom?.members?.length,
   //             itemBuilder: (context, index) {
-  //               List? _members = state.room?.members;
+  //               List? _members = state.currentRoom?.members;
   //               return ListTile(
   //                 trailing: IconButton(
   //                   icon: Icon(Icons.delete),
@@ -240,7 +278,7 @@ class RoomCubit extends Cubit<RoomState> {
   // }
 
   void setRoomAsCurrent(Room? thisRoom) {
-    emit(state.copyWith(room: thisRoom, version: state.version! + 1));
+    emit(state.copyWith(currentRoom: thisRoom, version: state.version! + 1));
   }
 
   void initRoom() {}

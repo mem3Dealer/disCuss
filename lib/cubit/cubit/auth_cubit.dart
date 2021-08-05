@@ -14,7 +14,10 @@ class AuthCubit extends HydratedCubit<AuthState> {
   final data = GetIt.I.get<DataBaseService>();
   final auth = GetIt.I.get<AuthService>();
   final fbAuth = FirebaseAuth.instance.currentUser;
-  AuthCubit() : super(AuthState(isLoggedIn: false, version: 0));
+  AuthCubit()
+      : super(AuthState(
+            isLoggedIn: false,
+            version: 0)); //НУЖНО ЛИ ТУТ ОБЪВЯЛЯТЬ КАРРЕНТЮЗЕРА?
 
   Future<void> signIn(String email, String password) async {
     MyUser? signInRes = await auth.signInWithEmailandPassword(email, password);
@@ -25,6 +28,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
           isLoggedIn: true,
           currentUser: signInRes,
           version: state.version! + 1));
+      print('AND THIS IS OUR CURRENT USER: ${state.currentUser}');
     }
   }
 
@@ -33,7 +37,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
     try {
       await auth.signOut();
       emit(state.copyWith(isLoggedIn: false, version: state.version! - 1));
-      print(state.version);
+      print('LOG OUT PRINT: ${state.isLoggedIn}, ${state.version}');
     } catch (e) {
       print(e.toString());
       // return null;

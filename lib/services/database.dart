@@ -1,4 +1,3 @@
-// import 'dart:html';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,25 +17,27 @@ class DataBaseService {
   CollectionReference userCollection =
       FirebaseFirestore.instance.collection('users');
 
-  currentUser() {
-    var currentuser = FirebaseAuth.instance.currentUser;
-    MyUser(
-            name: currentuser?.displayName.toString(),
-            email: currentuser?.email,
-            uid: currentuser?.uid)
-        .toMap();
-  }
+  // var currentUser = AuthCubit().state.currentUser?.toMap();
+
+  // currentUser() {
+  //   var currentuser = AuthCubit().state.currentUser;
+
+  //   // FirebaseAuth.instance.currentUser;
+  //   // MyUser(
+  //   //         name: currentuser?.displayName.toString(),
+  //   //         email: currentuser?.email,
+  //   //         uid: currentuser?.uid)
+  //   //     .toMap();
+  // }
 
   // CollectionReference chat = FirebaseFirestore.instance.collection('chat');
   CollectionReference dummyChats =
       FirebaseFirestore.instance.collection('chatsCollection');
 
   Stream<QuerySnapshot> roomsStream() {
-    // var senderId = FirebaseAuth.instance.currentUser?.uid;
-
     return FirebaseFirestore.instance
         .collection('chatsCollection')
-        .where('members', arrayContains: currentUser())
+        // .where('members', arrayContains: currentUser)
         .snapshots();
   }
 
