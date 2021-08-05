@@ -34,10 +34,10 @@ class DataBaseService {
   CollectionReference dummyChats =
       FirebaseFirestore.instance.collection('chatsCollection');
 
-  Stream<QuerySnapshot> roomsStream() {
+  Stream<QuerySnapshot> roomsStream(MyUser currentUser) {
     return FirebaseFirestore.instance
         .collection('chatsCollection')
-        // .where('members', arrayContains: currentUser)
+        .where('members', arrayContains: currentUser.toMap())
         .snapshots();
   }
 

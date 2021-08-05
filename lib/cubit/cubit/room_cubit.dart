@@ -25,8 +25,6 @@ class RoomCubit extends Cubit<RoomState> {
   RoomCubit() : super(RoomState(version: 0, currentRoom: Room()));
 
   Future<void> loadRooms() async {
-    List<Room> listOfRooms = [];
-
     // Stream filtered = data.roomsStream().where((event) {
     //   return event.docs.contains(authCubit.state.currentUser?.toMap());
     // });
@@ -34,27 +32,17 @@ class RoomCubit extends Cubit<RoomState> {
     // print(
     //     'THESE ARE PRINTS FROM FUNC: ${filtered.length}, ${authCubit.state.currentUser} ');
 
-    data.roomsStream().listen((result) {
-      List<QueryDocumentSnapshot> someList = result.docs;
+    data.roomsStream(authCubit.state.currentUser!).listen((result) {
+      List<Room> listOfRooms =
+          result.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
 
       // if (result.docs.contains(authCubit.state.currentUser?.toMap())
       // List someList = result.docs
       // );
-      String? currentUser = authCubit.state.currentUser?.toString();
 
-      someList.where((element) {
-        // print(element['members']);
-
-        element['members'].forEach((Map user) {
-          print(user == authCubit.state.currentUser?.toMap());
-          // print(authCubit.state.currentUser?.toMap());
-        });
-        return true;
-
-        // .contains(authCubit.state.currentUser?.toMap());
-      }).forEach((element) {
-        listOfRooms.add(Room.fromSnapshot(element));
-      });
+      // someList.forEach((element) {
+      //   listOfRooms.add(Room.fromSnapshot(element));
+      // });
       emit(state.copyWith(listRooms: listOfRooms));
     });
 
