@@ -1,19 +1,17 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-
 import 'package:my_chat_app/models/user.dart';
 
 class AuthState {
   int? version;
   String? error;
   MyUser? currentUser;
-  bool isLoggedIn;
+  bool? isLoggedIn;
   AuthState({
     this.version,
     this.error,
     this.currentUser,
-    required this.isLoggedIn,
+    this.isLoggedIn,
   });
 
   AuthState copyWith({
@@ -26,7 +24,7 @@ class AuthState {
       version: version ?? this.version,
       error: error ?? this.error,
       currentUser: currentUser ?? this.currentUser,
-      isLoggedIn: isLoggedIn ?? this.isLoggedIn,
+      isLoggedIn: isLoggedIn,
     );
   }
 
@@ -50,8 +48,7 @@ class AuthState {
 
   String toJson() => json.encode(toMap());
 
-  factory AuthState.fromJson(String source) =>
-      AuthState.fromMap(json.decode(source));
+  factory AuthState.fromJson(String source) => AuthState.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -71,9 +68,6 @@ class AuthState {
 
   @override
   int get hashCode {
-    return version.hashCode ^
-        error.hashCode ^
-        currentUser.hashCode ^
-        isLoggedIn.hashCode;
+    return version.hashCode ^ error.hashCode ^ currentUser.hashCode ^ isLoggedIn.hashCode;
   }
 }

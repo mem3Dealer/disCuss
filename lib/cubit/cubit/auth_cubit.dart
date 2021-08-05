@@ -1,10 +1,6 @@
-import 'dart:convert';
-
-import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:meta/meta.dart';
 import 'package:my_chat_app/cubit/cubit/auth_state.dart';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/services/auth.dart';
@@ -18,7 +14,10 @@ class AuthCubit extends HydratedCubit<AuthState> {
   final data = GetIt.I.get<DataBaseService>();
   final auth = GetIt.I.get<AuthService>();
   final fbAuth = FirebaseAuth.instance.currentUser;
-  AuthCubit() : super(AuthState(isLoggedIn: false, version: 0));
+  AuthCubit()
+      : super(AuthState(
+            isLoggedIn: false,
+            version: 0)); //НУЖНО ЛИ ТУТ ОБЪВЯЛЯТЬ КАРРЕНТЮЗЕРА?
 
   Future<void> signIn(String email, String password) async {
     MyUser? signInRes = await auth.signInWithEmailandPassword(email, password);
@@ -29,18 +28,19 @@ class AuthCubit extends HydratedCubit<AuthState> {
           isLoggedIn: true,
           currentUser: signInRes,
           version: state.version! + 1));
+      print('AND THIS IS OUR CURRENT USER: ${state.currentUser}');
     }
   }
 
   Future<void> logOut() async {
     // print('AYYY');
     try {
+      await auth.signOut();
       emit(state.copyWith(isLoggedIn: false, version: state.version! - 1));
-      print(state.version);
-      return await auth.signOut();
+      print('LOG OUT PRINT: ${state.isLoggedIn}, ${state.version}');
     } catch (e) {
       print(e.toString());
-      return null;
+      // return null;
     }
   }
 

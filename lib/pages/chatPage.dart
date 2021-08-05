@@ -1,22 +1,19 @@
 // import 'dart:html';
 
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:my_chat_app/models/message.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
+import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
+import 'package:my_chat_app/cubit/cubit/room_state.dart';
+import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
+// import 'package:my_chat_app/models/message.dart';
+import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
-import 'package:my_chat_app/pages/register.dart';
-import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
-import 'package:my_chat_app/widgets/chatMessages.dart';
-import 'package:my_chat_app/widgets/messageTile.dart';
-import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:collection/collection.dart';
-import 'package:my_chat_app/widgets/sendFieldandButton.dart';
 
 class ChatPage extends StatefulWidget {
   String groupID;
@@ -30,151 +27,92 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   // Stream<QuerySnapshot>? _chat;
-  TextEditingController messageEditingController = TextEditingController();
+  // TextEditingController messageEditingController = TextEditingController();
   CollectionReference users = FirebaseFirestore.instance.collection('users');
   CollectionReference chat = FirebaseFirestore.instance.collection('chat');
-  DataBaseService data = DataBaseService();
-  ScrollController _scrollController = new ScrollController();
+  // DataBaseService data = DataBaseService();
+  // ScrollController _scrollController = new ScrollController();
   String? senderId = FirebaseAuth.instance.currentUser?.uid;
-  bool needsToScroll = false;
-  Message message = Message();
+  // bool needsToScroll = false;
+  // Message message = Message();
 
   // var currentUserId = FirebaseAuth.instance.currentUser!.uid;
-  List<Message>? listChat;
-  List<MyUser>? listUsers;
 
-  Future<void> addUser(String email, String name, String password) {
-    return users.add({
-      'email': email,
-      'name': name,
-      'password': password,
-    }).then((value) => print('user added'));
-  }
+  List<MyUser>? listUsers;
+  // List<Room>? listRooms;
+  final data = GetIt.I.get<DataBaseService>();
+  final userCubit = GetIt.I.get<UserCubit>();
+  final authCubit = GetIt.I.get<AuthCubit>();
+  final roomCubit = GetIt.I.get<RoomCubit>();
 
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       if (listUsers == null) {
-        final chatData = await data.getChat();
         final usersData = await data.getUsers();
-
-        listChat = chatData.toList();
-        listUsers = usersData?.reversed.toList();
-        setState(() {});
+        listUsers = usersData?.toList();
       }
-      // print(listChat);
-      // print(listChat.toString());
+      // if (listRooms == null) {
+      //   final roomsData = await data.getRooms();
+      //   listRooms = roomsData?.toList();
+      //   print('ITS FROM HERE: $listRooms');
+      //   // setState(() {});
+      // }
     });
     super.initState();
   }
 
-  Widget _chatMessages(List<Message> messageDataList) {
-    return Container(
-      child: listUsers == null
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : ListView.builder(
-              controller: _scrollController,
-              reverse: true,
-              shrinkWrap: true,
-              itemCount: messageDataList.length,
-              itemBuilder: (context, index) {
-                // String localeTag =
-                //     Localizations.localeOf(context).toLanguageTag();
-                int _timeStamp = messageDataList[index].time!.seconds;
-                var date =
-                    DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
-                var formattedDate =
-                    DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
-
-                final message = messageDataList[index];
-
-                return MessageTile(
-                    time: formattedDate,
-                    firstMessageOfAuthor: message.isFirst,
-                    lastMessageOfAuthor: message.isLast,
-                    author: message.isFirst
-                        ? message.getUserName(message.sender, listUsers)
-                        : '',
-                    message: message.content,
-                    sentByMe: senderId == message.sender);
-              }),
-    );
-    ;
-  }
-
-  List<Message> makeMessagesDataList(
-      AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
-    List<Message>? _messages = snapshot.data?.docs
-        .map<Message>((e) => Message.fromSnapshot(e))
-        .toList();
-    for (int i = 0; i < _messages!.length; i++) {
-      if (i > 0 && i < _messages.length - 1)
-        _messages[i].isFirst = _messages[i + 1].sender != _messages[i].sender;
-      else
-        _messages[i].isFirst = false;
-
-      if (i > 0 && i < _messages.length)
-        _messages[i].isLast = _messages[i - 1].sender != _messages[i].sender;
-      else
-        _messages[i].isLast = true;
-    }
-    return _messages;
-  }
-
-  String? getUserName(String uid) {
-    return listUsers!
-        .firstWhere((element) => element.uid == uid,
-            orElse: () => MyUser(name: 'null name'))
-        .name;
-  }
-
-  Widget buttonSend() {
-    return GestureDetector(
-      // behavior: HitTestBehavior.translucent,
-      onTap: () {
-        data.sendMessage(
-            messageEditingController, senderId.toString(), widget.groupID);
-        // print(snapshot.docs.length);
-        setState(() {
-          messageEditingController.text = '';
-        });
-        print('pressed');
-      },
-      child: Container(
-        height: 50.0,
-        width: 50.0,
-        decoration: BoxDecoration(
-            color: Colors.blueAccent, borderRadius: BorderRadius.circular(50)),
-        child: Center(child: Icon(Icons.send, color: Colors.white)),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final AuthService _auth = AuthService();
+    // print("ROOMS ARE: $listRooms");
+    // roomCubit.setRoomAsCurrent(
+    //     listRooms?.firstWhere((element) => element.groupID == widget.groupID));
+    print("ROOM STATE AFTER CHECKING AND SETTING ${roomCubit.state}");
+    // print("CURRENT IS: ${widget.groupID}");
+    // final AuthService _auth = AuthService();
+    // return BlocBuilder<RoomCubit, RoomState>(
+    //   bloc: roomCubit,
+    //   builder: (context, state) {
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            listUsers?.firstWhere((element) => element.uid == senderId).name ??
-                'Loading'),
+        title: Text('something here'
+            // authCubit.state.currentUser?.name
+            // listRooms
+            //         ?.firstWhere((element) => element.groupID == widget.groupID)
+            //         .groupName ??
+            //     'Loading'
+            ),
         actions: [
-          // Padding(
-          //   padding: const EdgeInsets.all(10.0),
-          //   child: ElevatedButton(
-          //     style: ButtonStyle(
-          //         backgroundColor:
-          //             MaterialStateProperty.all<Color>(Colors.amber.shade700)),
-          //     child: Icon(Icons.exit_to_app),
-          //     onPressed: () async {
-          //       // await _auth.signOut();
-          //       Navigator.pop(context);
-          //     },
-          //     // label: Text('Log out'),
-          //   ),
-          // )
+          Padding(
+            padding: const EdgeInsets.only(right: 10.0),
+            child: Row(
+              children: [
+                IconButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return roomCubit.addUserToThisRoom(widget.groupID);
+                          });
+                    },
+                    icon: Icon(Icons.add)),
+                IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>
+                              RoomMembersPage(widget.groupID),
+                          // fullscreenDialog: true
+                        ),
+                      );
+                      print(
+                          "State room is: ${roomCubit.state.currentRoom?.admin}");
+                    },
+                    icon: Icon(Icons.people))
+              ],
+            ),
+          ),
         ],
       ),
       body: Container(
@@ -182,22 +120,20 @@ class _ChatPageState extends State<ChatPage> {
               stream: data.testStream(widget.groupID),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  final messageDataList = makeMessagesDataList(snapshot);
+                  final messageDataList =
+                      roomCubit.makeMessagesDataList(snapshot);
                   return Column(children: [
-                    Expanded(child: _chatMessages(messageDataList)),
+                    Expanded(
+                        child: roomCubit.showChat(
+                            messageDataList, listUsers, widget.groupID)),
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Container(
-                        color: Colors.white,
-                        padding: EdgeInsets.symmetric(horizontal: 15.0),
-                        width: MediaQuery.of(context).size.width,
-                        child: Row(
-                          children: [
-                            textField(messageEditingController),
-                            buttonSend()
-                          ],
-                        ),
-                      ),
+                          color: Colors.white,
+                          padding: EdgeInsets.symmetric(horizontal: 15.0),
+                          width: MediaQuery.of(context).size.width,
+                          child: roomCubit
+                              .messageInputAndSendButton(widget.groupID)),
                     ),
                   ]);
                 } else {
@@ -212,17 +148,64 @@ class _ChatPageState extends State<ChatPage> {
   // makeMessagesDataList(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {}
 }
 
-Widget textField(TextEditingController messageEditingController) {
-  return Expanded(
-    child: Container(
-      child: TextField(
-        controller: messageEditingController,
-        style: TextStyle(color: Colors.black),
-        decoration: InputDecoration(
-          // fillColor: Colors.pink,
-          hintText: 'type here',
-        ),
-      ),
-    ),
-  );
+class RoomMembersPage extends StatelessWidget {
+  final roomCubit = GetIt.I.get<RoomCubit>();
+  RoomMembersPage(this.groupID, {Key? key}) : super(key: key);
+  final String groupID;
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<RoomCubit, RoomState>(
+      bloc: roomCubit,
+      builder: (context, state) {
+        return Scaffold(
+            appBar: AppBar(
+                title: Text(
+                    'Chat members, ${state.currentRoom?.members?.length}')),
+            body: Container(
+                child: Center(
+              child: Column(
+                children: [
+                  Container(
+                    child: Text(state.toString()),
+                  ),
+                  Container(
+                    height: 300,
+                    width: 300,
+                    child: SingleChildScrollView(
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: 5,
+                          // state.room?.members?.length,
+                          itemBuilder: (context, index) {
+                            List<MyUser>? _members = state.currentRoom?.members;
+                            return ListTile(
+                                // trailing: state.room?.admin != _members?[index]
+                                //     ? IconButton(
+                                //         icon: Icon(Icons.delete),
+                                //         onPressed: () {
+                                //           // roomCubit.kickUser(
+                                //           //     groupID, _members![index]);
+                                //           // print([_members?[index]]
+                                //           //     .runtimeType);
+                                //         },
+                                //       )
+                                //     : SizedBox.shrink(),
+                                title: Text('hi hi'),
+                                // Text(_members![index].name!),
+                                subtitle: Text('yo yo')
+                                // Text(_members[index].email!),
+                                );
+                          }),
+                    ),
+                  ),
+                ],
+              ),
+              // actions: [
+              //   TextButton(
+              //       onPressed: () {}, child: Text('shmyak'))
+              // ],
+            )));
+      },
+    );
+  }
 }

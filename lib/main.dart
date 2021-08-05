@@ -7,14 +7,11 @@ import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
-import 'package:my_chat_app/models/user.dart';
-import 'package:my_chat_app/pages/home.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/services/wrapper.dart';
-import 'package:my_chat_app/widgets/groupCreator.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:my_chat_app/shared/app_theme.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() async {
@@ -38,30 +35,45 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     final authCubit = GetIt.I.get<AuthCubit>();
+    return FutureBuilder(
+        future: _initialization,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Container();
+          }
+          if (snapshot.connectionState == ConnectionState.done) {
+            return MaterialApp(
+                themeMode: ThemeMode.system,
+                theme: appThemeLight,
+                // darkTheme: appThemeDark,
+                // ThemeData(
+                //     brightness: Brightness.light, primaryColor: Colors.purple.shade400),
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                ],
+                supportedLocales: const [
+                  Locale('ru', ''), // English, no country code
+                  // Spanish, no country code
+                ],
+                home: BlocBuilder<AuthCubit, AuthState>(
+                    bloc: authCubit,
+                    // value: AuthService().user,
+                    builder: (context, state) {
+                      // authCubit.checkUser();
 
-    return MaterialApp(
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('ru', ''), // English, no country code
-          // Spanish, no country code
-        ],
-        home: BlocBuilder<AuthCubit, AuthState>(
-            bloc: authCubit,
-            // value: AuthService().user,
-            builder: (context, state) {
-              // authCubit.checkUser();
+                      return
+                          // GroupCreator();
 
-              return
-                  // GroupCreator();
-
-                  Wrapper();
-            }));
+                          Wrapper();
+                    }));
+          } else
+            return Container();
+        });
   }
   // else {
   //   return Container();
