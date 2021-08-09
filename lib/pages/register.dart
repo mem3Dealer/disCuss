@@ -34,7 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       appBar: AppBar(
         actions: [
           Padding(
@@ -111,15 +111,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     if (_formKey.currentState!.validate()) {
                       authCubit.registrate(_nameController.text,
                           _emailController.text, _passwordController.text);
-                      // setState(() => loading = true);
-                      // dynamic result = await _auth.registerWithEmailandPassword(
-                      //     name, email, password);
-                      // if (result == null) {
-                      //   setState(() {
-                      //     // loading = false;
-                      //     error = 'this is an error message';
-                      //   });
-                      // }
                     }
                     // print("email: $email");
                     // print("password: $password");

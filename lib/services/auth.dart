@@ -40,17 +40,24 @@ class AuthService {
   // register with email and passw
   Future<MyUser?> registerWithEmailandPassword(
       String name, String email, String password) async {
+    MyUser? newUser;
+
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
 
       User? _fbUser = result.user;
-      _fbUser?.updateDisplayName(name);
+
+      _fbUser?.updateDisplayName(name).then((value) => print('updated?????'));
+
+      newUser = _userFromFirebase(_fbUser, password)?.copyWith(name: name);
 
       //create a new doc for that user with the uid
-      await dbService.updateUserData(_fbUser!.uid, name, email);
+      await dbService.updateUserData(newUser!);
 
-      return _userFromFirebase(_fbUser, password);
+      print('FILTER: $newUser');
+      return newUser;
+      // _userFromFirebase(_fbUser, password);
     } catch (e) {
       print(e.toString());
       return null;

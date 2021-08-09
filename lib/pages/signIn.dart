@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
@@ -17,6 +18,7 @@ class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
   // final _auth = AuthService();
   final authCubit = GetIt.I.get<AuthCubit>();
+  final _auth = GetIt.I.get<FirebaseAuth>();
 
   // String email = '';
   // String password = '';
@@ -50,6 +52,7 @@ class _SignInPageState extends State<SignInPage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Text(_auth.currentUser.toString()),
           Container(
             padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
             child: Form(

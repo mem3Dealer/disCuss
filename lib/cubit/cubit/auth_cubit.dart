@@ -47,6 +47,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
   Future<void> registrate(String name, String email, String password) async {
     MyUser? regResult =
         await auth.registerWithEmailandPassword(name, email, password);
+
     if (regResult != null) {
       // final currentUser = MyUser(
       //     name: regResult.displayName,
@@ -54,8 +55,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
       //     uid: regResult.uid);
       print("I watch $regResult");
       emit(state.copyWith(
-          currentUser: regResult.copyWith(
-              name: regResult.name), //ПРИ РЕГЕ НЕ СОБИРАЕТ ИМЯ ПОЧЕМУ-ТО
+          currentUser: regResult, //ПРИ РЕГЕ НЕ СОБИРАЕТ ИМЯ ПОЧЕМУ-ТО
           isLoggedIn: true,
           error: '',
           version: state.version! + 1));

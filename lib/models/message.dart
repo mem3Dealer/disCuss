@@ -6,7 +6,7 @@ import 'package:my_chat_app/models/user.dart';
 
 class Message {
   String? content;
-  String? sender;
+  MyUser? sender;
   Timestamp? time;
   bool isFirst;
   bool isLast;
@@ -21,7 +21,7 @@ class Message {
 
   Message copyWith({
     String? content,
-    String? sender,
+    MyUser? sender,
     Timestamp? time,
     bool? isFirst,
     bool? isLast,
@@ -38,7 +38,7 @@ class Message {
   Map<String, dynamic> toMap() {
     return {
       'content': content,
-      'sender': sender,
+      'sender': sender?.toMap(),
       // 'time': time?.toMap(),
       'isFirst': isFirst,
       'isLast': isLast,
@@ -47,11 +47,11 @@ class Message {
 
   factory Message.fromMap(Map<String, dynamic> map) {
     return Message(
-      content: map['content'],
-      sender: map['sender'],
-      // time: Timestamp.fromMap(map['time']),
-      isFirst: map['isFirst'],
-      isLast: map['isLast'],
+      content: map['recentMessage'],
+      sender: MyUser.fromMap(map['sender']),
+      time: (map['time']),
+      // isFirst: map['isFirst'],
+      // isLast: map['isLast'],
     );
   }
 
@@ -89,7 +89,7 @@ class Message {
   static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
     return Message(
         content: e.get('recentMessage'),
-        sender: e.get('sender'),
+        sender: MyUser.fromMap(e.get('sender')),
         time: e.get('time'));
   }
 

@@ -13,27 +13,37 @@ class UserCubit extends Cubit<UserListState> {
   // final authCubit = GetIt.I.get<AuthCubit>();
   // dynamic auth = FirebaseAuth.instance.currentUser!();
 
-  UserCubit() : super(UserListState(version: 0, selectedUsers: []));
+  UserCubit()
+      : super(UserListState(
+          version: 0,
+          selectedUsers: [],
+        ));
 
   Future<void> getUsersList() async {
     List<MyUser>? _usersList = await data.getUsers();
-    state.listUsers = _usersList;
-    emit(state.copyWith(version: state.version));
+
+    emit(state.copyWith(version: state.version! + 1, listUsers: _usersList));
   }
 
-  MyUser? getCurrentUser() {
-    state.listUsers?.firstWhere((e) {
-      return e.uid == FirebaseAuth.instance.currentUser?.uid;
-    });
-  }
+  // MyUser? getCurrentUser() {
+  //   state.listUsers?.firstWhere((e) {
+  //     return e.uid == FirebaseAuth.instance.currentUser?.uid;
+  //   });
+  // }
 
-  void selectUser(MyUser user) {
-    state.selectedUsers?.add(user);
-
-    var clear = state.selectedUsers?.toSet().toList();
-    emit(state.copyWith(selectedUsers: clear, version: state.version! + 1));
-    // _filteredList.clear();
-    print(' SELECTED USERS FROM THIS FUNCTION: ${state.selectedUsers}');
+  void selectUser(MyUser user, int index) {
+    user.isSelected = !user.isSelected!;
+    if (user.isSelected == true) {
+      state.selectedUsers?.add(
+          user.copyWith(canWrite: true, isApporved: true, isSelected: false));
+    } else {
+      state.selectedUsers?.remove(user);
+    }
+    List<MyUser>? clear = state.selectedUsers?.toSet().toList();
+    emit(state.copyWith(
+        // selectedUsers: clear,
+        version: state.version! + 1));
+    // state.selectedUsers?.clear();
   }
 
   void dismissSelected() {

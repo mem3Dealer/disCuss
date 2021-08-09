@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,7 @@ import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
+import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/services/wrapper.dart';
@@ -27,9 +29,12 @@ void main() async {
   GetIt.instance
     ..registerSingleton<DataBaseService>(DataBaseService())
     ..registerSingleton<UserCubit>(UserCubit())
-    ..registerFactory(() => RoomCubit())
     ..registerFactory(() => AuthService())
-    ..registerSingleton<AuthCubit>(AuthCubit());
+    ..registerSingleton<AuthCubit>(AuthCubit())
+    ..registerSingleton<RoomCubit>(RoomCubit())
+    // ..registerFactory(() => RoomCubit())
+    ..registerSingleton<FirebaseAuth>(FirebaseAuth.instance);
+
   // await userCubit.getUsersList();
   runApp(MyApp());
 }
@@ -50,7 +55,7 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
                 themeMode: ThemeMode.system,
                 theme: appThemeLight,
-                // darkTheme: appThemeDark,
+                darkTheme: appThemeDark,
                 // ThemeData(
                 //     brightness: Brightness.light, primaryColor: Colors.purple.shade400),
                 localizationsDelegates: const [

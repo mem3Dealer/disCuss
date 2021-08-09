@@ -22,271 +22,175 @@ class RoomCubit extends Cubit<RoomState> {
   final authCubit = GetIt.I.get<AuthCubit>();
   final userCubit = GetIt.I.get<UserCubit>();
   final data = GetIt.I.get<DataBaseService>();
-  RoomCubit() : super(RoomState(version: 0, currentRoom: Room()));
+  RoomCubit()
+      : super(RoomState(
+            version: 0,
+            listRooms: [],
+            currentRoom: Room(isPrivate: false),
+            messagesOfThisChatRoom: []));
 
   Future<void> loadRooms() async {
+    List<Room>? thisFuckingList = [];
+
     data.roomsStream(authCubit.state.currentUser!).listen((result) {
-      List<Room> listOfRooms = result.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
-      emit(state.copyWith(listRooms: listOfRooms, version: state.version! + 1));
+      List<Room> listOfRooms =
+          result.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+      // print('FIRST ONE: $listOfRooms');
+      thisFuckingList = listOfRooms;
+
+      // print('SECOND ONE: $listOfRooms');
+      emit(state.copyWith(
+          listRooms: thisFuckingList, version: state.version! + 1));
     });
-
-    // print(filtered.length);
-    // return listOfRooms;
-
-    // return StreamBuilder<QuerySnapshot>(
-    //   stream: data.roomsStream(),
-    //   builder: (context, snapshot) {
-    //     var roomDataList = snapshot.data?.docs;
-    //     if (snapshot.hasData) {
-    //       // return Center(
-    //       //     child: Container(
-    //       //         child: Text(
-    //       //   roomDataList!.length.toString(),
-    //       // )));
-    //       // print(roomDataList);
-    //       if (roomDataList?.length != 0)
-    //         return ListView.builder(
-    //           itemCount: roomDataList?.length,
-    //           itemBuilder: (context, index) {
-    //             return Column(
-    //               children: [
-    //                 ListTile(
-    //                   title: Text("${roomDataList?[index]['groupName']}"),
-    //                   subtitle: Text(
-    //                       "Created by: ${roomDataList?[index]['admin']['name'].toString()}"),
-    //                   onTap: () {
-    //                     Navigator.push(
-    //                         context,
-    //                         MaterialPageRoute(
-    //                             builder: (context) =>
-    //                                 ChatPage(roomDataList?[index]['groupID'])));
-    //                   },
-    //                 ),
-    //                 Divider()
-    //               ],
-    //             );
-    //           },
-    //         );
-    //       else
-    //         return Center(
-    //           child: Container(
-    //             child: Text('There are no chats for you lmao'),
-    //           ),
-    //         );
-    //     } else
-    //       return Center(child: CircularProgressIndicator());
-    //   },
-    // );
+    // print('PRINT OUT FROM LOADROOMS: ${state.listRooms}');
   }
 
-  // void loadRooms() {}
+  Future<void> loadChat(String groupId) async {
+    List<Message>? _listOfMessages = [];
 
-  Future<void> loadChat(String groupId) async {}
+    data.chatStream(groupId).listen((result) {
+      List<Message>? _messages =
+          result.docs.map<Message>((e) => Message.fromSnapshot(e)).toList();
 
-  void loadMessages() {}
+      for (int i = 0; i < _messages.length; i++) {
+        if (i > 0 && i < _messages.length - 1)
+          _messages[i].isFirst = _messages[i + 1].sender != _messages[i].sender;
+        else
+          _messages[i].isFirst = false;
 
-  Widget addUserToThisRoom(
-    String groupID,
-  ) {
-    Room? localRoom = state.currentRoom;
-    // return StreamBuilder<QuerySnapshot>(
-    //   stream: data.roomMembers(groupID),
-    //   builder: (context, snapshot) {
+        if (i > 0 && i < _messages.length)
+          _messages[i].isLast = _messages[i - 1].sender != _messages[i].sender;
+        else
+          _messages[i].isLast = true;
+        _listOfMessages = _messages;
+      }
+      emit(state.copyWith(
+          messagesOfThisChatRoom: _listOfMessages,
+          version: state.version! + 1));
+    });
+  }
 
-    // List<MyUser>? _localUsers = snapshot.data?.docs
-    //     .map<MyUser>((e) => MyUser.myFromSnapshot(e))
-    //     .toList();
-
-    return SingleChildScrollView(
-        child: BlocBuilder<UserCubit, UserListState>(
-            bloc: userCubit,
-            builder: (context, state) {
-              return Container(
-                height: 300,
-                width: 400,
-                child: Column(children: [
-                  Text('whom to add', style: TextStyle(fontSize: 25)),
-                  Expanded(
-                      child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: state.listUsers?.length,
-                          itemBuilder: (context, index) {
-                            List<MyUser>? listUsers = state.listUsers;
-
-                            if (!localRoom!.members!.contains(listUsers?[index])) {
-                              return BlocBuilder<UserCubit, UserListState>(
-                                bloc: userCubit,
-                                builder: (context, state) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(left: 10.0, right: 10),
-                                    child: ListTile(
-                                      onTap: () {
-                                        userCubit.selectUser(listUsers![index]);
-                                      },
-                                      trailing: state.selectedUsers!.contains(listUsers![index])
-                                          // ==
-                                          //     selected.contains(listUsers[index])
-                                          ? Icon(Icons.check_box)
-                                          : Icon(Icons.check_box_outline_blank),
-                                      title: Text(
-                                        listUsers[index].name.toString(),
-                                      ),
-                                      subtitle: Text(listUsers[index].email.toString()),
-                                    ),
-                                  );
-                                },
-                              );
-                            } else {
-                              return SizedBox.shrink();
-                            }
-                          })),
-                  TextButton(
-                      onPressed: () {
-                        data.addNewUserToRoom(groupID, userCubit.state.selectedUsers).then((value) {
-                          userCubit.state.selectedUsers!.clear();
-                          Navigator.of(context).pop();
-                        });
-                      },
-                      child: Text('Add`em', style: TextStyle(fontSize: 20, color: Colors.deepPurple)))
-                ]),
-              );
-            }));
+  Future<void> addUserToThisRoom(
+      String groupId, BuildContext context, List<MyUser> selectedUsers) async {
+    data.addNewUserToRoom(groupId, selectedUsers);
+    state.currentRoom?.members?.addAll(selectedUsers);
+    userCubit.dismissSelected();
+    Navigator.of(context).pop();
+    // print('FILTER1: ${state.currentRoom?.members}');
+    emit(state.copyWith(
+      version: state.version! + 1,
+    ));
   }
 
   void kickUser(String groupID, MyUser userToRemove) {
     data.kickUser(groupID, [userToRemove.toMap()]);
     var _newMembers = state.currentRoom!.members;
     _newMembers!.remove(userToRemove);
-    emit(state.copyWith(currentRoom: state.currentRoom?.copyWith(members: _newMembers), version: state.version! + 1));
-    print('STATE ROOM: ${state.currentRoom}, ${state.version}');
+    emit(state.copyWith(
+        currentRoom: state.currentRoom?.copyWith(members: _newMembers),
+        version: state.version! + 1));
+    // print('STATE ROOM: ${state.currentRoom}, ${state.version}');
     // print('STATE ');
   }
 
-  // Widget showRoomMembers(String groupID) {
-  //   return AlertDialog(
-  //     title: Text('Chat members'),
-  //     content: Container(
-  //       height: 300,
-  //       width: 300,
-  //       child: SingleChildScrollView(
-  //         child: ListView.builder(
-  //             shrinkWrap: true,
-  //             itemCount: state.currentRoom?.members?.length,
-  //             itemBuilder: (context, index) {
-  //               List? _members = state.currentRoom?.members;
-  //               return ListTile(
-  //                 trailing: IconButton(
-  //                   icon: Icon(Icons.delete),
-  //                   onPressed: () {
-  //                     kickUser(groupID, [_members?[index].toMap()]);
-  //                     // print([_members?[index]]
-  //                     //     .runtimeType);
-  //                   },
-  //                 ),
-  //                 title: Text(_members?[index].name),
-  //                 subtitle: Text(_members?[index].email),
-  //               );
-  //             }),
-  //       ),
-  //     ),
-  //     actions: [TextButton(onPressed: () {}, child: Text('shmyak'))],
-  //   );
-  // }
-
-  Widget messageInputAndSendButton(String groupID) {
-    TextEditingController messageEditingController = TextEditingController();
-    String? senderId = authCubit.state.currentUser?.uid;
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            child: TextField(
-              controller: messageEditingController,
-              style: TextStyle(color: Colors.black),
-              decoration: InputDecoration(
-                // fillColor: Colors.pink,
-                hintText: 'type here',
-              ),
-            ),
-          ),
-        ),
-        GestureDetector(
-          // behavior: HitTestBehavior.translucent,
-          onTap: () {
-            data
-                .sendMessage(messageEditingController, senderId.toString(), groupID)
-                ?.then((value) => messageEditingController.clear());
-            // print(snapshot.docs.length);
-            print('pressed');
-          },
-          child: Container(
-            height: 50.0,
-            width: 50.0,
-            decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(50)),
-            child: Center(child: Icon(Icons.send, color: Colors.white)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // void kickUser(String groupID, List list) {
-  //   data.kickUser(groupID, list);
-  //   emit(state);
-  // }
-
-  void setRoomAsCurrent(Room? thisRoom) {
-    emit(state.copyWith(currentRoom: thisRoom, version: state.version! + 1));
-  }
-
-  void initRoom() {}
-
-  void dissolveRoom() {}
-
-  Widget showChat(List<Message> messageDataList, List<MyUser>? listUsers, String groupId) {
-    ScrollController _scrollController = new ScrollController();
-    String? senderId = authCubit.state.currentUser?.uid;
-    return Container(
-      child: messageDataList.isEmpty
-          ? Center(child: Chip(label: Text('ooops... Such empty!')))
-          : ListView.builder(
-              controller: _scrollController,
-              reverse: true,
-              shrinkWrap: true,
-              itemCount: messageDataList.length,
-              itemBuilder: (context, index) {
-                // String localeTag =
-                //     Localizations.localeOf(context).toLanguageTag();
-                int _timeStamp = messageDataList[index].time!.seconds;
-                var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
-                var formattedDate = DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
-
-                final message = messageDataList[index];
-
-                return MessageTile(
-                    time: formattedDate,
-                    firstMessageOfAuthor: message.isFirst,
-                    lastMessageOfAuthor: message.isLast,
-                    author: message.isFirst ? message.getUserName(message.sender, listUsers) : '',
-                    message: message.content,
-                    sentByMe: senderId == message.sender);
-              }),
-    );
-  }
-
-  List<Message> makeMessagesDataList(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
-    List<Message>? _messages = snapshot.data?.docs.map<Message>((e) => Message.fromSnapshot(e)).toList();
-    for (int i = 0; i < _messages!.length; i++) {
-      if (i > 0 && i < _messages.length - 1)
-        _messages[i].isFirst = _messages[i + 1].sender != _messages[i].sender;
-      else
-        _messages[i].isFirst = false;
-
-      if (i > 0 && i < _messages.length)
-        _messages[i].isLast = _messages[i - 1].sender != _messages[i].sender;
-      else
-        _messages[i].isLast = true;
+  Future<void> setRoomAsCurrent(String groupId) async {
+    // print("THIS IS GROUPID: $groupId, ${state.listRooms?.length}");
+    Room? newCurrentRoom;
+    try {
+      // print(state.listRooms);
+      newCurrentRoom = state.listRooms?.firstWhere((element) {
+        return element.groupID == groupId;
+      });
+    } on Exception catch (e) {
+      print(e);
     }
-    return _messages;
+    // print('PRINTOUT FROM SETTER: ${newCurrentRoom}');
+    emit(state.copyWith(
+        currentRoom: newCurrentRoom, version: state.version! + 1));
+  }
+
+  Future<void> createRoom(
+      List<MyUser>? selectedUsers,
+      MyUser? creator,
+      BuildContext context,
+      String topicTheme,
+      String topicContent,
+      bool isPrivate) async {
+    List<MyUser> _filtered = selectedUsers!.toSet().toList();
+
+    await data.createGroup(
+        _filtered, creator, topicTheme, topicContent, isPrivate);
+    emit(state.copyWith(
+        currentRoom: Room(
+            isPrivate: isPrivate,
+            // groupID: ,
+            // groupName: textFieldController.text,
+            // admin: creator,
+            members: _filtered)));
+    userCubit.dismissSelected();
+    // textFieldController.clear();
+    // print('NEW ROOM DONE: ${state.currentRoom}');
+    Navigator.of(context).pop(); //TODO: ДОБАВИТЬ ПРЕХОД В НОВУЮ КОМНАТУ
+  }
+
+  Future<void> dissolveRoom(String groupId) async {
+    data.deleteRoom(groupId);
+    emit(state.copyWith(
+        listRooms: state.listRooms, version: state.version! + 1));
+    // print('PRINTOUT FROM CUBIT');
+  }
+
+  Future<void> leaveRoom(String groupId, MyUser user) async {
+    data.leaveRoom(groupId, user);
+    emit(state.copyWith(
+        listRooms: state.listRooms, version: state.version! + 1));
+    print('PRINTOUT FROM CUBIT');
+  }
+
+  bool markAsPrivate() {
+    // bool _isprivate = state.currentRoom!.isPrivate;
+    // print("PRINT FROM THIS MARKER: ${_isprivate}");
+    // _isprivate = !_isprivate;
+    // print("PRINT FROM THIS MARKER: ${_isprivate}");
+    state.currentRoom!.isPrivate = !state.currentRoom!.isPrivate;
+    emit(state.copyWith(version: state.version! + 1));
+    return state.currentRoom!.isPrivate;
+    // print("PRINT FROM THIS MARKER: ${state.currentRoom!.isPrivate}");
+    // return state.currentRoom?.isPrivate;
+  }
+
+  MyUser? getoLocalUser() {
+    MyUser? user = state.currentRoom!.members!.firstWhere((element) {
+      return element.uid == authCubit.state.currentUser!.uid;
+    }, orElse: () => MyUser());
+    return user;
+  }
+
+  Future<void> sentRequest(MyUser? user, String groupID, bool isPrivate) async {
+    isPrivate
+        ? data.addNewUserToRoom(groupID, [user!.copyWith(isApporved: true)])
+        : data.addNewUserToRoom(
+            groupID, [user!.copyWith(isApporved: true, canWrite: true)]);
+    state.currentRoom?.members?.add(user.copyWith(isApporved: true));
+    emit(state.copyWith(
+      version: state.version! + 1,
+    ));
+    print('CHECK CHECK $user');
+  }
+
+  Future<void> letThemWrite(String groupId, int key) async {
+    // var serverRooms = await data.dummyChats.get();
+    // List rooms =
+    //     serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+    // Room? thisRoom = rooms.firstWhere((element) {
+    //   return element == myroom;
+    // });
+    // var updtae = {};
+    // updtae['members.$key.canWrite'] = true;
+
+    // var sht = data.dummyChats.doc(groupId).update(updtae);
+    // print(thisRoom);
+
+    data.dummyChats.doc(groupId).update({'members.$key.canWrite': true});
   }
 }

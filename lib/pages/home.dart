@@ -11,9 +11,11 @@ import 'package:my_chat_app/cubit/cubit/room_state.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 
 import 'package:my_chat_app/models/room.dart';
+import 'package:my_chat_app/models/user.dart';
+import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/services/wrapper.dart';
-import 'package:my_chat_app/widgets/anotherGroupCreator.dart';
+import 'package:my_chat_app/pages/anotherGroupCreator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -33,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   final authCubit = GetIt.I.get<AuthCubit>();
   final roomCubit = GetIt.I.get<RoomCubit>();
   final formKey = GlobalKey<FormState>();
+  // final _auth = GetIt.I.get<FirebaseAuth>();
   // final dialog = GetIt.I.get<AnotherGroupCreator>();
 
   @override
@@ -48,6 +51,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // print("PRINT FROM UILD: ${userCubit.state.listUsers}");
     final currentUser = authCubit.state.currentUser;
     // final AuthService _auth = AuthService();
     // var senderId = FirebaseAuth.instance.currentUser?.uid;
@@ -55,32 +59,37 @@ class _HomePageState extends State<HomePage> {
       bloc: authCubit,
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(actions: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: ElevatedButton(
-                style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.amber.shade700)),
-                child: Icon(Icons.exit_to_app),
-                onPressed: () async {
-                  await authCubit.logOut();
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => Wrapper()));
-                  // print(
-                  //     'THIS IS LOG OUT PRINT. first param: ${authCubit.fbAuth}, second: ${authCubit.state.isLoggedIn}');
-                  // await _auth.signOut();
-                },
-                // label: Text('Log out'),
-              ),
-            )
-          ], title: Text("${currentUser?.name}`s chats")),
+          appBar: AppBar(
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.amber.shade700)),
+                    child: Icon(Icons.exit_to_app),
+                    onPressed: () async {
+                      await authCubit.logOut();
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => Wrapper()));
+                      // print(
+                      //     'THIS IS LOG OUT PRINT. first param: ${authCubit.fbAuth}, second: ${authCubit.state.isLoggedIn}');
+                      // await _auth.signOut();
+                    },
+                    // label: Text('Log out'),
+                  ),
+                )
+              ],
+              title: Text(
+                  "${authCubit.state.currentUser?.name}`s available rooms")),
           body: Center(
             child: Container(
                 child: BlocBuilder<RoomCubit, RoomState>(
                     bloc: roomCubit,
                     builder: (context, state) {
-                      if (state.listRooms != null)
+                      // print("FILTER 1: ${state.listRooms}");
+                      if (state.listRooms != null &&
+                          state.listRooms?.length != 0)
                         // if (state
                         //     .listRooms!.isNotEmpty)
                         return Container(
@@ -90,14 +99,102 @@ class _HomePageState extends State<HomePage> {
                                     itemCount: state.listRooms?.length,
                                     itemBuilder: (context, index) {
                                       List<Room>? _list = state.listRooms;
+                                      MyUser? currentUser =
+                                          authCubit.state.currentUser;
                                       return Column(
                                         children: [
                                           ListTile(
+                                            trailing: _list![index].isPrivate
+                                                ? Text(
+                                                    'private',
+                                                    style: TextStyle(
+                                                        fontSize: 15,
+                                                        fontStyle:
+                                                            FontStyle.italic),
+                                                  )
+                                                : SizedBox.shrink(),
+                                            // onLongPress: () {
+
+                                            //   // if(_list[index]
+                                            //   //     .members!
+                                            //   //     .firstWhere((element) {
+                                            //   //   if (element.uid ==
+                                            //   //       currentUser?.uid)
+                                            //   //     print(element.isOwner!);
+                                            //   //   return element.isOwner;
+                                            //   //   // else
+                                            //   //   //   return false;
+                                            //   // }))
+                                            //       ? showDialog(
+                                            //           context: context,
+                                            //           builder: (context) {
+                                            //             return AlertDialog(
+                                            //               title: Text(
+                                            //                   'Delete this room?'),
+                                            //               actions: [
+                                            //                 ElevatedButton(
+                                            //                     onPressed: () {
+                                            //                       roomCubit.dissolveRoom(
+                                            //                           _list[index]
+                                            //                               .groupID!);
+                                            //                       Navigator.of(
+                                            //                               context)
+                                            //                           .pop();
+                                            //                     },
+                                            //                     child: Text(
+                                            //                         'Delete'))
+                                            //               ],
+                                            //             );
+                                            //           })
+                                            //       : state.currentRoom!.members!
+                                            //               .contains(roomCubit
+                                            //                   .getoLocalUser())
+                                            //           ? showDialog(
+                                            //               context: context,
+                                            //               builder: (context) {
+                                            //                 return AlertDialog(
+                                            //                   title: Text(
+                                            //                       'Leave this room?'),
+                                            //                   actions: [
+                                            //                     ElevatedButton(
+                                            //                         onPressed:
+                                            //                             () {
+                                            //                           roomCubit.leaveRoom(
+                                            //                               _list[index]
+                                            //                                   .groupID!,
+                                            //                               authCubit
+                                            //                                   .state
+                                            //                                   .currentUser!);
+                                            //                           Navigator.of(
+                                            //                                   context)
+                                            //                               .pop();
+                                            //                         },
+                                            //                         child: Text(
+                                            //                             'Leave'))
+                                            //                   ],
+                                            //                 );
+                                            //               })
+                                            //           : null;
+                                            // },
                                             title: Text(
-                                                "${_list?[index].groupName}"),
+                                                "${_list[index].topicTheme}"),
                                             subtitle: Text(
-                                                'Created by: ${_list?[index].admin?.name}'),
-                                            onTap: () {},
+                                                "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}"),
+                                            onTap: () {
+                                              roomCubit.setRoomAsCurrent(
+                                                  _list[index].groupID!);
+                                              roomCubit.loadChat(
+                                                  _list[index].groupID!);
+                                              // print(
+                                              //     'THIS IS THAT: ${state.currentRoom}');
+                                              Navigator.of(context)
+                                                  .push(MaterialPageRoute<void>(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        ChatPage(_list[index]
+                                                            .groupID!),
+                                              ));
+                                            },
                                           ),
                                           Divider()
                                         ],
@@ -106,36 +203,28 @@ class _HomePageState extends State<HomePage> {
                             // Text("${currentUser?.uid.toString()} \n\n $senderId")
                             // roomCubit.displayRooms(),
                             );
-                      else
-                        return state.listRooms == null
-                            ? CircularProgressIndicator()
-                            : Center(
-                                child: Container(
-                                  child: Text(
-                                      'There are no chats for you! \n Go create one!'),
-                                ),
-                              );
+                      else if (state.listRooms?.length == 0)
+                        return Center(
+                          child: Container(
+                            child: Text(
+                              'There are no chats for you \n Go create one',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 25, fontWeight: FontWeight.w300),
+                            ),
+                          ),
+                        );
+                      return CircularProgressIndicator();
                       // return Container();
                     })),
           ),
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
-              print(authCubit.state.currentUser);
+              // print(authCubit.state.currentUser);
               // roomCubit.loadRooms();
-
-              // showModalBottomSheet(
-              //     isScrollControlled: true,
-              //     elevation: 5,
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.vertical(
-              //           top: Radius.circular(20), bottom: Radius.zero),
-              //     ),
-              //     // useRootNavigator: true,
-              //     context: context,
-              //     builder: (context) {
-              //       return AnotherGroupCreator();
-              //     });
+              Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (BuildContext context) => AnotherGroupCreator()));
             },
           ),
         );

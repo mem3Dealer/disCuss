@@ -17,27 +17,14 @@ class DataBaseService {
   CollectionReference userCollection =
       FirebaseFirestore.instance.collection('users');
 
-  // var currentUser = AuthCubit().state.currentUser?.toMap();
-
-  // currentUser() {
-  //   var currentuser = AuthCubit().state.currentUser;
-
-  //   // FirebaseAuth.instance.currentUser;
-  //   // MyUser(
-  //   //         name: currentuser?.displayName.toString(),
-  //   //         email: currentuser?.email,
-  //   //         uid: currentuser?.uid)
-  //   //     .toMap();
-  // }
-
-  // CollectionReference chat = FirebaseFirestore.instance.collection('chat');
   CollectionReference dummyChats =
       FirebaseFirestore.instance.collection('chatsCollection');
 
   Stream<QuerySnapshot> roomsStream(MyUser currentUser) {
     return FirebaseFirestore.instance
         .collection('chatsCollection')
-        .where('members', arrayContains: currentUser.toMap())
+        // .orderBy('lastMessage', descending: true) //TODO FILTER BY TIME
+        // .where('members', arrayContains: currentUser.toMap())
         .snapshots();
   }
 
@@ -46,26 +33,44 @@ class DataBaseService {
   //   return serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
   // }
 
-  Future createGroup(
-    List<MyUser>? selectedUsers,
-    MyUser? user,
-    String groupName,
-    // String userId,
-  ) async {
+  Future<void> createGroup(List<MyUser>? selectedUsers, MyUser? user,
+      String topicTheme, String topicContent, bool isPrivate,
+      {Message? lastMessage, String? groupName}
+      // String userId,
+      ) async {
     List _mappedUsers = [];
+
     selectedUsers!.forEach((element) {
       _mappedUsers.add(element.toMap());
     });
-
+    // Room newRoom;
     DocumentReference roomDocRef = await dummyChats.add({
-      'groupName': groupName,
+      'lastMessage': {
+        'content': 'hello world',
+        'sender': user?.toMap(),
+        'time': DateTime.now()
+      },
+      'isPrivate': isPrivate,
+      'topicTheme': topicTheme,
+      'topicContent': topicContent,
+      // 'groupName': groupName,
       'members': _mappedUsers,
-      'groupID': '',
-      'admin': user?.toMap(),
+      // 'groupID': '',
+      // 'admin': user?.toMap(),
       'creationTime': DateTime.now().toUtc()
     });
+    // .then((value) {
+    //   final fbObject  = value.get().then((val){
+    //     final doc =
+    //     val.data();
+    //     doc.
+    //     });
+    //   newRoom = Room(
+    //   groupID:value.id,
+    //   groupName: fbObject. groupName.toString()}
+    //  ));
 
-    await roomDocRef.update({'groupID': roomDocRef.id});
+    // await roomDocRef.update({'groupID': roomDocRef.id});
 
     // var memberDocRef = FirebaseFirestore.instance
     //     .collection('chatsCollection')
@@ -76,26 +81,17 @@ class DataBaseService {
     //   memberDocRef.doc(element.name).set(
     //       {'name': element.name, 'uid': element.uid, 'email': element.email});
     // });
+    // return roomDocRef.id;
   }
 
   Future addNewUserToRoom(String groupID, List<MyUser>? selectedUsers) async {
     List _list = [];
-
-    // var memberDocRef = FirebaseFirestore.instance
-    //     .collection('chatsCollection')
-    //     .doc(groupID)
-    //     .collection('members');
 
     selectedUsers?.forEach((element) {
       _list.add(element.toMap());
     });
 
     dummyChats.doc(groupID).update({'members': FieldValue.arrayUnion(_list)});
-
-    // selectedUsers?.forEach((element) {
-    //   memberDocRef.doc(element.name).set(
-    //       {'name': element.name, 'uid': element.uid, 'email': element.email});
-    // });
   }
 
   Stream<QuerySnapshot> usersStream() => FirebaseFirestore.instance
@@ -103,12 +99,12 @@ class DataBaseService {
       // .orderBy('time', descending: true)
       .snapshots();
 
-  Stream<QuerySnapshot> chatStream() => FirebaseFirestore.instance
-      .collection('chat')
-      .orderBy('time', descending: true)
-      .snapshots();
+  // Stream<QuerySnapshot> chatStream() => FirebaseFirestore.instance
+  //     .collection('chat')
+  //     .orderBy('time', descending: true)
+  //     .snapshots();
 
-  Stream<QuerySnapshot> testStream(String groupId) => FirebaseFirestore.instance
+  Stream<QuerySnapshot> chatStream(String groupId) => FirebaseFirestore.instance
       .collection('chatsCollection')
       .doc(groupId)
       .collection('messages')
@@ -130,38 +126,48 @@ class DataBaseService {
   }
 
   Future<void>? sendMessage(
-      TextEditingController _controller, String senderId, String groupID) {
+      TextEditingController _controller, MyUser sender, String groupID) {
     CollectionReference testChat =
         dummyChats.doc(groupID).collection('messages');
     // String? userName = FirebaseAuth.instance.currentUser?.displayName;
     // Stream<QuerySnapshot> _userStream = users.snapshots();
     // try {
     print('Controlle text ${_controller.text}');
+
     final message = {
       'recentMessage': _controller.text,
       'time': DateTime.now().toUtc(),
-      'sender': senderId,
+      'sender': sender.toMap(),
       // 'author':
     };
     print(message);
     if (_controller.text.isNotEmpty) {
       testChat.add(message).then((doc) =>
           testChat.doc(doc.id).get().then((value) => print(value.data())));
+
+      dummyChats.doc(groupID).update({'lastMessage': message});
     }
     // } catch (e, trace) {
     //   debugPrint("Error is $e. Stack = $trace");
     // }
+    _controller.clear();
   }
 
-  Future<void>? updateUserData(String uid, String name, String email) async {
-    return await userCollection
-        .doc(uid)
-        .set({'name': name, 'email': email, 'uid': uid});
+  Future<void>? updateUserData(MyUser user) async {
+    return await userCollection.doc(user.uid).set({
+      'name': user.name,
+      'email': user.email,
+      'uid': user.uid,
+      'isOwner': user.isOwner,
+      'isAdmin': user.isAdmin,
+      'canWrite': user.canWrite,
+      'isApporved': user.isApporved
+    });
   }
 
 //TODO: refactor seart with filter
   Future<List<MyUser>?> getUsers({String? searchString}) async {
-    print('Before get');
+    // print('Before get');.
 
     QuerySnapshot? serverUsers;
     try {
@@ -186,5 +192,17 @@ class DataBaseService {
 
     roomDocRef.update({"members": FieldValue.arrayRemove(list)});
     // print('we got here');
+  }
+
+  Future<void> deleteRoom(String groupId) async {
+    dummyChats.doc(groupId).delete();
+    // print('DELETEROOM HAPPENED');
+  }
+
+  Future<void> leaveRoom(String groupId, MyUser user) async {
+    dummyChats.doc(groupId).update({
+      'members': FieldValue.arrayRemove([user.toMap()])
+    });
+    print('leaveROOM HAPPENED');
   }
 }
