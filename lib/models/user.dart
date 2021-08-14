@@ -8,6 +8,7 @@ class MyUser {
   bool? isAdmin = false;
   bool? canWrite = false;
   bool? isApporved = false;
+  String? nickName;
   String? uid;
   String? name;
   String? email;
@@ -18,6 +19,7 @@ class MyUser {
     this.isAdmin = false,
     this.canWrite = false,
     this.isApporved = false,
+    this.nickName,
     this.uid,
     this.name,
     this.email,
@@ -30,6 +32,7 @@ class MyUser {
     bool? isAdmin,
     bool? canWrite,
     bool? isApporved,
+    String? nickName,
     String? uid,
     String? name,
     String? email,
@@ -41,6 +44,7 @@ class MyUser {
       isAdmin: isAdmin ?? this.isAdmin,
       canWrite: canWrite ?? this.canWrite,
       isApporved: isApporved ?? this.isApporved,
+      nickName: nickName ?? this.nickName,
       uid: uid ?? this.uid,
       name: name ?? this.name,
       email: email ?? this.email,
@@ -55,16 +59,16 @@ class MyUser {
       'isAdmin': isAdmin,
       'canWrite': canWrite,
       'isApporved': isApporved,
+      'nickName': nickName,
       'uid': uid,
       'name': name,
       'email': email,
-      // 'password': password,
     };
   }
 
   Map<String, dynamic> toHydrant() {
     return {
-      'uid': uid, 'name': name, 'email': email,
+      'uid': uid, 'name': name, 'email': email, 'nickname': nickName
       //  'password': password
     };
   }
@@ -76,18 +80,19 @@ class MyUser {
       isAdmin: map['isAdmin'],
       canWrite: map['canWrite'],
       isApporved: map['isApporved'],
+      nickName: map['nickName'],
       uid: map['uid'],
       name: map['name'],
       email: map['email'],
-      password: map['password'],
+      // password: map['password'],
     );
   }
   factory MyUser.fromHydrant(Map<String, dynamic> map) {
     return MyUser(
-      uid: map['uid'],
-      name: map['name'],
-      email: map['email'],
-    );
+        uid: map['uid'],
+        name: map['name'],
+        email: map['email'],
+        nickName: map['nickname']);
   }
 
   String toJson() => json.encode(toMap());
@@ -96,7 +101,7 @@ class MyUser {
 
   @override
   String toString() {
-    return 'MyUser(isSelected: $isSelected, isOwner: $isOwner, isAdmin: $isAdmin, canWrite: $canWrite, isApporved: $isApporved, uid: $uid, name: $name, email: $email, password: $password)';
+    return 'MyUser(isSelected: $isSelected, isOwner: $isOwner, isAdmin: $isAdmin, canWrite: $canWrite, isApporved: $isApporved, nickName: $nickName, uid: $uid, name: $name, email: $email, password: $password)';
   }
 
   @override
@@ -109,6 +114,7 @@ class MyUser {
         other.isAdmin == isAdmin &&
         other.canWrite == canWrite &&
         other.isApporved == isApporved &&
+        other.nickName == nickName &&
         other.uid == uid &&
         other.name == name &&
         other.email == email &&
@@ -122,6 +128,7 @@ class MyUser {
         isAdmin.hashCode ^
         canWrite.hashCode ^
         isApporved.hashCode ^
+        nickName.hashCode ^
         uid.hashCode ^
         name.hashCode ^
         email.hashCode ^
@@ -132,6 +139,7 @@ class MyUser {
     return MyUser(
         uid: e.id,
         name: e.get('name'),
+        nickName: e.get('nickName'),
         email: e.get('email'),
         isOwner: e.get('isOwner'),
         isAdmin: e.get('isAdmin'),

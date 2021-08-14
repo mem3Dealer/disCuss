@@ -39,7 +39,7 @@ class AuthService {
 
   // register with email and passw
   Future<MyUser?> registerWithEmailandPassword(
-      String name, String email, String password) async {
+      String name, String email, String password, String nickName) async {
     MyUser? newUser;
 
     try {
@@ -50,7 +50,8 @@ class AuthService {
 
       _fbUser?.updateDisplayName(name).then((value) => print('updated?????'));
 
-      newUser = _userFromFirebase(_fbUser, password)?.copyWith(name: name);
+      newUser = _userFromFirebase(_fbUser, password)
+          ?.copyWith(name: name, nickName: nickName);
 
       //create a new doc for that user with the uid
       await dbService.updateUserData(newUser!);

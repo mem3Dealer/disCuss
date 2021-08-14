@@ -21,15 +21,42 @@ class AuthCubit extends HydratedCubit<AuthState> {
 
   Future<void> signIn(String email, String password) async {
     MyUser? signInRes = await auth.signInWithEmailandPassword(email, password);
-
     if (signInRes != null) {
+      String? nickName = await fetchNickName(signInRes.uid.toString());
       print("I see $signInRes");
       emit(state.copyWith(
           isLoggedIn: true,
-          currentUser: signInRes,
+          currentUser: signInRes.copyWith(nickName: nickName),
           version: state.version! + 1));
       print('AND THIS IS OUR CURRENT USER: ${state.currentUser}');
     }
+  }
+
+  Future<String>? fetchNickName(String uid) async {
+    String? result;
+    var docRef = data.userCollection.doc(uid);
+    await docRef.get().then((value) {
+      result = value.get('nickName');
+    });
+    // print('RESULT IS $result');
+
+    return result.toString();
+    // MyUse;r.fromSnapshot(that
+  }
+
+  Future<String> isNickNameUnique(String val) async {
+    final userExists = data.userCollection
+        .where('nickName', isEqualTo: val)
+        .get()
+        .then((snapshot) {
+      return snapshot.docs.length > 0;
+    });
+
+    if (await userExists) {
+      print('THIS IS PRINT FROM THIS FUNC: $userExists');
+      return 'This username is already taken :(';
+    } else
+      return '';
   }
 
   Future<void> logOut() async {
@@ -44,9 +71,10 @@ class AuthCubit extends HydratedCubit<AuthState> {
     }
   }
 
-  Future<void> registrate(String name, String email, String password) async {
-    MyUser? regResult =
-        await auth.registerWithEmailandPassword(name, email, password);
+  Future<void> registrate(
+      String name, String email, String password, String nickName) async {
+    MyUser? regResult = await auth.registerWithEmailandPassword(
+        name, email, password, nickName);
 
     if (regResult != null) {
       // final currentUser = MyUser(
@@ -55,7 +83,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
       //     uid: regResult.uid);
       print("I watch $regResult");
       emit(state.copyWith(
-          currentUser: regResult, //ПРИ РЕГЕ НЕ СОБИРАЕТ ИМЯ ПОЧЕМУ-ТО
+          currentUser: regResult.copyWith(nickName: nickName),
           isLoggedIn: true,
           error: '',
           version: state.version! + 1));
@@ -78,12 +106,5 @@ class AuthCubit extends HydratedCubit<AuthState> {
   @override
   Map<String, dynamic>? toJson(AuthState state) {
     return state.currentUser?.toHydrant();
-  }
-
-  void checkUser() {
-    if (state.currentUser != null) {
-      auth.signInWithEmailandPassword(state.currentUser!.email.toString(),
-          state.currentUser!.password.toString());
-    }
   }
 }

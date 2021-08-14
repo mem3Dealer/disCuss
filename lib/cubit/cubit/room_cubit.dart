@@ -22,6 +22,7 @@ class RoomCubit extends Cubit<RoomState> {
   final authCubit = GetIt.I.get<AuthCubit>();
   final userCubit = GetIt.I.get<UserCubit>();
   final data = GetIt.I.get<DataBaseService>();
+  Room? backUpRoomState;
   RoomCubit()
       : super(RoomState(
             version: 0,
@@ -82,9 +83,9 @@ class RoomCubit extends Cubit<RoomState> {
     ));
   }
 
-  void kickUser(String groupID, MyUser userToRemove) {
-    data.kickUser(groupID, [userToRemove.toMap()]);
-    var _newMembers = state.currentRoom!.members;
+  void kickUser(String groupID, MyUser? userToRemove) {
+    // data.kickUser(groupID, [userToRemove.toMap()]);
+    List<MyUser>? _newMembers = state.currentRoom!.members;
     _newMembers!.remove(userToRemove);
     emit(state.copyWith(
         currentRoom: state.currentRoom?.copyWith(members: _newMembers),
@@ -166,31 +167,106 @@ class RoomCubit extends Cubit<RoomState> {
     return user;
   }
 
-  Future<void> sentRequest(MyUser? user, String groupID, bool isPrivate) async {
+  Future<void> sentRequest(MyUser? user, bool isPrivate) async {
     isPrivate
-        ? data.addNewUserToRoom(groupID, [user!.copyWith(isApporved: true)])
-        : data.addNewUserToRoom(
-            groupID, [user!.copyWith(isApporved: true, canWrite: true)]);
+        ? data.addNewUserToRoom(
+            state.currentRoom!.groupID!, [user!.copyWith(isApporved: true)])
+        : data.addNewUserToRoom(state.currentRoom!.groupID!,
+            [user!.copyWith(isApporved: true, canWrite: true)]);
     state.currentRoom?.members?.add(user.copyWith(isApporved: true));
     emit(state.copyWith(
       version: state.version! + 1,
     ));
-    print('CHECK CHECK $user');
+    // print('CHECK CHECK $user');
   }
 
-  Future<void> letThemWrite(String groupId, int key) async {
-    // var serverRooms = await data.dummyChats.get();
-    // List rooms =
-    //     serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
-    // Room? thisRoom = rooms.firstWhere((element) {
-    //   return element == myroom;
-    // });
-    // var updtae = {};
-    // updtae['members.$key.canWrite'] = true;
+  Future<void> changeUserPrivileges(MyUser? user,
+      {bool? canWrite, bool? isAdmin, bool? isApporved}) async {
+    List<MyUser>? listMembers = state.currentRoom?.members;
+    int? index = listMembers?.indexOf(user!);
+    // if (canWrite != null) {
+    MyUser? newUser = listMembers![index!]
+        .copyWith(canWrite: canWrite, isAdmin: isAdmin, isApporved: isApporved);
+    listMembers.setAll(index, [newUser]);
+    Room? newRoom = state.currentRoom?.copyWith(members: listMembers);
+    emit(state.copyWith(version: state.version! + 1, currentRoom: newRoom));
+    // print('COMPLETED');
+  }
 
-    // var sht = data.dummyChats.doc(groupId).update(updtae);
-    // print(thisRoom);
+  Future<void> updateRoomData(
+      {String? topicTheme,
+      String? topicContent,
+      List<MyUser>? selectedUsers}) async {
+    selectedUsers?.forEach((element) {
+      state.currentRoom?.members?.add(element.copyWith(
+          canWrite: true, isApporved: true, isSelected: false));
+    });
 
-    data.dummyChats.doc(groupId).update({'members.$key.canWrite': true});
+    List<MyUser>? updatedMembers = state.currentRoom?.members;
+
+    data.editRoom(
+        state.currentRoom!.groupID!, topicTheme, topicContent, updatedMembers);
+
+    // emit(state.copyWith(
+    //     version: state.version! + 1,
+    //     currentRoom: state.currentRoom?.copyWith(
+    //         topicContent: topicContent,
+    //         topicTheme: topicTheme,
+    //         members: updatedMembers)));
+
+    if (topicContent != '' || topicContent != null) {
+      emit(state.copyWith(
+          version: state.version! + 1,
+          currentRoom: state.currentRoom?.copyWith(
+            topicContent: topicContent,
+          )));
+    }
+    if (topicTheme != '' || topicTheme != null) {
+      emit(state.copyWith(
+          version: state.version! + 1,
+          currentRoom: state.currentRoom?.copyWith(
+            topicTheme: topicTheme,
+          )));
+    }
+    // if (updatedMembers.isNotEmpty) {
+    emit(state.copyWith(
+        version: state.version! + 1,
+        currentRoom: state.currentRoom?.copyWith(
+          members: updatedMembers,
+        )));
+    // }
+    // print(
+    //     'THIS IS another PRINT: ${state.currentRoom?.topicContent}, ${state.currentRoom?.topicTheme}');
+  }
+
+  // void addNewMember(MyUser? user) {
+  //   List<MyUser>? _members = state.currentRoom?.members;
+  //   _members?.add(
+  //       user!.copyWith(isSelected: true, canWrite: true, isApporved: true));
+
+  //   emit(
+  //     state.copyWith(
+  //         version: state.version! + 1,
+  //         currentRoom: state.currentRoom?.copyWith(members: _members)),
+  //   );
+  // }
+
+  Future<void> saveRoomChanges() async {
+    data.updateRoom(state.currentRoom!.groupID!, state.currentRoom!);
+    emit(state.copyWith(
+        version: state.version! + 1, currentRoom: state.currentRoom));
+    // print('PRINT OUT FROM CUBIT');
+  }
+
+  List<MyUser>? backUpUsers() {
+    backUpRoomState = state.currentRoom?.copyWith();
+    // print("BACKUP IS: $backUpRoomState");
+  }
+
+  void discardChanges() {
+    // print('DISCARD PRINT: $backUpRoomState');
+    // Room? _newRoom = state.currentRoom?.copyWith(members: backUpRoomState);
+    emit(state.copyWith(
+        currentRoom: backUpRoomState, version: state.version! + 1));
   }
 }

@@ -33,6 +33,11 @@ class DataBaseService {
   //   return serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
   // }
 
+  // Future<String> getUserNickName(String uid) async {
+  //   final thatUser = await userCollection.where('uid', isEqualTo: uid).snapshots();
+  //   thatUser.map<MyUser>((e) => MyUser.fromSnapshot(e)).toList();
+  // }
+
   Future<void> createGroup(List<MyUser>? selectedUsers, MyUser? user,
       String topicTheme, String topicContent, bool isPrivate,
       {Message? lastMessage, String? groupName}
@@ -117,13 +122,13 @@ class DataBaseService {
   //         .doc(groupId)
   //         .snapshots();
 
-  Future<void> addUser(String email, String name, String password) {
-    return userCollection.add({
-      'email': email,
-      'name': name,
-      'password': password,
-    }).then((value) => print('user added'));
-  }
+  // Future<void> addUser(String email, String name, String password) {
+  //   return userCollection.add({
+  //     'email': email,
+  //     'name': name,
+  //     'password': password,
+  //   }).then((value) => print('user added'));
+  // }
 
   Future<void>? sendMessage(
       TextEditingController _controller, MyUser sender, String groupID) {
@@ -161,9 +166,26 @@ class DataBaseService {
       'isOwner': user.isOwner,
       'isAdmin': user.isAdmin,
       'canWrite': user.canWrite,
-      'isApporved': user.isApporved
+      'isApporved': user.isApporved,
+      'nickName': user.nickName
     });
   }
+
+  // bool validateNickName(String val) {
+  //   // final DocumentSnapshot result = await Future.value(userCollection
+  //   // .doc(val.toLowerCase())
+  //   // .get());
+
+  //   // if (result.exists) {
+  //   //   return false;
+  //   // } else {
+  //   //   return true;
+  //   // }
+  //   var userExists =
+  //       userCollection.where('nickName', isEqualTo: val).get().then((snapshot) {
+  //     return snapshot.docs.length > 0;
+  //   });
+  // }
 
 //TODO: refactor seart with filter
   Future<List<MyUser>?> getUsers({String? searchString}) async {
@@ -203,6 +225,32 @@ class DataBaseService {
     dummyChats.doc(groupId).update({
       'members': FieldValue.arrayRemove([user.toMap()])
     });
-    print('leaveROOM HAPPENED');
+    // print('leaveROOM HAPPENED');
+  }
+
+  Future<void> updateRoom(String groupId, Room? roomToUpdate) async {
+    List membersToUpdate = [];
+
+    roomToUpdate!.members?.forEach((element) {
+      membersToUpdate.add(element.toMap());
+    });
+
+    dummyChats.doc(groupId).update({'members': membersToUpdate});
+    print('UPDATING HAS HAPPENED');
+  }
+
+  Future<void> editRoom(String groupID, String? topicTheme,
+      String? topicContent, List<MyUser>? selectedUsers) async {
+    List? newMembers = [];
+
+    selectedUsers?.forEach((element) {
+      newMembers.add(element.toMap());
+    });
+
+    dummyChats.doc(groupID).update({
+      if (topicTheme != '') 'topicTheme': topicTheme,
+      if (topicContent != '') 'topicContent': topicContent,
+      if (selectedUsers != null) 'members': newMembers,
+    });
   }
 }

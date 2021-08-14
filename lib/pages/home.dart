@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                 )
               ],
               title: Text(
-                  "${authCubit.state.currentUser?.name}`s available rooms")),
+                  "${authCubit.state.currentUser?.nickName}`s available rooms")),
           body: Center(
             child: Container(
                 child: BlocBuilder<RoomCubit, RoomState>(
@@ -113,69 +113,6 @@ class _HomePageState extends State<HomePage> {
                                                             FontStyle.italic),
                                                   )
                                                 : SizedBox.shrink(),
-                                            // onLongPress: () {
-
-                                            //   // if(_list[index]
-                                            //   //     .members!
-                                            //   //     .firstWhere((element) {
-                                            //   //   if (element.uid ==
-                                            //   //       currentUser?.uid)
-                                            //   //     print(element.isOwner!);
-                                            //   //   return element.isOwner;
-                                            //   //   // else
-                                            //   //   //   return false;
-                                            //   // }))
-                                            //       ? showDialog(
-                                            //           context: context,
-                                            //           builder: (context) {
-                                            //             return AlertDialog(
-                                            //               title: Text(
-                                            //                   'Delete this room?'),
-                                            //               actions: [
-                                            //                 ElevatedButton(
-                                            //                     onPressed: () {
-                                            //                       roomCubit.dissolveRoom(
-                                            //                           _list[index]
-                                            //                               .groupID!);
-                                            //                       Navigator.of(
-                                            //                               context)
-                                            //                           .pop();
-                                            //                     },
-                                            //                     child: Text(
-                                            //                         'Delete'))
-                                            //               ],
-                                            //             );
-                                            //           })
-                                            //       : state.currentRoom!.members!
-                                            //               .contains(roomCubit
-                                            //                   .getoLocalUser())
-                                            //           ? showDialog(
-                                            //               context: context,
-                                            //               builder: (context) {
-                                            //                 return AlertDialog(
-                                            //                   title: Text(
-                                            //                       'Leave this room?'),
-                                            //                   actions: [
-                                            //                     ElevatedButton(
-                                            //                         onPressed:
-                                            //                             () {
-                                            //                           roomCubit.leaveRoom(
-                                            //                               _list[index]
-                                            //                                   .groupID!,
-                                            //                               authCubit
-                                            //                                   .state
-                                            //                                   .currentUser!);
-                                            //                           Navigator.of(
-                                            //                                   context)
-                                            //                               .pop();
-                                            //                         },
-                                            //                         child: Text(
-                                            //                             'Leave'))
-                                            //                   ],
-                                            //                 );
-                                            //               })
-                                            //           : null;
-                                            // },
                                             title: Text(
                                                 "${_list[index].topicTheme}"),
                                             subtitle: Text(
@@ -224,7 +161,8 @@ class _HomePageState extends State<HomePage> {
               // print(authCubit.state.currentUser);
               // roomCubit.loadRooms();
               Navigator.of(context).push(MaterialPageRoute<void>(
-                  builder: (BuildContext context) => AnotherGroupCreator()));
+                  builder: (BuildContext context) =>
+                      AnotherGroupCreator(false)));
             },
           ),
         );

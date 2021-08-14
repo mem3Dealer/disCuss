@@ -57,25 +57,31 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
-      // print("FILTER: $currentMemberofThisRoom");
-      // if (listUsers == null) {
-      //   final usersData = await data.getUsers();
-      //   listUsers = usersData?.toList();
-      // }
-      // roomCubit.loadChat(widget.groupID);
-      final snackBar = SnackBar(
+      final entrySnackBar = SnackBar(
           duration: Duration(seconds: 3),
           content: Text(
               'Well, ${authCubit.state.currentUser?.name}, you can`t write here. Go ask for perm.',
               style: TextStyle(
                 fontSize: 17,
               )));
+      // final youAreNotWelcome = SnackBar(
+      //     duration: Duration(seconds: 3),
+      //     content: Text(
+      //         'Sorry to say that, ${authCubit.state.currentUser?.name}, but it seems to be you were not accepted into this conversation.',
+      //         style: TextStyle(
+      //           fontSize: 17,
+      //         )));
       if (roomCubit.state.currentRoom?.isPrivate ==
-          true) if (currentMemberofThisRoom?.canWrite ==
-              false ||
+          true) if (currentMemberofThisRoom?.canWrite == false &&
+              currentMemberofThisRoom?.isApporved == true ||
           currentMemberofThisRoom == null) {
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        ScaffoldMessenger.of(context).showSnackBar(entrySnackBar);
       }
+
+      // if (currentMemberofThisRoom?.canWrite == false &&
+      //     currentMemberofThisRoom?.isApporved == false) {
+      //   ScaffoldMessenger.of(context).showSnackBar(youAreNotWelcome);
+      // }
     });
     super.initState();
   }
@@ -96,6 +102,7 @@ class _ChatPageState extends State<ChatPage> {
               fontSize: 17,
             )));
     // print("TRYNNA GET CURRENT ROOM: ${roomCubit.state.currentRoom}");
+
     return BlocBuilder<RoomCubit, RoomState>(
       bloc: roomCubit,
       builder: (context, state) {
@@ -138,23 +145,24 @@ class _ChatPageState extends State<ChatPage> {
                           padding: const EdgeInsets.only(right: 10.0),
                           child: Row(
                             children: [
-                              if (currentMemberofThisRoom?.isAdmin == true)
-                                IconButton(
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute<void>(
-                                          builder: (BuildContext context) =>
-                                              AddNewUser(widget.groupID),
-                                        ),
-                                      );
-                                    },
-                                    icon: Icon(Icons.add)),
-                              if (currentMemberofThisRoom?.isApporved == false)
+                              // if (currentMemberofThisRoom?.isAdmin == true)
+                              //   IconButton(
+                              //       onPressed: () {
+                              //         Navigator.of(context).push(
+                              //           MaterialPageRoute<void>(
+                              //             builder: (BuildContext context) =>
+                              //                 AddNewUser(widget.groupID),
+                              //           ),
+                              //         );
+                              //       },
+                              //       icon: Icon(Icons.add)),
+                              if (currentMemberofThisRoom?.isApporved ==
+                                      false &&
+                                  currentMemberofThisRoom?.canWrite == false)
                                 ElevatedButton(
                                     onPressed: () {
                                       roomCubit.sentRequest(
                                           authCubit.state.currentUser,
-                                          widget.groupID,
                                           currentRoom.isPrivate);
                                       currentRoom.isPrivate
                                           ? ScaffoldMessenger.of(context)
@@ -164,7 +172,8 @@ class _ChatPageState extends State<ChatPage> {
                                                   youHaveJoinedSnackBar);
                                     },
                                     child: Text('join')),
-                              if (currentMemberofThisRoom?.isApporved == true)
+                              if (currentMemberofThisRoom?.isApporved == true &&
+                                  currentMemberofThisRoom?.canWrite == true)
                                 IconButton(
                                     onPressed: () {
                                       Navigator.of(context).push(
@@ -189,38 +198,66 @@ class _ChatPageState extends State<ChatPage> {
                   child: Column(
                     children: [
                       Expanded(
-                        child: Container(
-                            child: _localChat!.isEmpty
-                                ? Center(child: Text('ooops... Such empty!'))
-                                : ListView.builder(
-                                    controller: _scrollController,
-                                    reverse: true,
-                                    shrinkWrap: true,
-                                    itemCount: _localChat.length,
-                                    itemBuilder: (context, index) {
-                                      final message = _localChat[index];
-                                      int _timeStamp = message.time!.seconds;
-                                      var date =
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              _timeStamp * 1000);
-                                      var formattedDate =
-                                          DateFormat('HH:mm dd.MM.yy', 'ru')
-                                              .format(date);
-                                      return MessageTile(
-                                          time: formattedDate,
-                                          firstMessageOfAuthor: message.isFirst,
-                                          lastMessageOfAuthor: message.isLast,
-                                          author: message.isFirst
-                                              ? message.getUserName(
-                                                  message.sender.toString(),
-                                                  listUsers)
-                                              : '',
-                                          message: message.content,
-                                          sentByMe:
-                                              senderId == message.sender?.uid);
-                                    },
-                                  )),
-                      ),
+                          child: Container(
+                              child: currentMemberofThisRoom?.isApporved ==
+                                          false &&
+                                      currentMemberofThisRoom?.canWrite == false
+                                  ? Center(
+                                      child: Text(
+                                        'This chat is visible only for members.\nYou are not one of them.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w300),
+                                      ),
+                                    )
+                                  : currentMemberofThisRoom?.canWrite == true
+                                      ? _localChat!.isEmpty
+                                          ? Center(
+                                              child:
+                                                  Text('ooops... Such empty!'))
+                                          : ListView.builder(
+                                              controller: _scrollController,
+                                              reverse: true,
+                                              shrinkWrap: true,
+                                              itemCount: _localChat.length,
+                                              itemBuilder: (context, index) {
+                                                final message =
+                                                    _localChat[index];
+                                                int _timeStamp =
+                                                    message.time!.seconds;
+                                                var date = DateTime
+                                                    .fromMillisecondsSinceEpoch(
+                                                        _timeStamp * 1000);
+                                                var formattedDate = DateFormat(
+                                                        'HH:mm dd.MM.yy', 'ru')
+                                                    .format(date);
+                                                return MessageTile(
+                                                    time: formattedDate,
+                                                    firstMessageOfAuthor:
+                                                        message.isFirst,
+                                                    lastMessageOfAuthor:
+                                                        message.isLast,
+                                                    author: message.isFirst
+                                                        ? message.getUserName(
+                                                            message.sender
+                                                                .toString(),
+                                                            listUsers)
+                                                        : '',
+                                                    message: message.content,
+                                                    sentByMe: senderId ==
+                                                        message.sender?.uid);
+                                              },
+                                            )
+                                      : Center(
+                                          child: Text(
+                                            'Chat is only available to accpted members',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w300),
+                                          ),
+                                        ))),
                       if (currentRoom?.isPrivate == true &&
                               currentMemberofThisRoom?.canWrite == false ||
                           currentMemberofThisRoom == null)

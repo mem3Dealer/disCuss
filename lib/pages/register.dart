@@ -4,6 +4,7 @@ import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/shared/input.dart';
+import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 
 class RegisterPage extends StatefulWidget {
   // const RegisterPage({Key? key}) : super(key: key);
@@ -24,13 +25,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  // String email = '';
-  // Sng email = '';
-  // String email = '';
-  // String password = '';
-  // String error = 'this';
-  // String name = '';
-
+  final _nickNameController = TextEditingController();
+  String? nickNameValidator;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +40,6 @@ class _RegisterPageState extends State<RegisterPage> {
               label: Text('Sign In'),
               onPressed: () {
                 widget.letsToggleView!();
-                print('pressed');
               },
             ),
           )
@@ -64,13 +59,25 @@ class _RegisterPageState extends State<RegisterPage> {
                       hintText: 'What`s your name?'),
                   validator: (val) =>
                       val!.isEmpty ? "introduce yourself" : null,
-                  // onChanged: (val) {
-                  //   setState(() {
-                  //     name = val;
-                  //     // data.updateCurrentUser(name);
-                  //   });
-                  // },
                 ),
+                SizedBox(
+                  height: 20,
+                ),
+                TextFormField(
+                    // initialValue: '@',
+                    controller: _nickNameController,
+                    decoration: textInputDecoration.copyWith(
+                        hintText: 'Create nick name.'),
+                    // onSaved:   authCubit.isNickNameUnique(_nickNameController.text).toString();,
+                    validator: (val) {
+                      if (val?.contains('@') == false) {
+                        return 'please enter nickname starting with @';
+                      }
+                      if (nickNameValidator == '') {
+                        return null;
+                      } else
+                        return nickNameValidator.toString();
+                    }),
                 SizedBox(
                   height: 20,
                 ),
@@ -78,11 +85,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: _emailController,
                   decoration: textInputDecoration.copyWith(hintText: 'Email'),
                   validator: (val) => val!.isEmpty ? "Enter an email" : null,
-                  // onChanged: (val) {
-                  //   setState(() {
-                  //     email = val;
-                  //   });
-                  // },
                 ), // email
                 SizedBox(
                   height: 20,
@@ -94,11 +96,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   validator: (val) =>
                       val!.length < 6 ? "Enter an password 6+ long" : null,
                   obscureText: true,
-                  // onChanged: (val) {
-                  //   setState(() {
-                  //     password = val;
-                  //   });
-                  // },
                 ), // password
                 SizedBox(height: 20),
                 ElevatedButton(
@@ -108,12 +105,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   child:
                       Text('Register', style: TextStyle(color: Colors.white)),
                   onPressed: () async {
+                    nickNameValidator = await authCubit
+                        .isNickNameUnique(_nickNameController.text);
+
                     if (_formKey.currentState!.validate()) {
-                      authCubit.registrate(_nameController.text,
-                          _emailController.text, _passwordController.text);
+                      authCubit.registrate(
+                          _nameController.text,
+                          _emailController.text,
+                          _passwordController.text,
+                          _nickNameController.text);
                     }
-                    // print("email: $email");
-                    // print("password: $password");
                   },
                 ),
                 SizedBox(
