@@ -1,8 +1,5 @@
-// import 'dart:html';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -12,10 +9,8 @@ import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/room_state.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/models/message.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
-import 'package:my_chat_app/pages/addNewMember.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/widgets/messageTile.dart';
 import 'package:my_chat_app/pages/roomMembersPage.dart';
@@ -57,6 +52,9 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
+      bool userIsbanned = (currentMemberofThisRoom?.uid != null &&
+          currentMemberofThisRoom?.canWrite == false &&
+          currentMemberofThisRoom?.isApporved == false);
       final entrySnackBar = SnackBar(
           duration: Duration(seconds: 3),
           content: Text(
@@ -64,6 +62,13 @@ class _ChatPageState extends State<ChatPage> {
               style: TextStyle(
                 fontSize: 17,
               )));
+      final entryPublicRoomSnackBar = SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text('Hit join to send messages in this room',
+              style: TextStyle(
+                fontSize: 17,
+              )));
+
       // final youAreNotWelcome = SnackBar(
       //     duration: Duration(seconds: 3),
       //     content: Text(
@@ -71,13 +76,17 @@ class _ChatPageState extends State<ChatPage> {
       //         style: TextStyle(
       //           fontSize: 17,
       //         )));
-      if (roomCubit.state.currentRoom?.isPrivate ==
+      if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate ==
           true) if (currentMemberofThisRoom?.canWrite == false &&
-              currentMemberofThisRoom?.isApporved == true ||
+              currentMemberofThisRoom?.isApporved == false ||
           currentMemberofThisRoom == null) {
         ScaffoldMessenger.of(context).showSnackBar(entrySnackBar);
       }
-
+      if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate ==
+          false) if (currentMemberofThisRoom?.canWrite ==
+              false ||
+          currentMemberofThisRoom?.isApporved == false)
+        ScaffoldMessenger.of(context).showSnackBar(entryPublicRoomSnackBar);
       // if (currentMemberofThisRoom?.canWrite == false &&
       //     currentMemberofThisRoom?.isApporved == false) {
       //   ScaffoldMessenger.of(context).showSnackBar(youAreNotWelcome);
@@ -106,40 +115,99 @@ class _ChatPageState extends State<ChatPage> {
     return BlocBuilder<RoomCubit, RoomState>(
       bloc: roomCubit,
       builder: (context, state) {
+        var top = 0.0;
+        final tbHeight = 50.0;
         MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
+        bool userIsbanned = (currentMemberofThisRoom?.uid != null &&
+            currentMemberofThisRoom?.canWrite == false &&
+            currentMemberofThisRoom?.isApporved == false);
         List<Message>? _localChat = state.messagesOfThisChatRoom;
+        String title = " ${roomCubit.state.currentRoom?.topicTheme!}";
+        String content = " ${roomCubit.state.currentRoom?.topicContent!}";
+
         return Scaffold(
             body: NestedScrollView(
                 headerSliverBuilder:
                     (BuildContext context, bool innerBoxIsScrolled) {
                   return <Widget>[
                     SliverAppBar(
+                      // toolbarHeight: tbHeight,
                       expandedHeight: 200,
-                      floating: false,
+                      // ((title.length / 30) * 36 +
+                      //     (content.length / 60) * 20),
+                      floating: true,
                       pinned: true,
-                      flexibleSpace: FlexibleSpaceBar(
-                        collapseMode: CollapseMode.parallax,
-                        centerTitle: true,
-                        background: Center(
-                            child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: AutoSizeText(
-                            currentRoom!.topicContent.toString(),
-                            // style: TextStyle(fontSize: 25),
-                            minFontSize: 17.0,
-                            maxFontSize: 25.0,
-                            maxLines: 5,
-                            textAlign: TextAlign.center,
+                      flexibleSpace: LayoutBuilder(builder:
+                          (BuildContext context, BoxConstraints constraints) {
+                        // print('constraints=' + constraints.toString());
+                        top = constraints.biggest.height;
+                        return FlexibleSpaceBar(
+                          centerTitle: true,
+                          titlePadding: EdgeInsets.all(8.0),
+                          title: SingleChildScrollView(
+                            physics: NeverScrollableScrollPhysics(),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(title,
+                                    maxLines: top <= tbHeight ? 1 : 10,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                    )),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 15.0),
+                                  child: Text(content,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10.0,
+                                      )),
+                                )
+                              ],
+                            ),
                           ),
-                        )),
-                        title: AutoSizeText(
-                          currentRoom.topicTheme.toString(),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 20),
-                          // minFontSize: 15,
-                          maxLines: 1,
-                        ),
-                      ),
+                        );
+                      }),
+                      // FlexibleSpaceBar(
+                      //     collapseMode: CollapseMode.parallax,
+                      //     centerTitle: true,
+
+                      //     title: Padding(
+                      //         padding: const EdgeInsets.all(10.0),
+                      //         child: Center(
+                      //           child: Column(
+                      //             children: [
+                      //               AutoSizeText(
+                      //                 state.currentRoom!.topicContent
+                      //                     .toString(),
+                      //                 // style: TextStyle(fontSize: 25),
+                      //                 minFontSize: 17.0,
+                      //                 maxFontSize: 25.0,
+                      //                 maxLines: 7,
+
+                      //                 // textAlign: TextAlign.center,
+                      //               ),
+                      //               AutoSizeText(
+                      //                 state.currentRoom!.topicTheme
+                      //                     .toString(),
+                      //                 textAlign: TextAlign.center,
+                      //                 style: TextStyle(fontSize: 20),
+                      //                 // minFontSize: 15,
+                      //                 maxLines: 1,
+                      //               ),
+                      //             ],
+                      //           ),
+                      //           // Text(
+                      //           //   content,
+                      //           //   overflow: TextOverflow.ellipsis,
+                      //           //   maxLines: 7,
+                      //           // ),
+                      //         ))),
+
                       actions: [
                         Padding(
                           padding: const EdgeInsets.only(right: 10.0),
@@ -156,22 +224,25 @@ class _ChatPageState extends State<ChatPage> {
                               //         );
                               //       },
                               //       icon: Icon(Icons.add)),
-                              if (currentMemberofThisRoom?.isApporved ==
-                                      false &&
-                                  currentMemberofThisRoom?.canWrite == false)
-                                ElevatedButton(
-                                    onPressed: () {
-                                      roomCubit.sentRequest(
+                              if (!userIsbanned)
+                                if (currentMemberofThisRoom?.isApporved ==
+                                        false &&
+                                    currentMemberofThisRoom?.canWrite == false)
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        roomCubit.sentRequest(
                                           authCubit.state.currentUser,
-                                          currentRoom.isPrivate);
-                                      currentRoom.isPrivate
-                                          ? ScaffoldMessenger.of(context)
-                                              .showSnackBar(requestSentSnackBar)
-                                          : ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                                  youHaveJoinedSnackBar);
-                                    },
-                                    child: Text('join')),
+                                          // currentRoom.isPrivate
+                                        );
+                                        currentRoom!.isPrivate
+                                            ? ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                                    requestSentSnackBar)
+                                            : ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                                    youHaveJoinedSnackBar);
+                                      },
+                                      child: Text('join')),
                               if (currentMemberofThisRoom?.isApporved == true &&
                                   currentMemberofThisRoom?.canWrite == true)
                                 IconButton(
@@ -197,115 +268,136 @@ class _ChatPageState extends State<ChatPage> {
                 body: Container(
                   child: Column(
                     children: [
-                      Expanded(
-                          child: Container(
-                              child: currentMemberofThisRoom?.isApporved ==
-                                          false &&
-                                      currentMemberofThisRoom?.canWrite == false
-                                  ? Center(
-                                      child: Text(
-                                        'This chat is visible only for members.\nYou are not one of them.',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w300),
-                                      ),
-                                    )
-                                  : currentMemberofThisRoom?.canWrite == true
-                                      ? _localChat!.isEmpty
-                                          ? Center(
-                                              child:
-                                                  Text('ooops... Such empty!'))
-                                          : ListView.builder(
-                                              controller: _scrollController,
-                                              reverse: true,
-                                              shrinkWrap: true,
-                                              itemCount: _localChat.length,
-                                              itemBuilder: (context, index) {
-                                                final message =
-                                                    _localChat[index];
-                                                int _timeStamp =
-                                                    message.time!.seconds;
-                                                var date = DateTime
-                                                    .fromMillisecondsSinceEpoch(
-                                                        _timeStamp * 1000);
-                                                var formattedDate = DateFormat(
-                                                        'HH:mm dd.MM.yy', 'ru')
-                                                    .format(date);
-                                                return MessageTile(
-                                                    time: formattedDate,
-                                                    firstMessageOfAuthor:
-                                                        message.isFirst,
-                                                    lastMessageOfAuthor:
-                                                        message.isLast,
-                                                    author: message.isFirst
-                                                        ? message.getUserName(
-                                                            message.sender
-                                                                .toString(),
-                                                            listUsers)
-                                                        : '',
-                                                    message: message.content,
-                                                    sentByMe: senderId ==
-                                                        message.sender?.uid);
-                                              },
-                                            )
-                                      : Center(
-                                          child: Text(
-                                            'Chat is only available to accpted members',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w300),
-                                          ),
-                                        ))),
-                      if (currentRoom?.isPrivate == true &&
-                              currentMemberofThisRoom?.canWrite == false ||
+                      if (userIsbanned)
+                        Expanded(
+                          child: Chip(
+                            label: Text('You were banned from this discussion'),
+                          ),
+                        )
+                      else if (currentRoom?.isPrivate == true)
+                        Expanded(
+                            child: Container(
+                                child: currentMemberofThisRoom?.canWrite ==
+                                            false &&
+                                        currentMemberofThisRoom?.isApporved ==
+                                            false
+                                    ? Center(
+                                        child: Text(
+                                          'You are not yet member of this group',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontSize: 23,
+                                              fontWeight: FontWeight.w300),
+                                        ),
+                                      )
+                                    : currentMemberofThisRoom?.isApporved ==
+                                                true &&
+                                            currentMemberofThisRoom?.canWrite ==
+                                                false
+                                        ? Center(
+                                            child: Text(
+                                              'Your request is under develeopement',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  fontSize: 23,
+                                                  fontWeight: FontWeight.w300),
+                                            ),
+                                          )
+                                        : _localChat!.isEmpty
+                                            ? Center(
+                                                child: Chip(
+                                                    label: Text(
+                                                        'ooops... Such empty!')))
+                                            : _buildChat(_localChat)))
+                      else if (currentRoom?.isPrivate == false)
+                        Expanded(
+                            child: Container(
+                                child: _localChat!.isEmpty
+                                    ? Center(
+                                        child: Chip(
+                                            label:
+                                                Text('ooops... Such empty!')))
+                                    : _buildChat(_localChat)
+                                //  _buildChat(currentRoom!.chatMessages!)
+                                )),
+                      if (
+                      // currentRoom?.isPrivate == true &&
+                      currentMemberofThisRoom?.canWrite == false ||
+                          currentMemberofThisRoom?.isApporved == false ||
                           currentMemberofThisRoom == null)
                         Container()
                       else
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 10.0),
-                                    child: TextField(
-                                      controller: _messageEditingController,
-                                      style: TextStyle(color: Colors.black),
-                                      decoration: InputDecoration(
-                                          hintText: 'type here',
-                                          fillColor: Colors.transparent),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                // behavior: HitTestBehavior.translucent,
-                                onTap: () {
-                                  data.sendMessage(
-                                      _messageEditingController,
-                                      authCubit.state.currentUser!,
-                                      widget.groupID);
-                                },
-                                child: Container(
-                                  height: 50.0,
-                                  width: 50.0,
-                                  decoration: BoxDecoration(
-                                      color: Colors.blueAccent,
-                                      borderRadius: BorderRadius.circular(50)),
-                                  child: Center(
-                                      child: Icon(Icons.send,
-                                          color: Colors.white)),
-                                ),
-                              ),
-                            ],
-                          ),
+                        BlocBuilder<RoomCubit, RoomState>(
+                          bloc: roomCubit,
+                          builder: (context, state) {
+                            return sendFieldandButton();
+                          },
                         )
                     ],
                   ),
                 )));
+      },
+    );
+  }
+
+  Align sendFieldandButton() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: TextField(
+                  controller: _messageEditingController,
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                      hintText: 'type here', fillColor: Colors.transparent),
+                ),
+              ),
+            ),
+          ),
+          GestureDetector(
+            // behavior: HitTestBehavior.translucent,
+            onTap: () {
+              data.sendMessage(_messageEditingController,
+                  authCubit.state.currentUser!, widget.groupID);
+            },
+            child: Container(
+              height: 50.0,
+              width: 50.0,
+              decoration: BoxDecoration(
+                  color: Colors.blueAccent,
+                  borderRadius: BorderRadius.circular(50)),
+              child: Center(child: Icon(Icons.send, color: Colors.white)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ListView _buildChat(List<Message>? _localChat) {
+    return ListView.builder(
+      controller: _scrollController,
+      reverse: true,
+      shrinkWrap: true,
+      itemCount: _localChat?.length,
+      itemBuilder: (context, index) {
+        final message = _localChat![index];
+        int _timeStamp = message.time!.seconds;
+        var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
+        var formattedDate = DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
+        return MessageTile(
+            time: formattedDate,
+            firstMessageOfAuthor: message.isFirst,
+            lastMessageOfAuthor: message.isLast,
+            author: message.isFirst
+                ? message.getUserName(message.sender.toString(), listUsers)
+                : '',
+            message: message.content,
+            sentByMe: senderId == message.sender?.uid);
       },
     );
   }

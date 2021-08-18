@@ -8,13 +8,14 @@ import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
-import 'package:my_chat_app/models/room.dart';
+import 'package:my_chat_app/pages/home.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/services/wrapper.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:my_chat_app/shared/app_theme.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:splash_screen_view/SplashScreenView.dart';
 
 void main() async {
   // final userCubit = GetIt.I.get<UserCubit>();
@@ -55,9 +56,13 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
                 themeMode: ThemeMode.system,
                 theme: appThemeLight,
-                darkTheme: appThemeDark,
+                // darkTheme: appThemeDark,
                 // ThemeData(
                 //     brightness: Brightness.light, primaryColor: Colors.purple.shade400),
+                routes: <String, WidgetBuilder>{
+                  '/home_page': (BuildContext context) => HomePage(),
+                  '/wrapper': (BuildContext context) => Wrapper()
+                },
                 localizationsDelegates: const [
                   GlobalMaterialLocalizations.delegate,
                 ],
@@ -71,10 +76,14 @@ class MyApp extends StatelessWidget {
                     builder: (context, state) {
                       // authCubit.checkUser();
 
-                      return
-                          // GroupCreator();
+                      return SplashScreenView(
+                          duration: 5000,
+                          imageSize: 450,
+                          imageSrc: 'assets/logo.png',
+                          navigateRoute: Wrapper());
+                      // GroupCreator();
 
-                          Wrapper();
+                      // Wrapper();
                     }));
           } else
             return Container();

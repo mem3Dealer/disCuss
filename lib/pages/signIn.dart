@@ -1,8 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
-import 'package:my_chat_app/shared/app_theme.dart';
 import 'package:my_chat_app/shared/input.dart';
 
 class SignInPage extends StatefulWidget {
@@ -18,7 +16,7 @@ class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
   // final _auth = AuthService();
   final authCubit = GetIt.I.get<AuthCubit>();
-  final _auth = GetIt.I.get<FirebaseAuth>();
+  // final _auth = GetIt.I.get<FirebaseAuth>();
 
   // String email = '';
   // String password = '';
@@ -29,34 +27,33 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Text('this is Sign In page'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(7.0),
-            child: ElevatedButton.icon(
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.amber.shade700)),
-              icon: Icon(Icons.person),
-              label: Text('Register'),
-              onPressed: () {
-                widget.letsToggleView();
-                // print('pressed');
-              },
-            ),
-          )
-        ],
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-            child: Form(
-              key: _formKey,
+        // backgroundColor: Colors.white,
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          title: Text('this is Sign In page'),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.all(7.0),
+              child: ElevatedButton.icon(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Colors.amber.shade700)),
+                icon: Icon(Icons.person),
+                label: Text('Register'),
+                onPressed: () {
+                  widget.letsToggleView();
+                  // print('pressed');
+                },
+              ),
+            )
+          ],
+        ),
+        body: Container(
+          padding: EdgeInsets.symmetric(horizontal: 43.0),
+          child: Form(
+            key: _formKey,
+            child: Container(
+              alignment: Alignment.center,
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -117,8 +114,6 @@ class _SignInPageState extends State<SignInPage> {
               ),
             ),
           ),
-        ],
-      ),
-    );
+        ));
   }
 }

@@ -1,20 +1,19 @@
 import 'package:bloc/bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
+
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/room_state.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
-import 'package:my_chat_app/cubit/cubit/user_state.dart';
+
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
-import 'package:my_chat_app/pages/chatPage.dart';
+
 import 'package:my_chat_app/services/database.dart';
-import 'package:my_chat_app/widgets/messageTile.dart';
 
 // part 'room_state.dart';
 
@@ -160,23 +159,33 @@ class RoomCubit extends Cubit<RoomState> {
     // return state.currentRoom?.isPrivate;
   }
 
-  MyUser? getoLocalUser() {
-    MyUser? user = state.currentRoom!.members!.firstWhere((element) {
-      return element.uid == authCubit.state.currentUser!.uid;
-    }, orElse: () => MyUser());
+  MyUser? getoLocalUser({Room? thatRoom}) {
+    MyUser? user;
+    if (thatRoom == null)
+      user = state.currentRoom!.members?.firstWhere((element) {
+        return element.uid == authCubit.state.currentUser!.uid;
+      }, orElse: () => MyUser());
+    else
+      user = thatRoom.members?.firstWhere((element) {
+        return element.uid == authCubit.state.currentUser!.uid;
+      }, orElse: () => MyUser());
     return user;
   }
 
-  Future<void> sentRequest(MyUser? user, bool isPrivate) async {
-    isPrivate
+  Future<void> sentRequest(
+    MyUser? user,
+  ) async {
+    state.currentRoom!.isPrivate
         ? data.addNewUserToRoom(
             state.currentRoom!.groupID!, [user!.copyWith(isApporved: true)])
         : data.addNewUserToRoom(state.currentRoom!.groupID!,
             [user!.copyWith(isApporved: true, canWrite: true)]);
-    state.currentRoom?.members?.add(user.copyWith(isApporved: true));
+    state.currentRoom!.isPrivate
+        ? state.currentRoom?.members?.add(user.copyWith(isApporved: true))
+        : state.currentRoom?.members
+            ?.add(user.copyWith(isApporved: true, canWrite: true));
     emit(state.copyWith(
-      version: state.version! + 1,
-    ));
+        version: state.version! + 1, currentRoom: state.currentRoom));
     // print('CHECK CHECK $user');
   }
 
@@ -196,7 +205,8 @@ class RoomCubit extends Cubit<RoomState> {
   Future<void> updateRoomData(
       {String? topicTheme,
       String? topicContent,
-      List<MyUser>? selectedUsers}) async {
+      List<MyUser>? selectedUsers,
+      bool? isPrivate}) async {
     selectedUsers?.forEach((element) {
       state.currentRoom?.members?.add(element.copyWith(
           canWrite: true, isApporved: true, isSelected: false));
@@ -204,8 +214,8 @@ class RoomCubit extends Cubit<RoomState> {
 
     List<MyUser>? updatedMembers = state.currentRoom?.members;
 
-    data.editRoom(
-        state.currentRoom!.groupID!, topicTheme, topicContent, updatedMembers);
+    data.editRoom(state.currentRoom!.groupID!, topicTheme, topicContent,
+        updatedMembers, isPrivate);
 
     // emit(state.copyWith(
     //     version: state.version! + 1,
@@ -228,6 +238,12 @@ class RoomCubit extends Cubit<RoomState> {
             topicTheme: topicTheme,
           )));
     }
+
+    if (isPrivate != null) {
+      emit(state.copyWith(
+          currentRoom: state.currentRoom?.copyWith(isPrivate: isPrivate)));
+    }
+
     // if (updatedMembers.isNotEmpty) {
     emit(state.copyWith(
         version: state.version! + 1,

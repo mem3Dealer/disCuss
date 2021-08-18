@@ -1,6 +1,5 @@
 import 'dart:core';
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/user_state.dart';
 import 'package:my_chat_app/models/user.dart';
@@ -36,13 +35,14 @@ class UserCubit extends Cubit<UserListState> {
 
   void selectUser(MyUser user) {
     user.isSelected = !user.isSelected!;
+
     if (user.isSelected == true) {
       state.selectedUsers?.add(
           user.copyWith(canWrite: true, isApporved: true, isSelected: false));
     } else {
       state.selectedUsers?.remove(user);
     }
-    List<MyUser>? clear = state.selectedUsers?.toSet().toList();
+    // List<MyUser>? clear = state.selectedUsers?.toSet().toList();
     emit(state.copyWith(
         // selectedUsers: clear,
         version: state.version! + 1));

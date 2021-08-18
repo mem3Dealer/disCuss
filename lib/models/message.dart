@@ -89,7 +89,7 @@ class Message {
   static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
     return Message(
         content: e.get('recentMessage'),
-        sender: MyUser.fromMap(e.get('sender')),
+        sender: MyUser.fromMapForMessages(e.get('sender')),
         time: e.get('time'));
   }
 

@@ -66,6 +66,20 @@ class MyUser {
     };
   }
 
+  Map<String, dynamic> senderToMap() {
+    return {
+      // 'isSelected': isSelected,
+      // 'isOwner': isOwner,
+      // 'isAdmin': isAdmin,
+      // 'canWrite': canWrite,
+      // 'isApporved': isApporved,
+      'nickName': nickName,
+      'uid': uid,
+      'name': name,
+      'email': email,
+    };
+  }
+
   Map<String, dynamic> toHydrant() {
     return {
       'uid': uid, 'name': name, 'email': email, 'nickname': nickName
@@ -87,6 +101,22 @@ class MyUser {
       // password: map['password'],
     );
   }
+
+  factory MyUser.fromMapForMessages(Map<String, dynamic> map) {
+    return MyUser(
+      // isSelected: map['isSelected'],
+      // isOwner: map['isOwner'],
+      // isAdmin: map['isAdmin'],
+      // canWrite: map['canWrite'],
+      // isApporved: map['isApporved'],
+      nickName: map['nickName'],
+      uid: map['uid'],
+      name: map['name'],
+      email: map['email'],
+      // password: map['password'],
+    );
+  }
+
   factory MyUser.fromHydrant(Map<String, dynamic> map) {
     return MyUser(
         uid: map['uid'],

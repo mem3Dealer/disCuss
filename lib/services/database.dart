@@ -1,8 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
@@ -23,8 +20,7 @@ class DataBaseService {
   Stream<QuerySnapshot> roomsStream(MyUser currentUser) {
     return FirebaseFirestore.instance
         .collection('chatsCollection')
-        // .orderBy('lastMessage', descending: true) //TODO FILTER BY TIME
-        // .where('members', arrayContains: currentUser.toMap())
+        .orderBy('lastMessage.time', descending: true)
         .snapshots();
   }
 
@@ -52,7 +48,7 @@ class DataBaseService {
     DocumentReference roomDocRef = await dummyChats.add({
       'lastMessage': {
         'content': 'hello world',
-        'sender': user?.toMap(),
+        'sender': user?.senderToMap(),
         'time': DateTime.now()
       },
       'isPrivate': isPrivate,
@@ -116,20 +112,6 @@ class DataBaseService {
       .orderBy('time', descending: true)
       .snapshots();
 
-  // Stream<QuerySnapshot> roomMembers(String groupId) =>
-  //     FirebaseFirestore.instance
-  //         .collection('chatsCollection')
-  //         .doc(groupId)
-  //         .snapshots();
-
-  // Future<void> addUser(String email, String name, String password) {
-  //   return userCollection.add({
-  //     'email': email,
-  //     'name': name,
-  //     'password': password,
-  //   }).then((value) => print('user added'));
-  // }
-
   Future<void>? sendMessage(
       TextEditingController _controller, MyUser sender, String groupID) {
     CollectionReference testChat =
@@ -142,7 +124,7 @@ class DataBaseService {
     final message = {
       'recentMessage': _controller.text,
       'time': DateTime.now().toUtc(),
-      'sender': sender.toMap(),
+      'sender': sender.senderToMap(),
       // 'author':
     };
     print(message);
@@ -170,22 +152,6 @@ class DataBaseService {
       'nickName': user.nickName
     });
   }
-
-  // bool validateNickName(String val) {
-  //   // final DocumentSnapshot result = await Future.value(userCollection
-  //   // .doc(val.toLowerCase())
-  //   // .get());
-
-  //   // if (result.exists) {
-  //   //   return false;
-  //   // } else {
-  //   //   return true;
-  //   // }
-  //   var userExists =
-  //       userCollection.where('nickName', isEqualTo: val).get().then((snapshot) {
-  //     return snapshot.docs.length > 0;
-  //   });
-  // }
 
 //TODO: refactor seart with filter
   Future<List<MyUser>?> getUsers({String? searchString}) async {
@@ -239,8 +205,12 @@ class DataBaseService {
     print('UPDATING HAS HAPPENED');
   }
 
-  Future<void> editRoom(String groupID, String? topicTheme,
-      String? topicContent, List<MyUser>? selectedUsers) async {
+  Future<void> editRoom(
+      String groupID,
+      String? topicTheme,
+      String? topicContent,
+      List<MyUser>? selectedUsers,
+      bool? isPrivate) async {
     List? newMembers = [];
 
     selectedUsers?.forEach((element) {
@@ -251,6 +221,7 @@ class DataBaseService {
       if (topicTheme != '') 'topicTheme': topicTheme,
       if (topicContent != '') 'topicContent': topicContent,
       if (selectedUsers != null) 'members': newMembers,
+      if (isPrivate != null) 'isPrivate': isPrivate,
     });
   }
 }
