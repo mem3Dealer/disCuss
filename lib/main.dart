@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
-import 'package:my_chat_app/cubit/cubit/auth_state.dart';
+import 'package:my_chat_app/cubit/states/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/pages/home.dart';
@@ -55,39 +55,42 @@ class MyApp extends StatelessWidget {
           }
           if (snapshot.connectionState == ConnectionState.done) {
             return MaterialApp(
-              themeMode: ThemeMode.system,
-              theme: appThemeLight,
-              // darkTheme: appThemeDark,
-              // ThemeData(
-              //     brightness: Brightness.light, primaryColor: Colors.purple.shade400),
-              routes: <String, WidgetBuilder>{
-                '/home_page': (BuildContext context) => HomePage(),
-                '/wrapper': (BuildContext context) => Wrapper()
-              },
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-              ],
-              supportedLocales: const [
-                Locale('ru', ''), // English, no country code
-                // Spanish, no country code
-              ],
-              home: SliverPage(),
-              // BlocBuilder<AuthCubit, AuthState>(
-              //     bloc: authCubit,
-              //     // value: AuthService().user,
-              //     builder: (context, state) {
-              //       // authCubit.checkUser();
+                themeMode: ThemeMode.system,
+                theme: appThemeLight,
+                // darkTheme: appThemeDark,
+                // ThemeData(
+                //     brightness: Brightness.light, primaryColor: Colors.purple.shade400),
+                routes: <String, WidgetBuilder>{
+                  '/home_page': (BuildContext context) => HomePage(),
+                  '/wrapper': (BuildContext context) => Wrapper()
+                },
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                ],
+                supportedLocales: const [
+                  Locale('ru', ''), // English, no country code
+                  // Spanish, no country code
+                ],
+                home:
+                    //SliverPage(),
+                    BlocBuilder<AuthCubit, AuthState>(
+                        bloc: authCubit,
+                        // value: AuthService().user,
+                        builder: (context, state) {
+                          // authCubit.checkUser();
 
-              //       return SplashScreenView(
-              //           duration: 5000,
-              //           imageSize: 450,
-              //           imageSrc: 'assets/logo.png',
-              //           navigateRoute: Wrapper());
-              //       // GroupCreator();
+                          return SplashScreenView(
+                              backgroundColor: Colors.pink[900],
+                              duration: 3000,
+                              imageSize: 300,
+                              text: 'Welcome!',
+                              textStyle: TextStyle(color: Colors.grey.shade100, fontSize: 50.0),
+                              imageSrc: 'assets/logo.png',
+                              navigateRoute: Wrapper());
+                          // GroupCreator();
 
-              //       // Wrapper();
-              //     })
-            );
+                          // Wrapper();
+                        }));
           } else
             return Container();
         });

@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
-import 'package:my_chat_app/cubit/cubit/room_state.dart';
+import 'package:my_chat_app/cubit/states/room_state.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
@@ -57,8 +57,7 @@ class _ChatPageState extends State<ChatPage> {
           currentMemberofThisRoom?.isApporved == false);
       final entrySnackBar = SnackBar(
           duration: Duration(seconds: 3),
-          content: Text(
-              'Well, ${authCubit.state.currentUser?.name}, you can`t write here. Go ask for perm.',
+          content: Text('Well, ${authCubit.state.currentUser?.name}, you can`t write here. Go ask for perm.',
               style: TextStyle(
                 fontSize: 17,
               )));
@@ -76,16 +75,14 @@ class _ChatPageState extends State<ChatPage> {
       //         style: TextStyle(
       //           fontSize: 17,
       //         )));
-      if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate ==
-          true) if (currentMemberofThisRoom?.canWrite == false &&
+      if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate == true) if (currentMemberofThisRoom?.canWrite ==
+                  false &&
               currentMemberofThisRoom?.isApporved == false ||
           currentMemberofThisRoom == null) {
         ScaffoldMessenger.of(context).showSnackBar(entrySnackBar);
       }
       if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate ==
-          false) if (currentMemberofThisRoom?.canWrite ==
-              false ||
-          currentMemberofThisRoom?.isApporved == false)
+          false) if (currentMemberofThisRoom?.canWrite == false || currentMemberofThisRoom?.isApporved == false)
         ScaffoldMessenger.of(context).showSnackBar(entryPublicRoomSnackBar);
       // if (currentMemberofThisRoom?.canWrite == false &&
       //     currentMemberofThisRoom?.isApporved == false) {
@@ -127,8 +124,7 @@ class _ChatPageState extends State<ChatPage> {
 
         return Scaffold(
             body: NestedScrollView(
-                headerSliverBuilder:
-                    (BuildContext context, bool innerBoxIsScrolled) {
+                headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
                   return <Widget>[
                     SliverAppBar(
                       // toolbarHeight: tbHeight,
@@ -137,8 +133,7 @@ class _ChatPageState extends State<ChatPage> {
                       //     (content.length / 60) * 20),
                       floating: true,
                       pinned: true,
-                      flexibleSpace: LayoutBuilder(builder:
-                          (BuildContext context, BoxConstraints constraints) {
+                      flexibleSpace: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
                         // print('constraints=' + constraints.toString());
                         top = constraints.biggest.height;
                         return FlexibleSpaceBar(
@@ -225,8 +220,7 @@ class _ChatPageState extends State<ChatPage> {
                               //       },
                               //       icon: Icon(Icons.add)),
                               if (!userIsbanned)
-                                if (currentMemberofThisRoom?.isApporved ==
-                                        false &&
+                                if (currentMemberofThisRoom?.isApporved == false &&
                                     currentMemberofThisRoom?.canWrite == false)
                                   ElevatedButton(
                                       onPressed: () {
@@ -235,12 +229,8 @@ class _ChatPageState extends State<ChatPage> {
                                           // currentRoom.isPrivate
                                         );
                                         currentRoom!.isPrivate
-                                            ? ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                                    requestSentSnackBar)
-                                            : ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                                    youHaveJoinedSnackBar);
+                                            ? ScaffoldMessenger.of(context).showSnackBar(requestSentSnackBar)
+                                            : ScaffoldMessenger.of(context).showSnackBar(youHaveJoinedSnackBar);
                                       },
                                       child: Text('join')),
                               if (currentMemberofThisRoom?.isApporved == true &&
@@ -249,8 +239,7 @@ class _ChatPageState extends State<ChatPage> {
                                     onPressed: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute<void>(
-                                          builder: (BuildContext context) =>
-                                              RoomMembersPage(widget.groupID),
+                                          builder: (BuildContext context) => RoomMembersPage(widget.groupID),
                                           // fullscreenDialog: true
                                         ),
                                       );
@@ -277,46 +266,32 @@ class _ChatPageState extends State<ChatPage> {
                       else if (currentRoom?.isPrivate == true)
                         Expanded(
                             child: Container(
-                                child: currentMemberofThisRoom?.canWrite ==
-                                            false &&
-                                        currentMemberofThisRoom?.isApporved ==
-                                            false
+                                child: currentMemberofThisRoom?.canWrite == false &&
+                                        currentMemberofThisRoom?.isApporved == false
                                     ? Center(
                                         child: Text(
                                           'You are not yet member of this group',
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: 23,
-                                              fontWeight: FontWeight.w300),
+                                          style: TextStyle(fontSize: 23, fontWeight: FontWeight.w300),
                                         ),
                                       )
-                                    : currentMemberofThisRoom?.isApporved ==
-                                                true &&
-                                            currentMemberofThisRoom?.canWrite ==
-                                                false
+                                    : currentMemberofThisRoom?.isApporved == true &&
+                                            currentMemberofThisRoom?.canWrite == false
                                         ? Center(
                                             child: Text(
                                               'Your request is under develeopement',
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                  fontSize: 23,
-                                                  fontWeight: FontWeight.w300),
+                                              style: TextStyle(fontSize: 23, fontWeight: FontWeight.w300),
                                             ),
                                           )
                                         : _localChat!.isEmpty
-                                            ? Center(
-                                                child: Chip(
-                                                    label: Text(
-                                                        'ooops... Such empty!')))
+                                            ? Center(child: Chip(label: Text('ooops... Such empty!')))
                                             : _buildChat(_localChat)))
                       else if (currentRoom?.isPrivate == false)
                         Expanded(
                             child: Container(
                                 child: _localChat!.isEmpty
-                                    ? Center(
-                                        child: Chip(
-                                            label:
-                                                Text('ooops... Such empty!')))
+                                    ? Center(child: Chip(label: Text('ooops... Such empty!')))
                                     : _buildChat(_localChat)
                                 //  _buildChat(currentRoom!.chatMessages!)
                                 )),
@@ -352,8 +327,7 @@ class _ChatPageState extends State<ChatPage> {
                 child: TextField(
                   controller: _messageEditingController,
                   style: TextStyle(color: Colors.black),
-                  decoration: InputDecoration(
-                      hintText: 'type here', fillColor: Colors.transparent),
+                  decoration: InputDecoration(hintText: 'type here', fillColor: Colors.transparent),
                 ),
               ),
             ),
@@ -361,15 +335,12 @@ class _ChatPageState extends State<ChatPage> {
           GestureDetector(
             // behavior: HitTestBehavior.translucent,
             onTap: () {
-              data.sendMessage(_messageEditingController,
-                  authCubit.state.currentUser!, widget.groupID);
+              data.sendMessage(_messageEditingController, authCubit.state.currentUser!, widget.groupID);
             },
             child: Container(
               height: 50.0,
               width: 50.0,
-              decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  borderRadius: BorderRadius.circular(50)),
+              decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(50)),
               child: Center(child: Icon(Icons.send, color: Colors.white)),
             ),
           ),
@@ -393,9 +364,7 @@ class _ChatPageState extends State<ChatPage> {
             time: formattedDate,
             firstMessageOfAuthor: message.isFirst,
             lastMessageOfAuthor: message.isLast,
-            author: message.isFirst
-                ? message.getUserName(message.sender.toString(), listUsers)
-                : '',
+            author: message.isFirst ? message.getUserName(message.sender.toString(), listUsers) : '',
             message: message.content,
             sentByMe: senderId == message.sender?.uid);
       },

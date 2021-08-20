@@ -1,7 +1,7 @@
 import 'dart:core';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:my_chat_app/cubit/cubit/user_state.dart';
+import 'package:my_chat_app/cubit/states/user_state.dart';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/services/database.dart';
 
@@ -37,8 +37,7 @@ class UserCubit extends Cubit<UserListState> {
     user.isSelected = !user.isSelected!;
 
     if (user.isSelected == true) {
-      state.selectedUsers?.add(
-          user.copyWith(canWrite: true, isApporved: true, isSelected: false));
+      state.selectedUsers?.add(user.copyWith(canWrite: true, isApporved: true, isSelected: false));
     } else {
       state.selectedUsers?.remove(user);
     }
@@ -51,14 +50,12 @@ class UserCubit extends Cubit<UserListState> {
 
   void dismissSelected() {
     state.selectedUsers?.clear();
-    emit(state.copyWith(
-        selectedUsers: state.selectedUsers, version: state.version! - 1));
+    emit(state.copyWith(selectedUsers: state.selectedUsers, version: state.version! - 1));
   }
 
   void deleteFromSelected(MyUser user) {
     state.selectedUsers?.remove(user);
-    emit(state.copyWith(
-        selectedUsers: state.selectedUsers, version: state.version! - 1));
+    emit(state.copyWith(selectedUsers: state.selectedUsers, version: state.version! - 1));
   }
 
   // void errorOnNotFound(String errorMessage) {
@@ -68,8 +65,7 @@ class UserCubit extends Cubit<UserListState> {
   Future<dynamic>? searchMember(String searchBy) async {
     var result;
 
-    var docRef =
-        data.userCollection.where('nickName', isEqualTo: searchBy).get();
+    var docRef = data.userCollection.where('nickName', isEqualTo: searchBy).get();
 
     await docRef.then((value) {
       result = MyUser.fromSnapshot(value.docs.first);

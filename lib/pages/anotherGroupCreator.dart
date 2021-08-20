@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
-import 'package:my_chat_app/cubit/cubit/room_state.dart';
+import 'package:my_chat_app/cubit/states/room_state.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
-import 'package:my_chat_app/cubit/cubit/user_state.dart';
+import 'package:my_chat_app/cubit/states/user_state.dart';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/shared/input.dart';
@@ -44,20 +44,15 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     // print(roomCubit.state.currentRoom!.isPrivate);
     if (_isEditing == false) {
       if (!_selectedUsers!.contains(authCurrentUser?.uid))
-        _selectedUsers.add(authCurrentUser!.copyWith(
-            isOwner: true, canWrite: true, isAdmin: true, isApporved: true));
+        _selectedUsers.add(authCurrentUser!.copyWith(isOwner: true, canWrite: true, isAdmin: true, isApporved: true));
     }
-    final _editingTopicContent =
-        TextEditingController(text: roomCubit.state.currentRoom?.topicContent);
-    final _themeEditingController =
-        TextEditingController(text: roomCubit.state.currentRoom?.topicTheme);
+    final _editingTopicContent = TextEditingController(text: roomCubit.state.currentRoom?.topicContent);
+    final _themeEditingController = TextEditingController(text: roomCubit.state.currentRoom?.topicTheme);
     // print("PRINT FROM BUILD: ${userCubit.state.selectedUsers}");
     return Scaffold(
         // resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: _isEditing
-              ? Text('Editing page')
-              : Text('What do you want to discuss?'),
+          title: _isEditing ? Text('Editing page') : Text('What do you want to discuss?'),
           actions: [
             Padding(
                 padding: const EdgeInsets.only(right: 8.0),
@@ -68,9 +63,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                         onPressed: () {
                           _isPrivate = roomCubit.markAsPrivate();
                         },
-                        icon: state.currentRoom!.isPrivate
-                            ? Icon(Icons.lock)
-                            : Icon(Icons.lock_open));
+                        icon: state.currentRoom!.isPrivate ? Icon(Icons.lock) : Icon(Icons.lock_open));
                   },
                 ))
           ],
@@ -124,21 +117,17 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                 _isEditing
                     ? ElevatedButton(
                         onPressed: () async {
-                          var _user =
-                              await userCubit.searchMember(_searchBy.text);
+                          var _user = await userCubit.searchMember(_searchBy.text);
 
                           if (_user.runtimeType == String) {
                             nickNameIsValid = _user.toString();
                           } else {
                             MyUser? _addingUser = _user;
                             // print(_addingUser);
-                            bool contained = roomCubit
-                                .state.currentRoom!.members!
-                                .any((element) {
+                            bool contained = roomCubit.state.currentRoom!.members!.any((element) {
                               return element.uid == _addingUser!.uid;
                             });
-                            bool alsoContained =
-                                userCubit.state.selectedUsers!.any((element) {
+                            bool alsoContained = userCubit.state.selectedUsers!.any((element) {
                               return element.uid == _addingUser!.uid;
                             });
 
@@ -153,16 +142,14 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                         child: Text('Add'))
                     : ElevatedButton(
                         onPressed: () async {
-                          var _user =
-                              await userCubit.searchMember(_searchBy.text);
+                          var _user = await userCubit.searchMember(_searchBy.text);
 
                           if (_user.runtimeType == String) {
                             nickNameIsValid = _user.toString();
                           } else {
                             MyUser? _addingUser = _user;
                             // print(_addingUser);
-                            bool contained =
-                                userCubit.state.selectedUsers!.any((element) {
+                            bool contained = userCubit.state.selectedUsers!.any((element) {
                               return element.uid == _addingUser!.uid;
                             });
                             if (contained) {
@@ -198,10 +185,8 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                                     .updateRoomData(
                                         isPrivate: _isPrivate,
                                         topicContent: _editingTopicContent.text,
-                                        topicTheme:
-                                            _themeEditingController.text,
-                                        selectedUsers:
-                                            userCubit.state.selectedUsers)
+                                        topicTheme: _themeEditingController.text,
+                                        selectedUsers: userCubit.state.selectedUsers)
                                     .then((value) {
                                   userCubit.dismissSelected();
                                   _searchBy.clear();
@@ -278,9 +263,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                   // List<MyUser>? selected = state.selectedUsers;
                   List<MyUser>? listUsers = state.selectedUsers;
 
-                  if (listUsers?[index].uid ==
-                          authCubit.state.currentUser?.uid ||
-                      listUsers?[index].uid == null)
+                  if (listUsers?[index].uid == authCubit.state.currentUser?.uid || listUsers?[index].uid == null)
                     return SizedBox.shrink();
                   else
                     return ListTile(
@@ -337,8 +320,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     );
   }
 
-  Padding buildTopicContent(
-      bool _isEditing, TextEditingController _editingTopicContent) {
+  Padding buildTopicContent(bool _isEditing, TextEditingController _editingTopicContent) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: _isEditing
@@ -346,13 +328,11 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
               maxLines: 5,
               controller: _editingTopicContent,
               decoration: textInputDecoration.copyWith(
-                  labelText: 'Edit discussion content',
-                  hintText: "${roomCubit.state.currentRoom?.topicContent}"))
+                  labelText: 'Edit discussion content', hintText: "${roomCubit.state.currentRoom?.topicContent}"))
           : TextFormField(
               maxLines: 5,
               controller: _topicContent,
-              validator: (val) =>
-                  val!.isEmpty ? "Please enter discussion topic!" : null,
+              validator: (val) => val!.isEmpty ? "Please enter discussion topic!" : null,
               decoration: textInputDecoration.copyWith(
                   // labelText: 'Enter topic content',
                   hintText:
@@ -365,8 +345,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     );
   }
 
-  Padding buildTopicTheme(
-      bool _isEditing, TextEditingController _themeEditingController) {
+  Padding buildTopicTheme(bool _isEditing, TextEditingController _themeEditingController) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: _isEditing
@@ -374,14 +353,11 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
               controller: _themeEditingController,
               decoration: textInputDecoration.copyWith(
                   labelText: 'Edit discussion theme',
-                  hintText:
-                      'theme is: ${roomCubit.state.currentRoom?.topicTheme.toString()}'))
+                  hintText: 'theme is: ${roomCubit.state.currentRoom?.topicTheme.toString()}'))
           : TextFormField(
               controller: _topicTheme,
-              validator: (val) =>
-                  val!.isEmpty ? "Please enter discussion topic!" : null,
-              decoration: textInputDecoration.copyWith(
-                  hintText: 'What`s the topic? Be laconic.')
+              validator: (val) => val!.isEmpty ? "Please enter discussion topic!" : null,
+              decoration: textInputDecoration.copyWith(hintText: 'What`s the topic? Be laconic.')
               // InputDecoration(
               //     contentPadding: EdgeInsets.only(left: 8.0),
               //     hintText: 'What`s the topic? Be laconic.'),
