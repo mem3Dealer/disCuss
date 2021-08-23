@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
-import 'package:my_chat_app/cubit/cubit/room_state.dart';
+import 'package:my_chat_app/cubit/states/room_state.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
@@ -447,11 +447,16 @@ class _ChatPageState extends State<ChatPage> {
             time: formattedDate,
             firstMessageOfAuthor: message.isFirst,
             lastMessageOfAuthor: message.isLast,
+// <<<<<<< HEAD
             author: message.isFirst
                 ? message.getUserName(
                     message.sender, roomCubit.state.currentRoom?.members)
                 : '',
             message: message.content!.trim(),
+// =======
+//             author: message.isFirst ? message.getUserName(message.sender.toString(), listUsers) : '',
+//             message: message.content,
+// >>>>>>> 3793f8f66a4316bbb99d8c6b9fae757ebb13fee6
             sentByMe: senderId == message.sender?.uid);
       },
     );

@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
-import 'package:my_chat_app/cubit/cubit/auth_state.dart';
+import 'package:my_chat_app/cubit/states/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/pages/home.dart';
@@ -14,6 +14,7 @@ import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/services/wrapper.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:my_chat_app/shared/app_theme.dart';
+import 'package:my_chat_app/sliver_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:splash_screen_view/SplashScreenView.dart';
 
@@ -68,21 +69,36 @@ class MyApp extends StatelessWidget {
                   Locale('ru', ''), // English, no country code
                   // Spanish, no country code
                 ],
-                home: BlocBuilder<AuthCubit, AuthState>(
-                    bloc: authCubit,
-                    // value: AuthService().user,
-                    builder: (context, state) {
-                      // authCubit.checkUser();
+                home:
+                    //SliverPage(),
+                    BlocBuilder<AuthCubit, AuthState>(
+                        bloc: authCubit,
+                        // value: AuthService().user,
+                        builder: (context, state) {
+                          // authCubit.checkUser();
 
-                      return SplashScreenView(
-                          duration: 2000,
-                          imageSize: 450,
-                          imageSrc: 'assets/logo.png',
-                          navigateRoute: Wrapper());
-                      // GroupCreator();
+// <<<<<<< HEAD
+//                       return SplashScreenView(
+//                           duration: 2000,
+//                           imageSize: 450,
+//                           imageSrc: 'assets/logo.png',
+//                           navigateRoute: Wrapper());
+//                       // GroupCreator();
+// =======
+                          return SplashScreenView(
+                              backgroundColor: Colors.pink[900],
+                              duration: 3000,
+                              imageSize: 300,
+                              text: 'Welcome!',
+                              textStyle: TextStyle(
+                                  color: Colors.grey.shade100, fontSize: 50.0),
+                              imageSrc: 'assets/logo.png',
+                              navigateRoute: Wrapper());
+                          // GroupCreator();
+// >>>>>>> 3793f8f66a4316bbb99d8c6b9fae757ebb13fee6
 
-                      // Wrapper();
-                    }));
+                          // Wrapper();
+                        }));
           } else
             return Container();
         });

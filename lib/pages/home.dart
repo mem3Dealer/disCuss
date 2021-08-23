@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
-import 'package:my_chat_app/cubit/cubit/auth_state.dart';
+import 'package:my_chat_app/cubit/states/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 
-import 'package:my_chat_app/cubit/cubit/room_state.dart';
+import 'package:my_chat_app/cubit/states/room_state.dart';
 
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 
@@ -125,7 +125,14 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       ListTile(
                         trailing: _list![index].isPrivate
+// <<<<<<< HEAD
                             ? Icon(Icons.lock_outline)
+// =======
+//                             ? Text(
+//                                 'private',
+//                                 style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+//                               )
+// >>>>>>> 3793f8f66a4316bbb99d8c6b9fae757ebb13fee6
                             : SizedBox.shrink(),
                         title: Text("${_list[index].topicTheme}"),
                         subtitle: _list[index].isPrivate
@@ -138,10 +145,14 @@ class _HomePageState extends State<HomePage> {
                                     maxLines: 1,
                                   )
                                 : null
+// <</<<<<< HEAD
                             : Text(
                                 "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
                                 maxLines: 1,
                               ),
+// =======
+//                             : Text("${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}"),
+// >>>>>>> 3793f8f66a4316bbb99d8c6b9fae757ebb13fee6
                         // : Text(
                         //     "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}"),
                         onTap: () {
