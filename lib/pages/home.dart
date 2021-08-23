@@ -87,28 +87,11 @@ class _HomePageState extends State<HomePage> {
                     builder: (context, state) {
                       if (state.listRooms == null) {
                         return Center(
-                          child: Text('There is a problem, no doubt'),
+                          child: Text('There is a problem, no cap'),
                         );
                       } else if (state.listRooms!.length > 0)
                         return _buildRooms(state);
                       return CircularProgressIndicator();
-                      // print("FILTER 1: ${state.listRooms}");
-                      // if (state.listRooms != null &&
-                      //  state.listRooms?.length != 0)
-                      //   return _buildRooms(state);
-                      // else if (state.listRooms?.length == 0)
-                      //   return Center(
-                      //     child: Container(
-                      //       child: Text(
-                      //         'There are no chats for you \n Go create one',
-                      //         textAlign: TextAlign.center,
-                      //         style: TextStyle(
-                      //             fontSize: 25, fontWeight: FontWeight.w300),
-                      //       ),
-                      //     ),
-                      //   );
-                      // else if(state.listRooms?.length ==0) CircularProgressIndicator();
-                      // return Container();
                     })),
           ),
           floatingActionButton: FloatingActionButton(
@@ -142,11 +125,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       ListTile(
                         trailing: _list![index].isPrivate
-                            ? Text(
-                                'private',
-                                style: TextStyle(
-                                    fontSize: 15, fontStyle: FontStyle.italic),
-                              )
+                            ? Icon(Icons.lock_outline)
                             : SizedBox.shrink(),
                         title: Text("${_list[index].topicTheme}"),
                         subtitle: _list[index].isPrivate
@@ -155,10 +134,14 @@ class _HomePageState extends State<HomePage> {
                                             thatRoom: _list[index])) ==
                                     true
                                 ? Text(
-                                    "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}")
+                                    "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
+                                    maxLines: 1,
+                                  )
                                 : null
                             : Text(
-                                "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}"),
+                                "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
+                                maxLines: 1,
+                              ),
                         // : Text(
                         //     "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}"),
                         onTap: () {

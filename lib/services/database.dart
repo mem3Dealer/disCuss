@@ -47,7 +47,7 @@ class DataBaseService {
     // Room newRoom;
     DocumentReference roomDocRef = await dummyChats.add({
       'lastMessage': {
-        'content': 'hello world',
+        'recentMessage': '',
         'sender': user?.senderToMap(),
         'time': DateTime.now()
       },
@@ -113,22 +113,22 @@ class DataBaseService {
       .snapshots();
 
   Future<void>? sendMessage(
-      TextEditingController _controller, MyUser sender, String groupID) {
+      String messageContent, MyUser sender, String groupID) {
     CollectionReference testChat =
         dummyChats.doc(groupID).collection('messages');
     // String? userName = FirebaseAuth.instance.currentUser?.displayName;
     // Stream<QuerySnapshot> _userStream = users.snapshots();
     // try {
-    print('Controlle text ${_controller.text}');
+    print('Controlle text ${messageContent}');
 
     final message = {
-      'recentMessage': _controller.text,
+      'recentMessage': messageContent.trim(),
       'time': DateTime.now().toUtc(),
       'sender': sender.senderToMap(),
       // 'author':
     };
     print(message);
-    if (_controller.text.isNotEmpty) {
+    if (messageContent.isNotEmpty) {
       testChat.add(message).then((doc) =>
           testChat.doc(doc.id).get().then((value) => print(value.data())));
 
@@ -137,7 +137,7 @@ class DataBaseService {
     // } catch (e, trace) {
     //   debugPrint("Error is $e. Stack = $trace");
     // }
-    _controller.clear();
+    // _controller.clear();
   }
 
   Future<void>? updateUserData(MyUser user) async {

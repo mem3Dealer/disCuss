@@ -74,12 +74,12 @@ class UserCubit extends Cubit<UserListState> {
     await docRef.then((value) {
       result = MyUser.fromSnapshot(value.docs.first);
       // return result;
-      // print("PRINT OUT FROM THIS WEIR FUNC:${result}");
+      print("PRINT OUT FROM THIS WEIR FUNC:${result}");
     }).onError((error, stackTrace) {
       result = 'We could not find that user';
     });
+    print("PRINT OUT FROM that WEIR FUNC:${result}");
     return result;
-    // print("PRINT OUT FROM THIS WEIR FUNC:${result}");
     // if (result != null) {
     //   return result!;
     // } else {

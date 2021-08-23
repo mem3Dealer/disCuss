@@ -108,9 +108,9 @@ class Message {
   //   return formattedDate;
   // }
 
-  String? getUserName(String? sender, List<MyUser>? listUsers) {
+  String? getUserName(MyUser? sender, List<MyUser>? listUsers) {
     return listUsers!
-        .firstWhere((e) => e.uid == sender,
+        .firstWhere((e) => e.uid == sender?.uid,
             orElse: () => MyUser(name: 'null name'))
         .name;
   }

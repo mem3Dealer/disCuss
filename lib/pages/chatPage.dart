@@ -153,7 +153,7 @@ class _ChatPageState extends State<ChatPage> {
                                     maxLines: top <= tbHeight ? 1 : 10,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      // color: Colors.white,
                                       fontSize: 16.0,
                                     )),
                                 SizedBox(
@@ -163,7 +163,7 @@ class _ChatPageState extends State<ChatPage> {
                                   padding: EdgeInsets.only(top: 15.0),
                                   child: Text(content,
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        // color: Colors.white,
                                         fontSize: 10.0,
                                       )),
                                 )
@@ -330,7 +330,14 @@ class _ChatPageState extends State<ChatPage> {
                         BlocBuilder<RoomCubit, RoomState>(
                           bloc: roomCubit,
                           builder: (context, state) {
-                            return sendFieldandButton();
+                            return Column(
+                              children: [
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                sendFieldandButton(),
+                              ],
+                            );
                           },
                         )
                     ],
@@ -343,34 +350,81 @@ class _ChatPageState extends State<ChatPage> {
   Align sendFieldandButton() {
     return Align(
       alignment: Alignment.bottomCenter,
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: Container(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: TextField(
-                  controller: _messageEditingController,
-                  style: TextStyle(color: Colors.black),
-                  decoration: InputDecoration(
-                      hintText: 'type here', fillColor: Colors.transparent),
-                ),
-              ),
+          Padding(
+            padding: EdgeInsets.only(left: 10.0, right: 10),
+            child: Divider(
+              height: 1,
+              // color: Colors.grey[600],
+              thickness: 2,
             ),
           ),
-          GestureDetector(
-            // behavior: HitTestBehavior.translucent,
-            onTap: () {
-              data.sendMessage(_messageEditingController,
-                  authCubit.state.currentUser!, widget.groupID);
-            },
-            child: Container(
-              height: 50.0,
-              width: 50.0,
-              decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  borderRadius: BorderRadius.circular(50)),
-              child: Center(child: Icon(Icons.send, color: Colors.white)),
+          Container(
+            height: 70,
+            decoration: BoxDecoration(color: Colors.transparent),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 7.0, right: 7),
+                    child: Container(
+                      // margin: EdgeInsetsGeometry.lerp(5, 0, 0),
+                      // decoration: BoxDecoration(
+                      //     borderRadius: BorderRadius.all(Radius.circular(20)),
+                      //     color: Color(0XFFFCFAF9).withOpacity(0.7)),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 3.0),
+                        child: TextField(
+                          maxLines: null,
+                          controller: _messageEditingController,
+                          style: TextStyle(color: Colors.black),
+                          decoration: InputDecoration().copyWith(
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20),
+                                ),
+                              ),
+                              hintStyle: TextStyle(color: Colors.black54),
+                              // border: InputBorder(borderSide: BorderSide),
+                              hintText: 'type here...',
+                              fillColor: Colors.grey[300]
+                              // Color(0XFFFCFAF9).withOpacity(0.7)
+                              ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(right: 8.0, left: 5),
+                  child: GestureDetector(
+                    // behavior: HitTestBehavior.translucent,
+                    onTap: () {
+                      _messageEditingController.text.trim();
+                      if (_messageEditingController.text.isNotEmpty)
+                        data.sendMessage(_messageEditingController.text.trim(),
+                            authCubit.state.currentUser!, widget.groupID);
+                      _messageEditingController.clear();
+                    },
+                    child: Container(
+                      height: 50.0,
+                      width: 50.0,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          borderRadius:
+                              BorderRadius.all(Radius.elliptical(17, 17))),
+                      child:
+                          Center(child: Icon(Icons.send, color: Colors.white)),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -394,9 +448,10 @@ class _ChatPageState extends State<ChatPage> {
             firstMessageOfAuthor: message.isFirst,
             lastMessageOfAuthor: message.isLast,
             author: message.isFirst
-                ? message.getUserName(message.sender.toString(), listUsers)
+                ? message.getUserName(
+                    message.sender, roomCubit.state.currentRoom?.members)
                 : '',
-            message: message.content,
+            message: message.content!.trim(),
             sentByMe: senderId == message.sender?.uid);
       },
     );

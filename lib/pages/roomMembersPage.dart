@@ -150,13 +150,32 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
                           // print(state.currentRoom?.members.toString());
                           Navigator.of(context).pop();
                         },
-                        child: Text('Never mind')),
+                        // style: ButtonStyle().copyWith(
+                        //     fixedSize: MaterialStateProperty.resolveWith(
+                        //         (states) => Size(50, 60))),
+                        // shape: MaterialStateProperty.resolveWith((states) =>
+                        //     RoundedRectangleBorder(
+                        //         borderRadius: BorderRadius.circular(50)))),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(fontSize: 18),
+                        )),
                     ElevatedButton(
                         onPressed: () {
                           roomCubit.saveRoomChanges();
                           Navigator.of(context).pop();
                         },
-                        child: Text('Save'))
+
+                        // style: ButtonStyle().copyWith(
+                        //     fixedSize: MaterialStateProperty.resolveWith(
+                        //         (states) => Size(50, 60)),
+                        //     shape: MaterialStateProperty.resolveWith((states) =>
+                        //         RoundedRectangleBorder(
+                        //             borderRadius: BorderRadius.circular(50)))),
+                        child: Text(
+                          'Save',
+                          style: TextStyle(fontSize: 18),
+                        ))
                   ],
                 ),
               ),

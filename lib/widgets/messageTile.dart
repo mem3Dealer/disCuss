@@ -75,9 +75,7 @@ class MessageTile extends StatelessWidget {
                                 topRight: Radius.circular(18),
                                 bottomRight: Radius.circular(18),
                               ),
-            color: sentByMe
-                ? Colors.lightBlueAccent.shade400
-                : Colors.grey.shade700),
+            color: sentByMe ? Color(0xff84061e) : Colors.grey.shade700),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -94,6 +92,7 @@ class MessageTile extends StatelessWidget {
                 Text(time!,
                     // textAlign: sentByMe ? TextAlign.right : TextAlign.left,
                     style: TextStyle(
+                      // color: Colors.black,
                       fontSize: 11,
                     )),
               ],

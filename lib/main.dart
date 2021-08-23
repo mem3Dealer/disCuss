@@ -57,8 +57,6 @@ class MyApp extends StatelessWidget {
                 themeMode: ThemeMode.system,
                 theme: appThemeLight,
                 // darkTheme: appThemeDark,
-                // ThemeData(
-                //     brightness: Brightness.light, primaryColor: Colors.purple.shade400),
                 routes: <String, WidgetBuilder>{
                   '/home_page': (BuildContext context) => HomePage(),
                   '/wrapper': (BuildContext context) => Wrapper()
@@ -77,7 +75,7 @@ class MyApp extends StatelessWidget {
                       // authCubit.checkUser();
 
                       return SplashScreenView(
-                          duration: 5000,
+                          duration: 2000,
                           imageSize: 450,
                           imageSrc: 'assets/logo.png',
                           navigateRoute: Wrapper());

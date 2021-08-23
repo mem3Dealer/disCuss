@@ -29,25 +29,9 @@ class _SignInPageState extends State<SignInPage> {
     return Scaffold(
         // backgroundColor: Colors.white,
         resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          title: Text('this is Sign In page'),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.all(7.0),
-              child: ElevatedButton.icon(
-                style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.amber.shade700)),
-                icon: Icon(Icons.person),
-                label: Text('Register'),
-                onPressed: () {
-                  widget.letsToggleView();
-                  // print('pressed');
-                },
-              ),
-            )
-          ],
-        ),
+        // appBar: AppBar(
+        //   title: Text('Sign In'),
+        // ),
         body: Container(
           padding: EdgeInsets.symmetric(horizontal: 43.0),
           child: Form(
@@ -56,20 +40,15 @@ class _SignInPageState extends State<SignInPage> {
               alignment: Alignment.center,
               child: SingleChildScrollView(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextFormField(
                       // initialValue: 'test@mail.com',
                       controller: _emailController,
-                      decoration: textInputDecoration.copyWith(
-                        hintText: 'Email',
-                      ),
+                      decoration:
+                          InputDecoration().copyWith(hintText: 'E-mail'),
                       validator: (val) =>
                           val!.isEmpty ? "Enter a valid email" : null,
-                      // onChanged: (val) {
-                      //   setState(() {
-                      //     email = val;
-                      //   });
-                      // },
                     ), // email
                     SizedBox(
                       height: 20,
@@ -78,7 +57,7 @@ class _SignInPageState extends State<SignInPage> {
                       // initialValue: 'test123',
                       controller: _passwordController,
                       decoration:
-                          textInputDecoration.copyWith(hintText: 'Password'),
+                          InputDecoration().copyWith(hintText: 'Password'),
                       validator: (val) =>
                           val!.length < 6 ? "Enter an password 6+ long" : null,
                       obscureText: true,
@@ -88,27 +67,32 @@ class _SignInPageState extends State<SignInPage> {
                       //   });
                       // },
                     ), // password
-                    SizedBox(height: 20),
+                    SizedBox(height: 10),
+                    TextButton(
+                        onPressed: () {
+                          widget.letsToggleView();
+                        },
+                        child: Text(
+                          'New to DisCuss? Register',
+                          style:
+                              TextStyle(color: Theme.of(context).accentColor),
+                        )),
+                    SizedBox(height: 10),
                     ElevatedButton(
-                      // style: ,
-                      // style: ButtonStyle(
-                      //     backgroundColor: MaterialStateProperty.all<Color>(
-                      //         Colors.purple.shade900)),
                       child: Text(
                         'Sign in',
-                        // style: TextStyle(color: Colors.white)
                       ),
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          await authCubit.signIn(
-                              _emailController.text, _passwordController.text);
+                          await authCubit.signIn(_emailController.text.trim(),
+                              _passwordController.text.trim());
                         }
                       },
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Text(error)
+                    // SizedBox(
+                    //   height: 20,
+                    // ),
+                    // Text(error)
                   ],
                 ),
               ),

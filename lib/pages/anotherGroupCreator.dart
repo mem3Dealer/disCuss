@@ -55,9 +55,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     return Scaffold(
         // resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: _isEditing
-              ? Text('Editing page')
-              : Text('What do you want to discuss?'),
+          title: _isEditing ? Text('Editing page') : Text('New discussion'),
           actions: [
             Padding(
                 padding: const EdgeInsets.only(right: 8.0),
@@ -83,184 +81,188 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
               Column(children: [
                 Form(
                   key: formKey,
-                  child: Column(
-                    children: [
-                      buildTopicTheme(_isEditing, _themeEditingController),
-                      buildTopicContent(_isEditing, _editingTopicContent),
-                    ],
+                  child: Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: Column(
+                      children: [
+                        buildTopicTheme(_isEditing, _themeEditingController),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        BlocBuilder<RoomCubit, RoomState>(
+                          bloc: roomCubit,
+                          builder: (context, state) {
+                            return buildTopicContent(
+                                _isEditing, _editingTopicContent);
+                          },
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        Form(
+                          key: _isEditing ? _editFormKey : verySpecialKey,
+                          child: TextFormField(
+                            // key: ,
+                            decoration: InputDecoration().copyWith(
+                                helperText: _isEditing
+                                    ? 'Add new members'
+                                    : 'Select members',
+                                hintText: 'Enter nickname and hit add'),
+                            controller: _searchBy,
+                            validator: (val) {
+                              if (val?.contains('@') == false) {
+                                return 'please enter nickname starting with @';
+                              }
+                              if (nickNameIsValid.runtimeType == String) {
+                                print('final print: $nickNameIsValid');
+                                // return nickNameIsValid.toString();
+                                return '$nickNameIsValid';
+                              } else
+                                return null;
+                            },
+                            // decoration: ,
+                            // decoration: textInputDecoration.copyWith(
+                            //     // hintText: 'fuck'
+                            //     // widget.isEdit,ing!
+                            //     //     ? 'Add new member to this discussion'
+                            //     //     :
+                            //     // 'Add members',
+                            //     hintText: 'Enter nametag of a person and hit add')
+                            //  InputDecoration(
+                            //     contentPadding: EdgeInsets.only(left: 8),
+                            // hintText:
+                            //     'Enter nametag of a person and hit add'),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-                // _isEditing
-                //     ?
-                _addMember(nickNameIsValid, _isEditing)
-                // : Form(
-                //     key: verySpecialKey,
-                //     child: Padding(
-                //       padding: const EdgeInsets.all(8.0),
-                //       child: TextFormField(
-                //           // key: ,
-                //           controller: _searchBy,
-                //           validator: (val) {
-                //             if (val?.contains('@') == false) {
-                //               return 'please enter nickname starting with @';
-                //             }
-                //             // print('print $nickNameIsValid');
-                //             // print(val);
-                //             if (nickNameIsValid.runtimeType == String) {
-                //               // return nickNameIsValid.toString();
-                //               return '$nickNameIsValid';
-                //             } else
-                //               return null;
-                //           },
-                //           decoration: textInputDecoration.copyWith(
-                //               hintText:
-                //                   'Enter nametag of a person and hit add')),
-                //     ),
-                //   ),
-                ,
-                SizedBox(
-                  height: 5,
-                ),
-                _isEditing
-                    ? ElevatedButton(
-                        onPressed: () async {
-                          var _user =
-                              await userCubit.searchMember(_searchBy.text);
+                ElevatedButton(
+                    onPressed: () async {
+                      var _user = await userCubit.searchMember(_searchBy.text);
+                      bool? contained;
+                      bool? alsoContained;
+                      bool? isContainedNewRoom;
+                      if (_user.runtimeType == String) {
+                        nickNameIsValid = _user.toString();
+                        // print('PRINT OUT: $nickNameIsValid');
+                      } else {
+                        MyUser? _addingUser = _user;
+                        // print(_addingUser);
+                        if (_isEditing) {
+                          contained = roomCubit.state.currentRoom!.members!
+                              .any((element) {
+                            return element.uid == _addingUser!.uid;
+                          });
+                          alsoContained =
+                              userCubit.state.selectedUsers!.any((element) {
+                            return element.uid == _addingUser!.uid;
+                          });
+                        } else {
+                          isContainedNewRoom =
+                              userCubit.state.selectedUsers!.any((element) {
+                            return element.uid == _addingUser!.uid;
+                          });
+                        }
 
-                          if (_user.runtimeType == String) {
-                            nickNameIsValid = _user.toString();
-                          } else {
-                            MyUser? _addingUser = _user;
-                            // print(_addingUser);
-                            bool contained = roomCubit
-                                .state.currentRoom!.members!
-                                .any((element) {
-                              return element.uid == _addingUser!.uid;
-                            });
-                            bool alsoContained =
-                                userCubit.state.selectedUsers!.any((element) {
-                              return element.uid == _addingUser!.uid;
-                            });
-
-                            if (contained || alsoContained) {
-                              nickNameIsValid = 'This user already selected';
-                            } else {
-                              userCubit.selectUser(_addingUser!);
-                            }
-                          }
-                          if (_editFormKey.currentState!.validate()) {}
-                        },
-                        child: Text('Add'))
-                    : ElevatedButton(
-                        onPressed: () async {
-                          var _user =
-                              await userCubit.searchMember(_searchBy.text);
-
-                          if (_user.runtimeType == String) {
-                            nickNameIsValid = _user.toString();
-                          } else {
-                            MyUser? _addingUser = _user;
-                            // print(_addingUser);
-                            bool contained =
-                                userCubit.state.selectedUsers!.any((element) {
-                              return element.uid == _addingUser!.uid;
-                            });
-                            if (contained) {
-                              nickNameIsValid = 'This user already selected';
-                            } else {
-                              userCubit.selectUser(_addingUser!);
-                            }
-                          }
-                          if (verySpecialKey.currentState!.validate()) {}
-                        },
-                        child: Text('Add')),
+                        if (contained != null && contained == true ||
+                            alsoContained != null && alsoContained == true ||
+                            isContainedNewRoom != null &&
+                                isContainedNewRoom == true) {
+                          // print('THIS IS PRINT: $contained');
+                          nickNameIsValid = 'This user is already selected';
+                          // print('THIS IS PRINT: $nickNameIsValid');
+                        } else {
+                          userCubit.selectUser(_addingUser!);
+                        }
+                      }
+                      if (_isEditing
+                          ? _editFormKey.currentState!.validate()
+                          : verySpecialKey.currentState!.validate()) {}
+                    },
+                    child: Text('Add')),
                 _buildAddingMembersTiles(),
               ]),
-              _isEditing
-                  ? Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 8.0),
-                        child: ElevatedButton(
-                          child: Text(
-                            "Save changes",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          onPressed: () {
-                            // List<MyUser> selected = [];
-                            // selected.addAll()
-                            print(_themeEditingController.text);
-                            if (formKey.currentState!.validate()) {
-                              if (_editingTopicContent.text.isNotEmpty ||
-                                  _themeEditingController.text.isNotEmpty ||
-                                  userCubit.state.selectedUsers!.isNotEmpty)
-                                roomCubit
-                                    .updateRoomData(
-                                        isPrivate: _isPrivate,
-                                        topicContent: _editingTopicContent.text,
-                                        topicTheme:
-                                            _themeEditingController.text,
-                                        selectedUsers:
-                                            userCubit.state.selectedUsers)
-                                    .then((value) {
-                                  userCubit.dismissSelected();
-                                  _searchBy.clear();
-                                  // print(
-                                  //     'THIS IS THAT PRINT:${userCubit.state.selectedUsers}');
-                                  _editingTopicContent.clear();
-                                  _themeEditingController.clear();
-                                  Navigator.of(context).pop();
-                                });
-                            } else {
-                              print('did not validated');
-                            }
-                          },
-                        ),
-                      ),
-                    )
-                  : Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 8.0),
-                        child: ElevatedButton(
-                          child: Text(
-                            "Create",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          onPressed: () {
-                            // List<MyUser> selected = [];
-                            // selected.addAll()
-                            if (formKey.currentState!.validate()) {
-                              roomCubit
-                                  .createRoom(
-                                      userCubit.state.selectedUsers!,
-                                      // authCubit.state.currentUser!,
-                                      userCubit.state.selectedUsers?.first,
-                                      context,
-                                      _topicTheme.text,
-                                      _topicContent.text,
-                                      _isPrivate)
-                                  .then((value) {
-                                userCubit.state.selectedUsers!.clear();
-                                _topicContent.clear();
-                                _topicTheme.clear();
-                              });
-                            } else {
-                              print('did not validated');
-                            }
-                          },
-                        ),
-                      ),
-                    ),
+              // _isEditing
+              //     ?
+              _buildCreateOrSaveButton(_isEditing, _editingTopicContent,
+                  _themeEditingController, context)
             ],
           ),
-        )
+        ))));
+  }
 
-                // _isEditing
-                //     ? buildBodyForEditing()
-                //     // buildBodyForReducting(userExists)
-                //     : buildBodyForNewGroup()),
-                )));
+  Align _buildCreateOrSaveButton(
+      bool _isEditing,
+      TextEditingController _editingTopicContent,
+      TextEditingController _themeEditingController,
+      BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 8.0),
+        child: BlocBuilder<RoomCubit, RoomState>(
+          bloc: roomCubit,
+          builder: (context, state) {
+            return ElevatedButton(
+              style: ButtonStyle().copyWith(
+                  backgroundColor: MaterialStateProperty.resolveWith(
+                      (states) => Theme.of(context).accentColor)),
+              child: Text(
+                _isEditing ? "Save changes" : 'Discuss',
+                style: TextStyle(fontSize: 20),
+              ),
+              onPressed: () {
+                // List<MyUser> selected = [];
+                // selected.addAll()
+                // print(_themeEditingController.text);
+
+                if (formKey.currentState!.validate()) {
+                  if (_isEditing) {
+                    if (_editingTopicContent.text.isNotEmpty ||
+                        _themeEditingController.text.isNotEmpty ||
+                        userCubit.state.selectedUsers!.isNotEmpty)
+                      roomCubit
+                          .updateRoomData(
+                              isPrivate: _isPrivate,
+                              topicContent: _editingTopicContent.text,
+                              topicTheme: _themeEditingController.text,
+                              selectedUsers: userCubit.state.selectedUsers)
+                          .then((value) {
+                        userCubit.dismissSelected();
+                        _searchBy.clear();
+                        // print(
+                        //     'THIS IS THAT PRINT:${userCubit.state.selectedUsers}');
+                        _editingTopicContent.clear();
+                        _themeEditingController.clear();
+                        Navigator.of(context).pop();
+                      });
+                  } else {
+                    roomCubit
+                        .createRoom(
+                            userCubit.state.selectedUsers!,
+                            // authCubit.state.currentUser!,
+                            userCubit.state.selectedUsers?.first,
+                            context,
+                            _topicTheme.text,
+                            _topicContent.text,
+                            _isPrivate)
+                        .then((value) {
+                      userCubit.state.selectedUsers!.clear();
+                      _topicContent.clear();
+                      _topicTheme.clear();
+                    });
+                  }
+                } else {
+                  print('did not validated');
+                }
+              },
+            );
+          },
+        ),
+      ),
+    );
   }
 
   BlocBuilder<UserCubit, UserListState> _buildAddingMembersTiles() {
@@ -303,279 +305,79 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     );
   }
 
-  Form _addMember(String? nickNameIsValid, bool _isEditing) {
-    return Form(
-      key: _isEditing ? _editFormKey : verySpecialKey,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextFormField(
-            // key: ,
-            controller: _searchBy,
-            validator: (val) {
-              if (val?.contains('@') == false) {
-                return 'please enter nickname starting with @';
-              }
-              if (nickNameIsValid.runtimeType == String) {
-                // return nickNameIsValid.toString();
-                return '$nickNameIsValid';
-              } else
-                return null;
-            },
-            decoration: textInputDecoration.copyWith(
-                // hintText: 'fuck'
-                // widget.isEdit,ing!
-                //     ? 'Add new member to this discussion'
-                //     :
-                // 'Add members',
-                hintText: 'Enter nametag of a person and hit add')
-            //  InputDecoration(
-            //     contentPadding: EdgeInsets.only(left: 8),
-            // hintText:
-            //     'Enter nametag of a person and hit add'),
-            ),
-      ),
-    );
-  }
+  // Form _addMember(String? nickNameIsValid, bool _isEditing) {
+  //   // print(nickNameIsValid);.
 
-  Padding buildTopicContent(
-      bool _isEditing, TextEditingController _editingTopicContent) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: _isEditing
-          ? TextFormField(
-              maxLines: 5,
-              controller: _editingTopicContent,
-              decoration: textInputDecoration.copyWith(
-                  labelText: 'Edit discussion content',
-                  hintText: "${roomCubit.state.currentRoom?.topicContent}"))
-          : TextFormField(
-              maxLines: 5,
-              controller: _topicContent,
-              validator: (val) =>
-                  val!.isEmpty ? "Please enter discussion topic!" : null,
-              decoration: textInputDecoration.copyWith(
-                  // labelText: 'Enter topic content',
-                  hintText:
-                      'What happened? Expand the topic. \n\nPress lock icon above, if you want this room to be private.')
-              //  InputDecoration(
-              //     contentPadding: EdgeInsets.only(left: 8.0),
-              //     hintText:
-              //         'What happened? Expand the topic. \n\nPress lock icon above, if you want this room to be private.'),
-              ),
-    );
-  }
-
-  Padding buildTopicTheme(
-      bool _isEditing, TextEditingController _themeEditingController) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: _isEditing
-          ? TextFormField(
-              controller: _themeEditingController,
-              decoration: textInputDecoration.copyWith(
-                  labelText: 'Edit discussion theme',
-                  hintText:
-                      'theme is: ${roomCubit.state.currentRoom?.topicTheme.toString()}'))
-          : TextFormField(
-              controller: _topicTheme,
-              validator: (val) =>
-                  val!.isEmpty ? "Please enter discussion topic!" : null,
-              decoration: textInputDecoration.copyWith(
-                  hintText: 'What`s the topic? Be laconic.')
-              // InputDecoration(
-              //     contentPadding: EdgeInsets.only(left: 8.0),
-              //     hintText: 'What`s the topic? Be laconic.'),
-              ),
-    );
-  }
-
-  // buildBodyForEditing() {
-  //   String? nickNameIsValid;
-  //   return Column(
-  //     children: [
-  //       Expanded(
-  //           child: SingleChildScrollView(
-  //         child: Column(children: [
-  //           Form(
-  //             key: formKey,
-  //             child: Column(
-  //               children: [
-  //                 Padding(
-  //                   padding: const EdgeInsets.all(8.0),
-  //                   child: TextFormField(
-  //                     controller: _topicTheme,
-  //                     // validator: (val) => val!.isEmpty
-  //                     //     ? "Please enter discussion topic!"
-  //                     //     : null,
-  //                     decoration: InputDecoration(
-  //                         contentPadding: EdgeInsets.only(left: 8.0),
-  //                         hintText:
-  //                             '${roomCubit.state.currentRoom?.topicTheme}'),
-  //                   ),
-  //                 ),
-  //                 Padding(
-  //                     padding: const EdgeInsets.all(8.0),
-  //                     child: TextFormField(
-  //                       maxLines: 5,
-  //                       controller: _topicContent,
-  //                       // validator: (val) => val!.isEmpty
-  //                       //     ? "Please enter discussion topic!"
-  //                       //     : null,
-  //                       decoration: InputDecoration(
-  //                         contentPadding: EdgeInsets.only(left: 8.0),
-  //                         hintText:
-  //                             ("${roomCubit.state.currentRoom?.topicContent}"),
-  //                       ),
-  //                     )),
-  //               ],
-  //             ),
+  //   return Form(
+  //     key: _isEditing ? _editFormKey : verySpecialKey,
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(8.0),
+  //       child: TextFormField(
+  //           // key: ,
+  //           controller: _searchBy,
+  //           validator: (val) {
+  //             if (val?.contains('@') == false) {
+  //               return 'please enter nickname starting with @';
+  //             }
+  //             if (nickNameIsValid.runtimeType == String) {
+  //               print('final print: $nickNameIsValid');
+  //               // return nickNameIsValid.toString();
+  //               return '$nickNameIsValid';
+  //             } else
+  //               return null;
+  //           },
+  //           decoration: textInputDecoration.copyWith(
+  //               // hintText: 'fuck'
+  //               // widget.isEdit,ing!
+  //               //     ? 'Add new member to this discussion'
+  //               //     :
+  //               // 'Add members',
+  //               hintText: 'Enter nametag of a person and hit add')
+  //           //  InputDecoration(
+  //           //     contentPadding: EdgeInsets.only(left: 8),
+  //           // hintText:
+  //           //     'Enter nametag of a person and hit add'),
   //           ),
-  //           Form(
-  //             key: _editFormKey,
-  //             child: Padding(
-  //               padding: const EdgeInsets.all(8.0),
-  //               child: TextFormField(
-  //                 // key: ,
-  //                 controller: _searchBy,
-  //                 validator: (val) {
-  //                   if (val?.contains('@') == false) {
-  //                     return 'please enter nickname starting with @';
-  //                   }
-  //                   if (nickNameIsValid.runtimeType == String) {
-  //                     // return nickNameIsValid.toString();
-  //                     return '$nickNameIsValid';
-  //                   } else
-  //                     return null;
-  //                 },
-  //                 decoration: InputDecoration(
-  //                     contentPadding: EdgeInsets.only(left: 8),
-  //                     hintText: 'Enter nametag of a person and hit add'),
-  //               ),
-  //             ),
-  //           ),
-  //           SizedBox(
-  //             height: 5,
-  //           ),
-  //           ElevatedButton(
-  //               onPressed: () async {
-  //                 var _user = await userCubit.searchMember(_searchBy.text);
-
-  //                 if (_user.runtimeType == String) {
-  //                   nickNameIsValid = _user.toString();
-  //                 } else {
-  //                   MyUser? _addingUser = _user;
-  //                   // print(_addingUser);
-  //                   bool contained =
-  //                       roomCubit.state.currentRoom!.members!.any((element) {
-  //                     return element.uid == _addingUser!.uid;
-  //                   });
-  //                   bool alsoContained =
-  //                       userCubit.state.selectedUsers!.any((element) {
-  //                     return element.uid == _addingUser!.uid;
-  //                   });
-
-  //                   if (contained || alsoContained) {
-  //                     nickNameIsValid = 'This user already selected';
-  //                   } else {
-  //                     userCubit.selectUser(_addingUser!);
-  //                   }
-  //                 }
-  //                 if (_editFormKey.currentState!.validate()) {}
-  //               },
-  //               child: Text('Add')),
-  //           BlocBuilder<UserCubit, UserListState>(
-  //             bloc: userCubit,
-  //             builder: (context, state) {
-  //               // print(state.selectedUsers?.toSet().toList());
-  //               return
-  //                   // Container(child: Text('oops')
-  //                   ListView.builder(
-  //                       physics: NeverScrollableScrollPhysics(),
-  //                       shrinkWrap: true,
-  //                       itemCount: state.selectedUsers?.length,
-  //                       itemBuilder: (context, index) {
-  //                         // List<MyUser>? selected = state.selectedUsers;
-  //                         List<MyUser>? listUsers = state.selectedUsers;
-
-  //                         if (listUsers?[index].uid ==
-  //                                 authCubit.state.currentUser?.uid ||
-  //                             listUsers?[index].uid == null)
-  //                           return SizedBox.shrink();
-  //                         else
-  //                           return ListTile(
-  //                             trailing: IconButton(
-  //                                 onPressed: () {
-  //                                   userCubit
-  //                                       .deleteFromSelected(listUsers![index]);
-  //                                 },
-  //                                 icon: Icon(Icons.cancel)),
-  //                             title: Text(
-  //                               listUsers![index].name.toString(),
-  //                             ),
-  //                             subtitle:
-  //                                 Text(listUsers[index].nickName.toString()),
-  //                           );
-  //                       });
-  //             },
-  //           ),
-  //         ]),
-  //       )),
-  //       Align(
-  //         alignment: Alignment.bottomCenter,
-  //         child: Padding(
-  //           padding: EdgeInsets.only(bottom: 8.0),
-  //           child: ElevatedButton(
-  //             child: Text(
-  //               "Save changes",
-  //               style: TextStyle(fontSize: 20),
-  //             ),
-  //             onPressed: () {
-  //               // List<MyUser> selected = [];
-  //               // selected.addAll()
-  //               print(
-  //                   'THIS IS THAT PRINT: ${roomCubit.state.currentRoom?.topicContent}, ${roomCubit.state.currentRoom?.topicTheme}');
-  //               if (formKey.currentState!.validate()) {
-  //                 if (_topicContent.text.isNotEmpty ||
-  //                     _topicTheme.text.isNotEmpty ||
-  //                     userCubit.state.selectedUsers!.isNotEmpty)
-  //                   roomCubit
-  //                       .updateRoomData(
-  //                           topicContent: _topicContent.text,
-  //                           topicTheme: _topicTheme.text,
-  //                           selectedUsers: userCubit.state.selectedUsers)
-  //                       .then((value) {
-  //                     userCubit.state.selectedUsers!.clear();
-  //                     _topicContent.clear();
-  //                     _topicTheme.clear();
-  //                   });
-
-  //                 // roomCubit
-  //                 //     .createRoom(
-  //                 //         userCubit.state.selectedUsers!,
-  //                 //         // authCubit.state.currentUser!,
-  //                 //         userCubit.state.selectedUsers?.first,
-  //                 //         context,
-  //                 //         _topicTheme.text,
-  //                 //         _topicContent.text,
-  //                 //         _isPrivate)
-  //                 //     .then((value) {
-  //                 //   userCubit.state.selectedUsers!.clear();
-  //                 //   _topicContent.clear();
-  //                 //   _topicTheme.clear();
-  //                 // });
-  //               } else {
-  //                 print('did not validated');
-  //               }
-  //             },
-  //           ),
-  //         ),
-  //       ),
-  //     ],
+  //     ),
   //   );
   // }
 
-  // // buildBodyForNewGroup() {
-  //   String? nickNameIsValid;
-  //   return
-  // }
+  TextFormField buildTopicContent(
+      bool _isEditing, TextEditingController _editingTopicContent) {
+    return TextFormField(
+        maxLines: 7,
+        controller: _isEditing ? _editingTopicContent : _topicContent,
+        validator: (val) => val!.isEmpty
+            ? "Please enter dicsussion content"
+            : val.length >= 10
+                ? null
+                : 'Please, expand your topic',
+        decoration: _isEditing
+            ? InputDecoration().copyWith(labelText: 'Edit content')
+            : InputDecoration().copyWith(
+                // isCollapsed: true,
+
+                hintText: roomCubit.state.currentRoom?.isPrivate == true
+                    ? 'Exand discussion topic. What has happened?'
+                    : 'Exand discussion topic. What has happened?\n\nIf you want make this discussion private - hit lock button above',
+                helperText: 'Should be at least couple of words')
+        // .copyWith(
+        //     labelText: 'Edit discussion content',
+        //     hintText: "${roomCubit.state.currentRoom?.topicContent}")
+        );
+  }
+
+  TextFormField buildTopicTheme(
+      bool _isEditing, TextEditingController _themeEditingController) {
+    return TextFormField(
+        controller: _isEditing ? _themeEditingController : _topicTheme,
+        validator: (val) => val!.isEmpty
+            ? "Please enter discussion topic!"
+            : val.length < 5
+                ? 'Please be more specific'
+                : null,
+        decoration: _isEditing
+            ? InputDecoration().copyWith(labelText: 'Edit theme')
+            : InputDecoration().copyWith(hintText: 'Topic of discussion'));
+  }
 }
