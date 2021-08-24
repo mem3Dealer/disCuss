@@ -71,10 +71,12 @@ class _HomePageState extends State<HomePage> {
                     icon: Icon(Icons.exit_to_app),
                     onPressed: () async {
                       await authCubit.logOut();
-                      Navigator.popUntil(
-                          context,
-                          ModalRoute.withName(
-                              '/wrapper')); //TODO SLOMALOS NADO PEREDELAT
+                      Navigator.pushAndRemoveUntil<void>(
+                        context,
+                        MaterialPageRoute<void>(
+                            builder: (BuildContext context) => Wrapper()),
+                        ModalRoute.withName('/'),
+                      );
                       // print(
                       //     'THIS IS LOG OUT PRINT. first param: ${authCubit.fbAuth}, second: ${authCubit.state.isLoggedIn}');
                       // await _auth.signOut();

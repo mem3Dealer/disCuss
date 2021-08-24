@@ -8,7 +8,9 @@ import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/states/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
+import 'package:my_chat_app/pages/authenticate.dart';
 import 'package:my_chat_app/pages/home.dart';
+import 'package:my_chat_app/pages/signIn.dart';
 import 'package:my_chat_app/services/auth.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/services/wrapper.dart';
@@ -59,7 +61,8 @@ class MyApp extends StatelessWidget {
                 darkTheme: appThemeDark,
                 routes: <String, WidgetBuilder>{
                   '/home_page': (BuildContext context) => HomePage(),
-                  '/wrapper': (BuildContext context) => Wrapper()
+                  '/wrapper': (BuildContext context) => Wrapper(),
+                  // '/signIn': (BuildContext context) => SignInPage()
                 },
                 localizationsDelegates: const [
                   GlobalMaterialLocalizations.delegate,
@@ -77,22 +80,21 @@ class MyApp extends StatelessWidget {
                           // authCubit.checkUser();
 
 // <<<<<<< HEAD
-//                       return SplashScreenView(
-//                           duration: 2000,
-//                           imageSize: 450,
-//                           imageSrc: 'assets/logo.png',
-//                           navigateRoute: Wrapper());
-//                       // GroupCreator();
-// =======
                           return SplashScreenView(
-                              backgroundColor: Colors.pink[900],
-                              duration: 3000,
-                              imageSize: 300,
-                              text: 'Welcome!',
-                              textStyle: TextStyle(
-                                  color: Colors.grey.shade100, fontSize: 50.0),
+                              duration: 2000,
+                              imageSize: 450,
                               imageSrc: 'assets/logo.png',
                               navigateRoute: Wrapper());
+                          // GroupCreator();
+                          // return SplashScreenView(
+                          //     backgroundColor: Colors.pink[900],
+                          //     duration: 3000,
+                          //     imageSize: 300,
+                          //     text: 'Welcome!',
+                          //     textStyle: TextStyle(
+                          //         color: Colors.grey.shade100, fontSize: 50.0),
+                          //     imageSrc: 'assets/logo.png',
+                          //     navigateRoute: Wrapper());
                           // GroupCreator();
 // >>>>>>> 3793f8f66a4316bbb99d8c6b9fae757ebb13fee6
 
