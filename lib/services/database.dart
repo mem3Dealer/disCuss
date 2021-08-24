@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
@@ -119,7 +118,7 @@ class DataBaseService {
     // String? userName = FirebaseAuth.instance.currentUser?.displayName;
     // Stream<QuerySnapshot> _userStream = users.snapshots();
     // try {
-    print('Controlle text ${messageContent}');
+    // print('Controlle text ${messageContent}');
 
     final message = {
       'recentMessage': messageContent.trim(),

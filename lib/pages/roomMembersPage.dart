@@ -49,8 +49,9 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
                 if (currentMemberofThisRoom?.isAdmin == true)
                   IconButton(
                       onPressed: () {
-                        Navigator.of(context).push(
-                            MaterialPageRoute<void>(builder: (BuildContext context) => AnotherGroupCreator(true)));
+                        Navigator.of(context).push(MaterialPageRoute<void>(
+                            builder: (BuildContext context) =>
+                                AnotherGroupCreator(true)));
                       },
                       icon: Icon(Icons.edit)),
                 _buildLeaveOrDeleteButton(currentMemberofThisRoom, context)
@@ -79,14 +80,19 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
                             ),
                             Label('Creator:'),
                             ListTile(
-                              title: Text(_users!.firstWhere((element) => element.isOwner!).name!),
-                              subtitle: Text(_users.firstWhere((element) => element.isOwner!).nickName!),
+                              title: Text(_users!
+                                  .firstWhere((element) => element.isOwner!)
+                                  .name!),
+                              subtitle: Text(_users
+                                  .firstWhere((element) => element.isOwner!)
+                                  .nickName!),
                             ),
                             SizedBox(
                               height: 15,
                             ),
                             if (_users.any((element) {
-                              return element.isAdmin == true && element.isOwner != true;
+                              return element.isAdmin == true &&
+                                  element.isOwner != true;
                             }))
                               Label('Admins:'),
                             _buildAdminTiles(state, _users),
@@ -109,7 +115,8 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
 
                             if (currentMemberofThisRoom?.isAdmin == true)
                               if (_users.any((element) {
-                                return element.canWrite == false && element.isApporved == true;
+                                return element.canWrite == false &&
+                                    element.isApporved == true;
                               }))
                                 Label('Join Requests:'),
                             _buildJoinRequests(state, _users),
@@ -132,44 +139,32 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
               ),
               Padding(
                 padding: EdgeInsets.only(bottom: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                        onPressed: () {
-                          roomCubit.discardChanges(); //TODO КАЖЕТСЯ ВСЕ ЕЩЕ НЕ ОЧЕНЬ РАБОТАЕТ
-                          // userCubit.dismissSelected();
-                          // print(state.currentRoom?.members.toString());
-                          Navigator.of(context).pop();
-                        },
-                        // style: ButtonStyle().copyWith(
-                        //     fixedSize: MaterialStateProperty.resolveWith(
-                        //         (states) => Size(50, 60))),
-                        // shape: MaterialStateProperty.resolveWith((states) =>
-                        //     RoundedRectangleBorder(
-                        //         borderRadius: BorderRadius.circular(50)))),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(fontSize: 18),
-                        )),
-                    ElevatedButton(
-                        onPressed: () {
-                          roomCubit.saveRoomChanges();
-                          Navigator.of(context).pop();
-                        },
-
-                        // style: ButtonStyle().copyWith(
-                        //     fixedSize: MaterialStateProperty.resolveWith(
-                        //         (states) => Size(50, 60)),
-                        //     shape: MaterialStateProperty.resolveWith((states) =>
-                        //         RoundedRectangleBorder(
-                        //             borderRadius: BorderRadius.circular(50)))),
-                        child: Text(
-                          'Save',
-                          style: TextStyle(fontSize: 18),
-                        ))
-                  ],
-                ),
+                child: currentMemberofThisRoom?.isAdmin == true ||
+                        currentMemberofThisRoom?.isOwner == true
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                              onPressed: () {
+                                roomCubit.discardChanges();
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(fontSize: 18),
+                              )),
+                          ElevatedButton(
+                              onPressed: () {
+                                roomCubit.saveRoomChanges();
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                'Save',
+                                style: TextStyle(fontSize: 18),
+                              ))
+                        ],
+                      )
+                    : SizedBox.shrink(),
               ),
             ],
           ),
@@ -237,7 +232,8 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
         });
   }
 
-  IconButton _buildLeaveOrDeleteButton(MyUser? currentMemberofThisRoom, BuildContext context) {
+  IconButton _buildLeaveOrDeleteButton(
+      MyUser? currentMemberofThisRoom, BuildContext context) {
     return IconButton(
         onPressed: () {
           currentMemberofThisRoom?.isOwner == true
@@ -250,8 +246,9 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
                         ElevatedButton(
                             onPressed: () {
                               roomCubit.dissolveRoom(widget.groupID);
-                              Navigator.of(context)
-                                  .pushNamedAndRemoveUntil('/home_page', (Route<dynamic> route) => false);
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/home_page',
+                                  (Route<dynamic> route) => false);
                             },
                             child: Text('Delete'))
                       ],
@@ -265,9 +262,11 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
                       actions: [
                         ElevatedButton(
                             onPressed: () {
-                              roomCubit.leaveRoom(widget.groupID, currentMemberofThisRoom!);
-                              Navigator.of(context)
-                                  .pushNamedAndRemoveUntil('/home_page', (Route<dynamic> route) => false);
+                              roomCubit.leaveRoom(
+                                  widget.groupID, currentMemberofThisRoom!);
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/home_page',
+                                  (Route<dynamic> route) => false);
                               // Navigator.of(context)
                               //     .push(MaterialPageRoute<void>(
                               //   builder: (BuildContext context) => HomePage(),
@@ -278,7 +277,9 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
                     );
                   });
         },
-        icon: currentMemberofThisRoom?.isOwner == true ? Icon(Icons.delete_forever) : Icon(Icons.exit_to_app));
+        icon: currentMemberofThisRoom?.isOwner == true
+            ? Icon(Icons.delete_forever)
+            : Icon(Icons.exit_to_app));
   }
 }
 
@@ -321,14 +322,17 @@ class AdminTile extends StatelessWidget {
               caption: 'Kick user',
               color: Colors.orange.shade700,
               icon: Icons.delete_sweep,
-              onTap: () => roomCubit.kickUser(roomCubit.state.currentRoom!.groupID!, user!)),
+              onTap: () => roomCubit.kickUser(
+                  roomCubit.state.currentRoom!.groupID!, user!)),
         if (roomCubit.getoLocalUser()?.isOwner == true)
           IconSlideAction(
               caption: 'Ban',
               color: Colors.red.shade900,
               icon: Icons.block_sharp,
               onTap: () => roomCubit.changeUserPrivileges(user,
-                  canWrite: !user!.canWrite!, isApporved: !user!.isApporved!, isAdmin: !user!.isAdmin!))
+                  canWrite: !user!.canWrite!,
+                  isApporved: !user!.isApporved!,
+                  isAdmin: !user!.isAdmin!))
       ],
       secondaryActions: [
         if (roomCubit.getoLocalUser()?.isOwner == true)
@@ -336,9 +340,12 @@ class AdminTile extends StatelessWidget {
               caption: 'Demote',
               color: Colors.indigo,
               icon: Icons.arrow_downward_sharp,
-              onTap: () => roomCubit.changeUserPrivileges(user, isAdmin: !user!.isAdmin!)),
+              onTap: () => roomCubit.changeUserPrivileges(user,
+                  isAdmin: !user!.isAdmin!)),
       ],
-      child: ListTile(title: Text(user!.name.toString()), subtitle: Text(user!.nickName.toString())),
+      child: ListTile(
+          title: Text(user!.name.toString()),
+          subtitle: Text(user!.nickName.toString())),
     );
   }
 }
@@ -360,7 +367,8 @@ class MemberTile extends StatelessWidget {
             caption: 'Promote',
             color: Colors.greenAccent.shade700,
             icon: Icons.arrow_upward_sharp,
-            onTap: () => roomCubit.changeUserPrivileges(user, isAdmin: !user!.isAdmin!),
+            onTap: () =>
+                roomCubit.changeUserPrivileges(user, isAdmin: !user!.isAdmin!),
           )
       ],
       actions: [
@@ -369,21 +377,26 @@ class MemberTile extends StatelessWidget {
               caption: 'Ban',
               color: Colors.red.shade900,
               icon: Icons.block_sharp,
-              onTap: () => roomCubit.changeUserPrivileges(user, canWrite: false, isApporved: false, isAdmin: false)),
+              onTap: () => roomCubit.changeUserPrivileges(user,
+                  canWrite: false, isApporved: false, isAdmin: false)),
         if (roomCubit.getoLocalUser()?.isAdmin == true)
           IconSlideAction(
               caption: 'Kick user',
               color: Colors.orange.shade700,
               icon: Icons.delete_sweep,
-              onTap: () => roomCubit.kickUser(roomCubit.state.currentRoom!.groupID!, user!)),
+              onTap: () => roomCubit.kickUser(
+                  roomCubit.state.currentRoom!.groupID!, user!)),
         if (roomCubit.getoLocalUser()?.isAdmin == true)
           IconSlideAction(
               caption: 'Can`t write',
               color: Colors.indigo,
               icon: Icons.arrow_downward_sharp,
-              onTap: () => roomCubit.changeUserPrivileges(user, canWrite: !user!.canWrite!)),
+              onTap: () => roomCubit.changeUserPrivileges(user,
+                  canWrite: !user!.canWrite!)),
       ],
-      child: ListTile(title: Text(user!.name.toString()), subtitle: Text(user!.nickName.toString())),
+      child: ListTile(
+          title: Text(user!.name.toString()),
+          subtitle: Text(user!.nickName.toString())),
     );
   }
 }
@@ -404,7 +417,8 @@ class RequestedTile extends StatelessWidget {
           caption: 'Accept',
           color: Colors.greenAccent.shade700,
           icon: Icons.check,
-          onTap: () => roomCubit.changeUserPrivileges(user, canWrite: !user!.canWrite!),
+          onTap: () =>
+              roomCubit.changeUserPrivileges(user, canWrite: !user!.canWrite!),
         )
       ],
       actions: <Widget>[
@@ -412,12 +426,15 @@ class RequestedTile extends StatelessWidget {
             caption: 'Decline',
             color: Colors.red.shade800,
             icon: Icons.cancel,
-            onTap: () => roomCubit.kickUser(roomCubit.state.currentRoom!.groupID!, user!)
+            onTap: () =>
+                roomCubit.kickUser(roomCubit.state.currentRoom!.groupID!, user!)
             // roomCubit.changeUserPrivileges(user,
             //     isApporved: !user!.isApporved!),
             )
       ],
-      child: ListTile(title: Text(user!.name.toString()), subtitle: Text(user!.nickName.toString())),
+      child: ListTile(
+          title: Text(user!.name.toString()),
+          subtitle: Text(user!.nickName.toString())),
     );
   }
 }
@@ -438,7 +455,8 @@ class BannedUsersTile extends StatelessWidget {
           caption: 'Unban',
           color: Colors.greenAccent.shade700,
           icon: Icons.check,
-          onTap: () => roomCubit.changeUserPrivileges(user, canWrite: true, isApporved: true),
+          onTap: () => roomCubit.changeUserPrivileges(user,
+              canWrite: true, isApporved: true),
         )
       ],
       // actions: <Widget>[

@@ -17,7 +17,8 @@ Proident ut incididunt cillum anim proident ex consectetur labore. Magna minim r
 Ut cupidatat culpa in cupidatat pariatur irure aliquip quis aliqua nostrud eiusmod enim. Nulla eiusmod cupidatat pariatur in non Lorem in ex adipisicing tempor commodo. Ipsum et dolor sunt anim anim deserunt magna excepteur do.
 Eiusmod veniam dolore culpa aliqua officia nisi excepteur laboris aliquip minim incididunt aute. Quis deserunt est ipsum elit magna. Esse ad aliquip reprehenderit pariatur occaecat excepteur ipsum ea ad dolor dolor consequat in velit. Cupidatat ad velit adipisicing anim ad id cillum non exercitation adipisicing do in excepteur. Ullamco minim cupidatat nulla occaecat nostrud ipsum enim laborum aute. Quis ut aute eu veniam. Ad minim tempor nostrud minim occaecat do adipisicing dolore enim id laborum.
       ''';
-  final title = 'Title is so big and beautiful that in can`t fit into the tabbar so what is no on';
+  final title =
+      'Title is so big and beautiful that in can`t fit into the tabbar so what is no on';
   @override
   Widget build(BuildContext context) {
     final tbHeight = 35.0;
@@ -25,7 +26,12 @@ Eiusmod veniam dolore culpa aliqua officia nisi excepteur laboris aliquip minim 
     final halfScreen = MediaQuery.of(context).size.height / 4;
     final expHeight = txtHeight < halfScreen ? txtHeight : halfScreen;
     return Scaffold(
+        appBar: AppBar(),
         body: SafeArea(
+          child: Container(
+            child: Text('$title'),
+          ),
+          /*
       child: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
@@ -85,6 +91,7 @@ Eiusmod veniam dolore culpa aliqua officia nisi excepteur laboris aliquip minim 
           },
         ),
       ),
-    ));
+      */
+        ));
   }
 }

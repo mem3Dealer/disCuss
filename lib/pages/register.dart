@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/services/database.dart';
-import 'package:my_chat_app/shared/input.dart';
 
 class RegisterPage extends StatefulWidget {
   // const RegisterPage({Key? key}) : super(key: key);

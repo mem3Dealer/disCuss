@@ -37,7 +37,8 @@ class UserCubit extends Cubit<UserListState> {
     user.isSelected = !user.isSelected!;
 
     if (user.isSelected == true) {
-      state.selectedUsers?.add(user.copyWith(canWrite: true, isApporved: true, isSelected: false));
+      state.selectedUsers?.add(
+          user.copyWith(canWrite: true, isApporved: true, isSelected: false));
     } else {
       state.selectedUsers?.remove(user);
     }
@@ -50,12 +51,14 @@ class UserCubit extends Cubit<UserListState> {
 
   void dismissSelected() {
     state.selectedUsers?.clear();
-    emit(state.copyWith(selectedUsers: state.selectedUsers, version: state.version! - 1));
+    emit(state.copyWith(
+        selectedUsers: state.selectedUsers, version: state.version! - 1));
   }
 
   void deleteFromSelected(MyUser user) {
     state.selectedUsers?.remove(user);
-    emit(state.copyWith(selectedUsers: state.selectedUsers, version: state.version! - 1));
+    emit(state.copyWith(
+        selectedUsers: state.selectedUsers, version: state.version! - 1));
   }
 
   // void errorOnNotFound(String errorMessage) {
@@ -65,16 +68,17 @@ class UserCubit extends Cubit<UserListState> {
   Future<dynamic>? searchMember(String searchBy) async {
     var result;
 
-    var docRef = data.userCollection.where('nickName', isEqualTo: searchBy).get();
+    var docRef =
+        data.userCollection.where('nickName', isEqualTo: searchBy).get();
 
     await docRef.then((value) {
       result = MyUser.fromSnapshot(value.docs.first);
       // return result;
-      print("PRINT OUT FROM THIS WEIR FUNC:${result}");
+      // print("PRINT OUT FROM THIS WEIR FUNC:${result}");
     }).onError((error, stackTrace) {
       result = 'We could not find that user';
     });
-    print("PRINT OUT FROM that WEIR FUNC:${result}");
+    // print("PRINT OUT FROM that WEIR FUNC:${result}");
     return result;
     // if (result != null) {
     //   return result!;

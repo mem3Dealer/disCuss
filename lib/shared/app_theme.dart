@@ -1,28 +1,4 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-
-// final appThemeData = ThemeData(primaryColor: Colors.red);
-// final appThemeDataDark = ThemeData.dark();
-// final appThemeDataLight = ThemeData.light(
-// primaryColor:
-// );
-// class MyTheme {
-//   ThemeData get darkTheme {
-//     return ThemeData(
-//         primaryColor:
-//             // Color(0x8A000000),
-//             Color(0xff009394),
-//         scaffoldBackgroundColor: Colors.grey.shade800,
-//         //  Color(0xff006270),
-//         fontFamily: 'Montserrat',
-//         textTheme: ThemeData.dark().textTheme,
-//         buttonTheme: ButtonThemeData(
-//             shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(30.0)),
-//             buttonColor: Colors.red));
-//   }
-// }
 
 ThemeData get appThemeLight => ThemeData(
       brightness: Brightness.light,
@@ -72,7 +48,10 @@ ThemeData get appThemeDark => ThemeData(
       primaryColor: Color(0XFF984063),
       scaffoldBackgroundColor: Color(0XFF41436A),
       textTheme: TextTheme(
-          headline1: TextStyle(), // - заголовки в шапке страницы
+          headline1: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w300,
+              color: Colors.white), // - заголовки в шапке страницы
           headline2: TextStyle() // -
           ),
       // Color(0xFF6F88FC), -- ФИАЛКОВЫЙ
@@ -91,10 +70,11 @@ ThemeData get appThemeDark => ThemeData(
                   (states) => Color(0xfffe9677)))),
       textButtonTheme: TextButtonThemeData(
           style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.resolveWith(
-                  (state) => Color(0xfffe9677)),
-              textStyle: MaterialStateProperty.resolveWith(
-                  (states) => TextStyle(color: Color(0xfffe9677))))),
+        foregroundColor:
+            MaterialStateProperty.resolveWith((state) => Color(0xfffe9677)),
+        // textStyle: MaterialStateProperty.resolveWith(
+        //     (states) => TextStyle(color: Color(0xfffe9677))))
+      )),
       buttonTheme: ButtonThemeData(buttonColor: Colors.yellow),
 
       inputDecorationTheme: InputDecorationTheme(

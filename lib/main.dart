@@ -14,7 +14,6 @@ import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/services/wrapper.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:my_chat_app/shared/app_theme.dart';
-import 'package:my_chat_app/sliver_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:splash_screen_view/SplashScreenView.dart';
 
@@ -57,7 +56,7 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
                 themeMode: ThemeMode.system,
                 theme: appThemeLight,
-                // darkTheme: appThemeDark,
+                darkTheme: appThemeDark,
                 routes: <String, WidgetBuilder>{
                   '/home_page': (BuildContext context) => HomePage(),
                   '/wrapper': (BuildContext context) => Wrapper()

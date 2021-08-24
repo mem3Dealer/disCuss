@@ -8,7 +8,7 @@ import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/cubit/states/user_state.dart';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/services/database.dart';
-import 'package:my_chat_app/shared/input.dart';
+// import 'package:my_chat_app/shared/input.dart';
 
 final formKey = GlobalKey<FormState>();
 final _editFormKey = GlobalKey<FormState>();
@@ -55,23 +55,24 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     return Scaffold(
         // resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: _isEditing ? Text('Editing page') : Text('New discussion'),
-          actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: BlocBuilder<RoomCubit, RoomState>(
-                  bloc: roomCubit,
-                  builder: (context, state) {
-                    return IconButton(
-                        onPressed: () {
-                          _isPrivate = roomCubit.markAsPrivate();
-                        },
-                        icon: state.currentRoom!.isPrivate
-                            ? Icon(Icons.lock)
-                            : Icon(Icons.lock_open));
-                  },
-                ))
-          ],
+          title:
+              _isEditing ? Text('Editing page') : Text('Start new discussion'),
+          // actions: [
+          //   Padding(
+          //       padding: const EdgeInsets.only(right: 8.0),
+          //       child: BlocBuilder<RoomCubit, RoomState>(
+          //         bloc: roomCubit,
+          //         builder: (context, state) {
+          //           return IconButton(
+          //               onPressed: () {
+          //                 _isPrivate = roomCubit.markAsPrivate();
+          //               },
+          //               icon: state.currentRoom!.isPrivate
+          //                   ? Icon(Icons.lock)
+          //                   : Icon(Icons.lock_open));
+          //         },
+          //       ))
+          // ],
         ),
         body: Center(
             child: Container(
@@ -99,14 +100,80 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                         SizedBox(
                           height: 15,
                         ),
+                        Divider(),
+                        Text(
+                          'You may add future participants below:',
+                          style: TextStyle(fontWeight: FontWeight.w200),
+                          // textAlign: TextAlign.start,
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
                         Form(
                           key: _isEditing ? _editFormKey : verySpecialKey,
                           child: TextFormField(
                             // key: ,
                             decoration: InputDecoration().copyWith(
-                                helperText: _isEditing
-                                    ? 'Add new members'
-                                    : 'Select members',
+                                suffixIcon: IconButton(
+                                    padding: EdgeInsets.all(0),
+                                    onPressed: () async {
+                                      var _user = await userCubit
+                                          .searchMember(_searchBy.text);
+                                      bool? contained;
+                                      bool? alsoContained;
+                                      bool? isContainedNewRoom;
+                                      if (_user.runtimeType == String) {
+                                        nickNameIsValid = _user.toString();
+                                        // print('PRINT OUT: $nickNameIsValid');
+                                      } else {
+                                        MyUser? _addingUser = _user;
+                                        // print(_addingUser);
+                                        if (_isEditing) {
+                                          contained = roomCubit
+                                              .state.currentRoom!.members!
+                                              .any((element) {
+                                            return element.uid ==
+                                                _addingUser!.uid;
+                                          });
+                                          alsoContained = userCubit
+                                              .state.selectedUsers!
+                                              .any((element) {
+                                            return element.uid ==
+                                                _addingUser!.uid;
+                                          });
+                                        } else {
+                                          isContainedNewRoom = userCubit
+                                              .state.selectedUsers!
+                                              .any((element) {
+                                            return element.uid ==
+                                                _addingUser!.uid;
+                                          });
+                                        }
+
+                                        if (contained != null &&
+                                                contained == true ||
+                                            alsoContained != null &&
+                                                alsoContained == true ||
+                                            isContainedNewRoom != null &&
+                                                isContainedNewRoom == true) {
+                                          // print('THIS IS PRINT: $contained');
+                                          nickNameIsValid =
+                                              'This user is already selected';
+                                          // print('THIS IS PRINT: $nickNameIsValid');
+                                        } else {
+                                          userCubit.selectUser(_addingUser!);
+                                        }
+                                      }
+                                      if (_isEditing
+                                          ? _editFormKey.currentState!
+                                              .validate()
+                                          : verySpecialKey.currentState!
+                                              .validate()) {}
+                                    },
+                                    icon: Icon(Icons.add)),
+                                // helperText: _isEditing
+                                //     ? 'Add new members'
+                                //     : 'Select members',
                                 hintText: 'Enter nickname and hit add'),
                             controller: _searchBy,
                             validator: (val) {
@@ -120,68 +187,12 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                               } else
                                 return null;
                             },
-                            // decoration: ,
-                            // decoration: textInputDecoration.copyWith(
-                            //     // hintText: 'fuck'
-                            //     // widget.isEdit,ing!
-                            //     //     ? 'Add new member to this discussion'
-                            //     //     :
-                            //     // 'Add members',
-                            //     hintText: 'Enter nametag of a person and hit add')
-                            //  InputDecoration(
-                            //     contentPadding: EdgeInsets.only(left: 8),
-                            // hintText:
-                            //     'Enter nametag of a person and hit add'),
                           ),
                         )
                       ],
                     ),
                   ),
                 ),
-                ElevatedButton(
-                    onPressed: () async {
-                      var _user = await userCubit.searchMember(_searchBy.text);
-                      bool? contained;
-                      bool? alsoContained;
-                      bool? isContainedNewRoom;
-                      if (_user.runtimeType == String) {
-                        nickNameIsValid = _user.toString();
-                        // print('PRINT OUT: $nickNameIsValid');
-                      } else {
-                        MyUser? _addingUser = _user;
-                        // print(_addingUser);
-                        if (_isEditing) {
-                          contained = roomCubit.state.currentRoom!.members!
-                              .any((element) {
-                            return element.uid == _addingUser!.uid;
-                          });
-                          alsoContained =
-                              userCubit.state.selectedUsers!.any((element) {
-                            return element.uid == _addingUser!.uid;
-                          });
-                        } else {
-                          isContainedNewRoom =
-                              userCubit.state.selectedUsers!.any((element) {
-                            return element.uid == _addingUser!.uid;
-                          });
-                        }
-
-                        if (contained != null && contained == true ||
-                            alsoContained != null && alsoContained == true ||
-                            isContainedNewRoom != null &&
-                                isContainedNewRoom == true) {
-                          // print('THIS IS PRINT: $contained');
-                          nickNameIsValid = 'This user is already selected';
-                          // print('THIS IS PRINT: $nickNameIsValid');
-                        } else {
-                          userCubit.selectUser(_addingUser!);
-                        }
-                      }
-                      if (_isEditing
-                          ? _editFormKey.currentState!.validate()
-                          : verySpecialKey.currentState!.validate()) {}
-                    },
-                    child: Text('Add')),
                 _buildAddingMembersTiles(),
               ]),
               // _isEditing
@@ -305,43 +316,6 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     );
   }
 
-  // Form _addMember(String? nickNameIsValid, bool _isEditing) {
-  //   // print(nickNameIsValid);.
-
-  //   return Form(
-  //     key: _isEditing ? _editFormKey : verySpecialKey,
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(8.0),
-  //       child: TextFormField(
-  //           // key: ,
-  //           controller: _searchBy,
-  //           validator: (val) {
-  //             if (val?.contains('@') == false) {
-  //               return 'please enter nickname starting with @';
-  //             }
-  //             if (nickNameIsValid.runtimeType == String) {
-  //               print('final print: $nickNameIsValid');
-  //               // return nickNameIsValid.toString();
-  //               return '$nickNameIsValid';
-  //             } else
-  //               return null;
-  //           },
-  //           decoration: textInputDecoration.copyWith(
-  //               // hintText: 'fuck'
-  //               // widget.isEdit,ing!
-  //               //     ? 'Add new member to this discussion'
-  //               //     :
-  //               // 'Add members',
-  //               hintText: 'Enter nametag of a person and hit add')
-  //           //  InputDecoration(
-  //           //     contentPadding: EdgeInsets.only(left: 8),
-  //           // hintText:
-  //           //     'Enter nametag of a person and hit add'),
-  //           ),
-  //     ),
-  //   );
-  // }
-
   TextFormField buildTopicContent(
       bool _isEditing, TextEditingController _editingTopicContent) {
     return TextFormField(
@@ -356,15 +330,11 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
             ? InputDecoration().copyWith(labelText: 'Edit content')
             : InputDecoration().copyWith(
                 // isCollapsed: true,
-
-                hintText: roomCubit.state.currentRoom?.isPrivate == true
-                    ? 'Exand discussion topic. What has happened?'
-                    : 'Exand discussion topic. What has happened?\n\nIf you want make this discussion private - hit lock button above',
-                helperText: 'Should be at least couple of words')
-        // .copyWith(
-        //     labelText: 'Edit discussion content',
-        //     hintText: "${roomCubit.state.currentRoom?.topicContent}")
-        );
+                labelText: 'Content of discussion',
+                alignLabelWithHint: true,
+                floatingLabelBehavior: FloatingLabelBehavior.auto,
+                hintText: 'What do you want to discuss?',
+                helperText: 'Should be at least couple of words'));
   }
 
   TextFormField buildTopicTheme(
@@ -378,6 +348,24 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                 : null,
         decoration: _isEditing
             ? InputDecoration().copyWith(labelText: 'Edit theme')
-            : InputDecoration().copyWith(hintText: 'Topic of discussion'));
+            : InputDecoration().copyWith(
+                suffixIcon: BlocBuilder<RoomCubit, RoomState>(
+                  bloc: roomCubit,
+                  builder: (context, state) {
+                    return IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          _isPrivate = roomCubit.markAsPrivate();
+                        },
+                        icon: state.currentRoom!.isPrivate
+                            ? Icon(Icons.lock)
+                            : Icon(Icons.lock_open));
+                  },
+                ),
+                labelText: 'Topic of discussion ',
+                helperText: 'Press lock icon to make discussion private',
+                // hintText: 'Topic of discussion',
+                // alignLabelWithHint: true,
+                floatingLabelBehavior: FloatingLabelBehavior.auto));
   }
 }

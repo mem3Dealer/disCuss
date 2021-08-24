@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
-import 'package:my_chat_app/shared/input.dart';
 
 class SignInPage extends StatefulWidget {
   // const SignInPage({Key? key}) : super(key: key);
