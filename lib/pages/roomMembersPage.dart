@@ -32,6 +32,7 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     // final MyUser currentUser = authCubit.state.currentUser!;
     // Room? copyOfThisRoom = state.currentRoom?.copyWith();
     List<MyUser>? _users = roomCubit.state.currentRoom?.members;
@@ -39,9 +40,11 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
     MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
     // Room? defaultRoomState = state.currentRoom;
     return Scaffold(
+        backgroundColor: theme.primaryColor,
         appBar:
             // MyAppBar(currentMemberofThisRoom, roomCubit, widget.groupID)),
             AppBar(
+          elevation: 0,
           title: Text('Chat members'),
           actions: [
             Row(
@@ -59,116 +62,122 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
             )
           ],
         ),
-        body: Container(
-            child: Center(
-          child: Column(
-            children: [
-              // Text( authCubit.state.currentUser.t)
-              Container(
-                // height: 300,
-                // width: 300,
-                child: Expanded(
-                  child: SingleChildScrollView(
-                    child: BlocBuilder<RoomCubit, RoomState>(
-                      bloc: roomCubit,
-                      builder: (context, state) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Label('Creator:'),
-                            ListTile(
-                              title: Text(_users!
-                                  .firstWhere((element) => element.isOwner!)
-                                  .name!),
-                              subtitle: Text(_users
-                                  .firstWhere((element) => element.isOwner!)
-                                  .nickName!),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            if (_users.any((element) {
-                              return element.isAdmin == true &&
-                                  element.isOwner != true;
-                            }))
-                              Label('Admins:'),
-                            _buildAdminTiles(state, _users),
-                            SizedBox(
-                              height: 15,
-                            ),
+        body: ClipRRect(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
+          child: Container(
+              decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor),
+              child: Center(
+                child: Column(
+                  children: [
+                    // Text( authCubit.state.currentUser.t)
+                    Container(
+                      child: Expanded(
+                        child: SingleChildScrollView(
+                          child: BlocBuilder<RoomCubit, RoomState>(
+                            bloc: roomCubit,
+                            builder: (context, state) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Label('Creator:'),
+                                  ListTile(
+                                    title: Text(_users!
+                                        .firstWhere(
+                                            (element) => element.isOwner!)
+                                        .name!),
+                                    subtitle: Text(_users
+                                        .firstWhere(
+                                            (element) => element.isOwner!)
+                                        .nickName!),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  if (_users.any((element) {
+                                    return element.isAdmin == true &&
+                                        element.isOwner != true;
+                                  }))
+                                    Label('Admins:'),
+                                  _buildAdminTiles(state, _users),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
 
-                            if (_users.any((element) {
-                              return element.isAdmin == false &&
-                                  element.isOwner != true &&
-                                  element.isApporved == true &&
-                                  element.canWrite == true;
-                            }))
-                              Label('Members:'),
+                                  if (_users.any((element) {
+                                    return element.isAdmin == false &&
+                                        element.isOwner != true &&
+                                        element.isApporved == true &&
+                                        element.canWrite == true;
+                                  }))
+                                    Label('Members:'),
 
-                            _buildMemberTiles(state, _users),
-                            SizedBox(
-                              height: 15,
-                            ),
+                                  _buildMemberTiles(state, _users),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
 
-                            if (currentMemberofThisRoom?.isAdmin == true)
-                              if (_users.any((element) {
-                                return element.canWrite == false &&
-                                    element.isApporved == true;
-                              }))
-                                Label('Join Requests:'),
-                            _buildJoinRequests(state, _users),
+                                  if (currentMemberofThisRoom?.isAdmin == true)
+                                    if (_users.any((element) {
+                                      return element.canWrite == false &&
+                                          element.isApporved == true;
+                                    }))
+                                      Label('Join Requests:'),
+                                  _buildJoinRequests(state, _users),
 
-                            if (currentMemberofThisRoom?.isOwner == true)
-                              if (_users.any((element) {
-                                return element.isAdmin == false &&
-                                    element.canWrite == false &&
-                                    element.isApporved == false;
-                              }))
-                                Label('Banned users:'),
-                            _buildBannedDudes(state, _users)
-                            // Spacer(),
-                          ],
-                        );
-                      },
+                                  if (currentMemberofThisRoom?.isOwner == true)
+                                    if (_users.any((element) {
+                                      return element.isAdmin == false &&
+                                          element.canWrite == false &&
+                                          element.isApporved == false;
+                                    }))
+                                      Label('Banned users:'),
+                                  _buildBannedDudes(state, _users)
+                                  // Spacer(),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: currentMemberofThisRoom?.isAdmin == true ||
+                              currentMemberofThisRoom?.isOwner == true
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton(
+                                    onPressed: () {
+                                      roomCubit.discardChanges();
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(fontSize: 18),
+                                    )),
+                                ElevatedButton(
+                                    onPressed: () {
+                                      roomCubit.saveRoomChanges();
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Save',
+                                      style: TextStyle(fontSize: 18),
+                                    ))
+                              ],
+                            )
+                          : SizedBox.shrink(),
+                    ),
+                  ],
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(bottom: 8.0),
-                child: currentMemberofThisRoom?.isAdmin == true ||
-                        currentMemberofThisRoom?.isOwner == true
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                              onPressed: () {
-                                roomCubit.discardChanges();
-                                Navigator.of(context).pop();
-                              },
-                              child: Text(
-                                'Cancel',
-                                style: TextStyle(fontSize: 18),
-                              )),
-                          ElevatedButton(
-                              onPressed: () {
-                                roomCubit.saveRoomChanges();
-                                Navigator.of(context).pop();
-                              },
-                              child: Text(
-                                'Save',
-                                style: TextStyle(fontSize: 18),
-                              ))
-                        ],
-                      )
-                    : SizedBox.shrink(),
-              ),
-            ],
-          ),
-        )));
+              )),
+        ));
   }
 
   _buildBannedDudes(RoomState state, List<MyUser> _users) {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
+import 'package:my_chat_app/cubit/states/auth_state.dart';
 
 class SignInPage extends StatefulWidget {
   // const SignInPage({Key? key}) : super(key: key);
@@ -19,7 +21,8 @@ class _SignInPageState extends State<SignInPage> {
 
   // String email = '';
   // String password = '';
-  String error = '';
+  String? _emailError;
+  String? _passError;
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
@@ -46,8 +49,14 @@ class _SignInPageState extends State<SignInPage> {
                       controller: _emailController,
                       decoration:
                           InputDecoration().copyWith(hintText: 'E-mail'),
-                      validator: (val) =>
-                          val!.isEmpty ? "Enter a valid email" : null,
+                      validator: (val) {
+                        if (val?.isEmpty == true) {
+                          return 'Enter a valid email';
+                        }
+                        if (_emailError?.isNotEmpty == true) {
+                          return _emailError;
+                        }
+                      },
                     ), // email
                     SizedBox(
                       height: 20,
@@ -57,8 +66,16 @@ class _SignInPageState extends State<SignInPage> {
                       controller: _passwordController,
                       decoration:
                           InputDecoration().copyWith(hintText: 'Password'),
-                      validator: (val) =>
-                          val!.length < 6 ? "Enter an password 6+ long" : null,
+                      validator: (val) {
+                        // val!.length < 6 ? "Enter an password 6+ long" : null,
+                        if (val!.length < 6) {
+                          return 'Enter a valid email';
+                        }
+                        if (_passError?.isNotEmpty == true) {
+                          // print('this is error: $_emailError');
+                          return _passError;
+                        }
+                      },
                       obscureText: true,
                       // onChanged: (val) {
                       //   setState(() {
@@ -82,9 +99,28 @@ class _SignInPageState extends State<SignInPage> {
                         'Sign in',
                       ),
                       onPressed: () async {
+                        _passError = '';
+                        _emailError = '';
+
+                        var result = await authCubit.signIn(
+                            _emailController.text.trim(),
+                            _passwordController.text.trim());
+
+                        if (result?.isNotEmpty == true) {
+                          if (result!.contains('password')) {
+                            _passError = result;
+                          } else {
+                            _emailError = result;
+                          }
+                          // print('that if shit here:$_emailError');
+                          // return _emailError;
+                        }
                         if (_formKey.currentState!.validate()) {
-                          await authCubit.signIn(_emailController.text.trim(),
-                              _passwordController.text.trim());
+                          // _passError = '';
+                          // _emailError = '';
+                          // result!.isNotEmpty ? _emailError = result : null;
+                          print(
+                              'THAT print from button: $_passError, $_emailError');
                         }
                       },
                     ),

@@ -19,16 +19,22 @@ class AuthCubit extends HydratedCubit<AuthState> {
             isLoggedIn: false,
             version: 0)); //НУЖНО ЛИ ТУТ ОБЪВЯЛЯТЬ КАРРЕНТЮЗЕРА?
 
-  Future<void> signIn(String email, String password) async {
-    MyUser? signInRes = await auth.signInWithEmailandPassword(email, password);
-    if (signInRes != null) {
+  Future<String?> signIn(String email, String password) async {
+    var signInRes = await auth.signInWithEmailandPassword(email, password);
+
+// print('AND THIS IS OUR CURRENT USER: ${signInRes}');
+    if (signInRes != null && signInRes.runtimeType == MyUser) {
       String? nickName = await fetchNickName(signInRes.uid.toString());
-      print("I see $signInRes");
+      // print("I see $signInRes");
       emit(state.copyWith(
           isLoggedIn: true,
           currentUser: signInRes.copyWith(nickName: nickName),
           version: state.version! + 1));
-      print('AND THIS IS OUR CURRENT USER: ${state.currentUser}');
+    }
+    if (signInRes != null && signInRes.runtimeType == String) {
+      emit(state.copyWith(version: state.version! + 1));
+      // print('WE ARE RETURINGN STRING: AND IT IS: $signInRes');
+      return signInRes;
     }
   }
 
@@ -71,30 +77,24 @@ class AuthCubit extends HydratedCubit<AuthState> {
     }
   }
 
-  Future<void> registrate(
+  Future<dynamic> registrate(
       String name, String email, String password, String nickName) async {
-    MyUser? regResult = await auth.registerWithEmailandPassword(
+    dynamic regResult = await auth.registerWithEmailandPassword(
         name, email, password, nickName);
 
-    if (regResult != null) {
-      // final currentUser = MyUser(
-      //     name: regResult.displayName,
-      //     email: regResult.email,
-      //     uid: regResult.uid);
-      print("I watch $regResult");
+    print("I watch $regResult");
+    if (regResult != null && regResult.runtimeType == MyUser) {
       emit(state.copyWith(
           currentUser: regResult.copyWith(nickName: nickName),
           isLoggedIn: true,
           error: '',
           version: state.version! + 1));
       print(state.currentUser);
-    } else {
-      emit(
-        state.copyWith(
-            isLoggedIn: false, error: 'We did not manage to register you.'),
-      );
+    } else if (regResult != null && regResult.runtimeType == String) {
+      emit(state.copyWith(version: state.version! + 1));
+      print("THIS IS another print: $regResult");
+      return regResult;
     }
-    // print(myUser);
   }
 
   @override

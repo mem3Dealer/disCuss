@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 
 ThemeData get appThemeLight => ThemeData(
+      snackBarTheme: SnackBarThemeData(
+        elevation: 5,
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Color(0xffFFCB77),
+        contentTextStyle: TextStyle(
+            color: Colors.black, fontSize: 17, fontWeight: FontWeight.w300),
+        //  shape:ShapeBorder
+      ),
+      textTheme: TextTheme(
+        headline1: TextStyle(
+            fontSize: 20, fontWeight: FontWeight.w300, color: Colors.black),
+      ),
       brightness: Brightness.light,
       colorScheme: ColorScheme.light(),
       primaryColor: Color(0xffFFCB77),
@@ -12,6 +24,10 @@ ThemeData get appThemeLight => ThemeData(
           FloatingActionButtonThemeData(backgroundColor: Color(0XFFFFCB77)),
       elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              )),
               textStyle: MaterialStateProperty.resolveWith(
                   (states) => TextStyle(color: Colors.amber)),
               backgroundColor: MaterialStateProperty.resolveWith(
@@ -20,6 +36,14 @@ ThemeData get appThemeLight => ThemeData(
                   MaterialStateProperty.resolveWith((states) => Colors.amber))),
       dividerColor: Colors.grey[300],
       inputDecorationTheme: InputDecorationTheme(
+          errorMaxLines: 3,
+          errorBorder: OutlineInputBorder(
+            gapPadding: 0,
+            borderRadius: BorderRadius.all(
+              Radius.circular(20),
+            ),
+            borderSide: BorderSide(color: Colors.red, width: 2),
+          ),
           filled: true,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.all(
@@ -36,13 +60,21 @@ ThemeData get appThemeLight => ThemeData(
           labelStyle: TextStyle(color: Colors.black),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(
-              Radius.circular(20),
+              Radius.circular(25),
             ),
             borderSide: BorderSide(color: Color(0xffC5C986), width: 1.5),
           )),
     );
 
 ThemeData get appThemeDark => ThemeData(
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.black,
+        contentTextStyle: TextStyle(
+            color: Colors.white, fontSize: 17, fontWeight: FontWeight.w300),
+        //  shape:ShapeBorder
+      ),
+      // appBarTheme: AppBarTheme(backgroundColor: Colors.transparent),
       brightness: Brightness.dark,
       colorScheme: ColorScheme.dark(),
       primaryColor: Color(0XFF984063),
@@ -61,6 +93,11 @@ ThemeData get appThemeDark => ThemeData(
       accentColor: Color(0xfffe9677),
       elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+                //  side: BorderSide(color: Colors.red)
+              )),
               elevation: MaterialStateProperty.resolveWith((states) => 5),
               // textStyle: MaterialStateProperty.resolveWith(
               //     (states) => TextStyle(color: Colors.transparent)),
@@ -78,14 +115,30 @@ ThemeData get appThemeDark => ThemeData(
       buttonTheme: ButtonThemeData(buttonColor: Colors.yellow),
 
       inputDecorationTheme: InputDecorationTheme(
+        // fillColor: Colors.green,
         filled: true,
-        border: OutlineInputBorder(
+        errorMaxLines: 3,
+        errorBorder: OutlineInputBorder(
+          gapPadding: 0,
           borderRadius: BorderRadius.all(
             Radius.circular(20),
           ),
-          borderSide: BorderSide(color: Color(0XFFF64668), width: 2),
+          borderSide: BorderSide(color: Colors.red, width: 2),
         ),
+        focusedBorder: OutlineInputBorder(
+            gapPadding: 0,
+            borderRadius: BorderRadius.all(
+              Radius.circular(20),
+            ),
+            borderSide: BorderSide(color: Color(0xfffe9677), width: 2)),
+        // border: OutlineInputBorder(
+        //   borderRadius: BorderRadius.all(
+        //     Radius.circular(20),
+        //   ),
+        //   borderSide: BorderSide(color: Color(0XFFF64668), width: 2),
+        // ),
         enabledBorder: OutlineInputBorder(
+          gapPadding: 0,
           borderRadius: BorderRadius.all(
             Radius.circular(20),
           ),

@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   final authCubit = GetIt.I.get<AuthCubit>();
   final roomCubit = GetIt.I.get<RoomCubit>();
   final formKey = GlobalKey<FormState>();
+
   // final _auth = GetIt.I.get<FirebaseAuth>();
   // final dialog = GetIt.I.get<AnotherGroupCreator>();
 
@@ -52,15 +53,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // print("PRINT FROM UILD: ${userCubit.state.listUsers}");
-    // final currentUser = authCubit.state.currentUser;
-    // final AuthService _auth = AuthService();
-    // var senderId = FirebaseAuth.instance.currentUser?.uid;
+    final ThemeData theme = Theme.of(context);
     return BlocBuilder<AuthCubit, AuthState>(
       bloc: authCubit,
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: theme.primaryColor,
           appBar: AppBar(
+              elevation: 0,
               actions: [
                 Padding(
                   padding: const EdgeInsets.all(10.0),
@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute<void>(
                             builder: (BuildContext context) => Wrapper()),
-                        ModalRoute.withName('/'),
+                        ModalRoute.withName('/wrapper'),
                       );
                       // print(
                       //     'THIS IS LOG OUT PRINT. first param: ${authCubit.fbAuth}, second: ${authCubit.state.isLoggedIn}');
@@ -88,19 +88,27 @@ class _HomePageState extends State<HomePage> {
               title: Text(
                   "${authCubit.state.currentUser?.nickName}`s available rooms")),
           body: Center(
-            child: Container(
-                child: BlocBuilder<RoomCubit, RoomState>(
-                    bloc: roomCubit,
-                    builder: (context, state) {
-                      if (state.listRooms == null) {
-                        return Center(
+              child: BlocBuilder<RoomCubit, RoomState>(
+                  bloc: roomCubit,
+                  builder: (context, state) {
+                    if (state.listRooms == null) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(25.0),
+                            topRight: Radius.circular(25.0)),
+                        child: Center(
                           child: Text('There is a problem, no cap'),
-                        );
-                      } else if (state.listRooms!.length > 0)
-                        return _buildRooms(state);
-                      return CircularProgressIndicator();
-                    })),
-          ),
+                        ),
+                      );
+                    } else if (state.listRooms!.length > 0) {
+                      return ClipRRect(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(25.0),
+                              topRight: Radius.circular(25.0)),
+                          child: _buildRooms(state));
+                    }
+                    return CircularProgressIndicator();
+                  })),
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
@@ -123,6 +131,8 @@ class _HomePageState extends State<HomePage> {
 
   Container _buildRooms(RoomState state) {
     return Container(
+        decoration:
+            BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
         child:
             // Text(roomCubit.displayRooms().toString())
             ListView.builder(

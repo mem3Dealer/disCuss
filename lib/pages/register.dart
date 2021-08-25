@@ -25,25 +25,10 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _nickNameController = TextEditingController();
   String? nickNameValidator;
+  String? _emailTaken;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   // actions: [
-      //   // Padding(
-      //   //   padding: const EdgeInsets.all(7.0),
-      //   //   child: ElevatedButton.icon(
-      //   //     icon: Icon(Icons.person),
-      //   //     label: Text('Sign In'),
-      //   //     onPressed: () {
-      //   //       widget.letsToggleView!();
-      //   //     },
-      //   //   ),
-      //   // )
-      //   // ],
-      //   title: Text('Create new account'),
-      // ),
       body: Center(
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
@@ -96,12 +81,15 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: _emailController,
                       decoration: InputDecoration()
                           .copyWith(hintText: 'Enter your e-mail'),
-                      validator: (val) => val!.isEmpty
-                          ? "Enter an email adress"
-                          : val.contains('@')
-                              ? null
-                              : 'Please enter valid email' //TODO вывести ошибку занятого имейл
-                      ), // email
+                      validator: (val) {
+                        if (val?.isEmpty == true) {
+                          return 'Enter an email adress';
+                        } else if (val?.contains('@') == false) {
+                          return 'Please enter valid email';
+                        } else if (_emailTaken?.isNotEmpty == true) {
+                          return _emailTaken;
+                        }
+                      }), // email
                   SizedBox(
                     height: 20,
                   ),
@@ -129,13 +117,19 @@ class _RegisterPageState extends State<RegisterPage> {
                       nickNameValidator = await authCubit
                           .isNickNameUnique(_nickNameController.text);
 
+                      var result = await authCubit.registrate(
+                          _nameController.text.trim(),
+                          _emailController.text.trim(),
+                          _passwordController.text.trim(),
+                          _nickNameController.text.trim());
+
+                      print('THIS IS THIS PRINT: $result');
+                      if (result != null && result.runtimeType == String) {
+                        _emailTaken = result;
+                      }
+
                       if (_formKey.currentState!.validate()) {
                         // try {
-                        authCubit.registrate(
-                            _nameController.text.trim(),
-                            _emailController.text.trim(),
-                            _passwordController.text.trim(),
-                            _nickNameController.text.trim());
                         // } catch (e) {
                         //   print('ERROR IS ${}');
                         // }

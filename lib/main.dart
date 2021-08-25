@@ -78,26 +78,11 @@ class MyApp extends StatelessWidget {
                         // value: AuthService().user,
                         builder: (context, state) {
                           // authCubit.checkUser();
-
-// <<<<<<< HEAD
                           return SplashScreenView(
                               duration: 2000,
                               imageSize: 450,
                               imageSrc: 'assets/logo.png',
                               navigateRoute: Wrapper());
-                          // GroupCreator();
-                          // return SplashScreenView(
-                          //     backgroundColor: Colors.pink[900],
-                          //     duration: 3000,
-                          //     imageSize: 300,
-                          //     text: 'Welcome!',
-                          //     textStyle: TextStyle(
-                          //         color: Colors.grey.shade100, fontSize: 50.0),
-                          //     imageSrc: 'assets/logo.png',
-                          //     navigateRoute: Wrapper());
-                          // GroupCreator();
-// >>>>>>> 3793f8f66a4316bbb99d8c6b9fae757ebb13fee6
-
                           // Wrapper();
                         }));
           } else

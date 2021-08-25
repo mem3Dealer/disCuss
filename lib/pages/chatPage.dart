@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -103,16 +105,14 @@ class _ChatPageState extends State<ChatPage>
     Room? currentRoom = roomCubit.state.currentRoom;
     final requestSentSnackBar = SnackBar(
         duration: Duration(seconds: 2),
-        content: Text('Join reqeust sent. Fingers crossed',
-            style: TextStyle(
-              fontSize: 17,
-            )));
+        content: Text(
+          'Join reqeust sent. Fingers crossed',
+        ));
     final youHaveJoinedSnackBar = SnackBar(
         duration: Duration(seconds: 2),
-        content: Text('You have joined this room. Be nice!',
-            style: TextStyle(
-              fontSize: 17,
-            )));
+        content: Text(
+          'You have joined this room. Be nice!',
+        ));
     return BlocBuilder<RoomCubit, RoomState>(
       bloc: roomCubit,
       builder: (context, state) {
@@ -122,7 +122,7 @@ class _ChatPageState extends State<ChatPage>
         bool userIsbanned = (currentMemberofThisRoom?.uid != null &&
             currentMemberofThisRoom?.canWrite == false &&
             currentMemberofThisRoom?.isApporved == false);
-        List<Message>? _localChat = state.messagesOfThisChatRoom;
+        // List<Message>? _localChat = state.messagesOfThisChatRoom;
         String title = " ${roomCubit.state.currentRoom?.topicTheme!}";
 
         // BoxConstraints? constraints;
@@ -130,34 +130,38 @@ class _ChatPageState extends State<ChatPage>
         return Scaffold(
             appBar: AppBar(
               elevation: 0,
-              title: GestureDetector(
-                  onTap: () {
-                    _controller.fling(velocity: _isPanelVisible ? -1.0 : 1.0);
-                  },
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.headline1,
-                  )),
+              title: Text(
+                title,
+                style: Theme.of(context).textTheme.headline1,
+                overflow: TextOverflow.ellipsis,
+              ),
               actions: [
                 Padding(
                   padding: EdgeInsets.only(right: 10.0),
                   child: Row(
                     children: [
                       if (!userIsbanned)
-                        if (currentMemberofThisRoom?.isApporved == false &&
-                            currentMemberofThisRoom?.canWrite == false)
-                          ElevatedButton(
-                              onPressed: () {
-                                roomCubit.sentRequest(
-                                  authCubit.state.currentUser,
-                                );
-                                currentRoom!.isPrivate
-                                    ? ScaffoldMessenger.of(context)
-                                        .showSnackBar(requestSentSnackBar)
-                                    : ScaffoldMessenger.of(context)
-                                        .showSnackBar(youHaveJoinedSnackBar);
-                              },
-                              child: Text('join')),
+                        IconButton(
+                            splashRadius: 15,
+                            onPressed: () {
+                              _controller.fling(
+                                  velocity: _isPanelVisible ? -1.0 : 1.0);
+                            },
+                            icon: Icon(Icons.info_outline_rounded)),
+                      if (currentMemberofThisRoom?.isApporved == false &&
+                          currentMemberofThisRoom?.canWrite == false)
+                        IconButton(
+                            onPressed: () {
+                              roomCubit.sentRequest(
+                                authCubit.state.currentUser,
+                              );
+                              currentRoom!.isPrivate
+                                  ? ScaffoldMessenger.of(context)
+                                      .showSnackBar(requestSentSnackBar)
+                                  : ScaffoldMessenger.of(context)
+                                      .showSnackBar(youHaveJoinedSnackBar);
+                            },
+                            icon: Icon(Icons.add)),
                       if (currentMemberofThisRoom?.isApporved == true &&
                           currentMemberofThisRoom?.canWrite == true)
                         IconButton(
@@ -199,6 +203,7 @@ class _ChatPageState extends State<ChatPage>
     final Animation<RelativeRect> animation = _getPanelAnimation(constraints);
     final ThemeData theme = Theme.of(context);
     String content = " ${roomCubit.state.currentRoom?.topicContent!}";
+    String topic = " ${roomCubit.state.currentRoom?.topicTheme!}";
 
     return Container(
       color: theme.primaryColor,
@@ -208,9 +213,16 @@ class _ChatPageState extends State<ChatPage>
               // decoration: BoxDecoration(color: theme.primaryColor),
               child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.all(12.0),
+              padding: EdgeInsets.all(15.0),
               child: Column(
                 children: [
+                  Text('Topic of this discussion:',
+                      textAlign: TextAlign.start,
+                      style:
+                          TextStyle(fontSize: 25, fontWeight: FontWeight.w300)),
+                  SizedBox(height: 10),
+                  Text(topic, style: TextStyle(fontSize: 20)),
+                  SizedBox(height: 20),
                   Text('Content of this discussion:',
                       textAlign: TextAlign.start,
                       style:
@@ -228,100 +240,106 @@ class _ChatPageState extends State<ChatPage>
           )),
           PositionedTransition(
             rect: animation,
-            child:
-                // Material(
-                //   borderRadius: BorderRadius.only(
-                //       topLeft: Radius.circular(16.0),
-                //       topRight: Radius.circular(16.0)),
-                //   elevation: 12.0,
-                //   child:
-                SafeArea(
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0)),
               child: Container(
                 decoration: BoxDecoration(
-                    color: theme.scaffoldBackgroundColor,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(16.0),
-                        topRight: Radius.circular(16.0))),
-                child: Column(
-                  children: [
-                    if (userIsbanned)
-                      Expanded(
-                        child: Chip(
-                          label: Text('You were banned from this discussion'),
-                        ),
-                      )
-                    else if (currentRoom?.isPrivate == true)
-                      Expanded(
-                          child: Container(
-                              child: currentMemberofThisRoom?.canWrite ==
-                                          false &&
-                                      currentMemberofThisRoom?.isApporved ==
-                                          false
-                                  ? Center(
-                                      child: Text(
-                                        'You are not yet member of this group',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: 23,
-                                            fontWeight: FontWeight.w300),
-                                      ),
-                                    )
-                                  : currentMemberofThisRoom?.isApporved ==
-                                              true &&
-                                          currentMemberofThisRoom?.canWrite ==
-                                              false
-                                      ? Center(
-                                          child: Text(
-                                            'Your request is under develeopement',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                fontSize: 23,
-                                                fontWeight: FontWeight.w300),
-                                          ),
-                                        )
-                                      : _localChat!.isEmpty
-                                          ? Center(
-                                              child: Chip(
-                                                  label: Text(
-                                                      'ooops... Such empty!')))
-                                          : _buildChat(_localChat)))
-                    else if (currentRoom?.isPrivate == false)
-                      Expanded(
-                          child: Container(
-                              child: _localChat!.isEmpty
-                                  ? Center(
-                                      child: Chip(
-                                          label: Text('ooops... Such empty!')))
-                                  : _buildChat(_localChat))),
-                    if (currentMemberofThisRoom?.canWrite == false ||
-                        currentMemberofThisRoom?.isApporved == false ||
-                        currentMemberofThisRoom == null)
-                      Container()
-                    else
-                      BlocBuilder<RoomCubit, RoomState>(
-                        bloc: roomCubit,
-                        builder: (context, state) {
-                          return Column(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(left: 13.0, right: 13),
-                                child: Divider(
-                                  height: 2,
-                                  thickness: 2.5,
+                  image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: theme.brightness == Brightness.dark
+                          ? ExactAssetImage('assets/dark_back.png')
+                          : ExactAssetImage('assets/light_back.png')),
+                  color: theme.scaffoldBackgroundColor,
+                ),
+                child: BackdropFilter(
+                  filter: theme.brightness == Brightness.dark
+                      ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
+                      : ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                  child: Column(
+                    children: [
+                      if (userIsbanned)
+                        Expanded(
+                          child: Chip(
+                            label: Text('You were banned from this discussion'),
+                          ),
+                        )
+                      else if (currentRoom?.isPrivate == true)
+                        Expanded(
+                            child: Container(
+                                child: currentMemberofThisRoom?.canWrite ==
+                                            false &&
+                                        currentMemberofThisRoom?.isApporved ==
+                                            false
+                                    ? Center(
+                                        child: Text(
+                                          'You are not yet member of this group',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontSize: 23,
+                                              fontWeight: FontWeight.w300),
+                                        ),
+                                      )
+                                    : currentMemberofThisRoom?.isApporved ==
+                                                true &&
+                                            currentMemberofThisRoom?.canWrite ==
+                                                false
+                                        ? Center(
+                                            child: Text(
+                                              'Your request is under develeopement',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  fontSize: 23,
+                                                  fontWeight: FontWeight.w300),
+                                            ),
+                                          )
+                                        : _localChat!.isEmpty
+                                            ? Center(
+                                                child: Chip(
+                                                    label: Text(
+                                                        'ooops... Such empty!')))
+                                            : _buildChat(_localChat)))
+                      else if (currentRoom?.isPrivate == false)
+                        Expanded(
+                            child: Container(
+                                child: _localChat!.isEmpty
+                                    ? Center(
+                                        child: Chip(
+                                            label:
+                                                Text('ooops... Such empty!')))
+                                    : _buildChat(_localChat))),
+                      if (currentMemberofThisRoom?.canWrite == false ||
+                          currentMemberofThisRoom?.isApporved == false ||
+                          currentMemberofThisRoom == null)
+                        Container()
+                      else
+                        BlocBuilder<RoomCubit, RoomState>(
+                          bloc: roomCubit,
+                          builder: (context, state) {
+                            return Column(
+                              children: [
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(left: 13.0, right: 13),
+                                  child: Divider(
+                                    height: 2,
+                                    thickness: 2.5,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 8,
-                              ),
-                              sendFieldandButton(),
-                              SizedBox(
-                                height: 8,
-                              ),
-                            ],
-                          );
-                        },
-                      )
-                  ],
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                sendFieldandButton(),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                              ],
+                            );
+                          },
+                        )
+                    ],
+                  ),
                 ),
               ),
             ),
