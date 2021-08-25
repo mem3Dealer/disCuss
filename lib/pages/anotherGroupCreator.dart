@@ -107,12 +107,14 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                               key: _isEditing ? _editFormKey : verySpecialKey,
                               child: TextFormField(
                                 // key: ,
+
                                 decoration: InputDecoration().copyWith(
                                     suffixIcon: IconButton(
                                         padding: EdgeInsets.all(0),
                                         onPressed: () async {
-                                          var _user = await userCubit
-                                              .searchMember(_searchBy.text);
+                                          var _user =
+                                              await userCubit.searchMember(
+                                                  _searchBy.text.trim());
                                           bool? contained;
                                           bool? alsoContained;
                                           bool? isContainedNewRoom;
@@ -167,9 +169,6 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                                                   .validate()) {}
                                         },
                                         icon: Icon(Icons.add)),
-                                    // helperText: _isEditing
-                                    //     ? 'Add new members'
-                                    //     : 'Select members',
                                     hintText: '@nickname'),
                                 controller: _searchBy,
                                 validator: (val) {

@@ -116,7 +116,7 @@ class AuthExceptionHandler {
     print(e.code);
     var status;
     switch (e.code) {
-      case "ERROR_INVALID_EMAIL":
+      case "invalid-email ":
         status = AuthResultStatus.invalidEmail;
         break;
       case "wrong-password":

@@ -125,6 +125,13 @@ ThemeData get appThemeDark => ThemeData(
           ),
           borderSide: BorderSide(color: Colors.red, width: 2),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          gapPadding: 0,
+          borderRadius: BorderRadius.all(
+            Radius.circular(20),
+          ),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
         focusedBorder: OutlineInputBorder(
             gapPadding: 0,
             borderRadius: BorderRadius.all(

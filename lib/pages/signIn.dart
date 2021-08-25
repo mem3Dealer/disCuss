@@ -69,7 +69,7 @@ class _SignInPageState extends State<SignInPage> {
                       validator: (val) {
                         // val!.length < 6 ? "Enter an password 6+ long" : null,
                         if (val!.length < 6) {
-                          return 'Enter a valid email';
+                          return 'Enter an password 6+ long';
                         }
                         if (_passError?.isNotEmpty == true) {
                           // print('this is error: $_emailError');
