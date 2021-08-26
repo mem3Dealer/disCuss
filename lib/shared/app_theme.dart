@@ -17,7 +17,7 @@ ThemeData get appThemeLight => ThemeData(
       colorScheme: ColorScheme.light(),
       primaryColor: Color(0xffFFCB77),
       accentColor: Color(0xff227C9D),
-      scaffoldBackgroundColor: Color(0xffFEF9EF),
+      // scaffoldBackgroundColor: Color(0xffFEF9EF),
       // elevatedButtonTheme: ElevatedButtonTheme(d),
       buttonTheme: ButtonThemeData(buttonColor: Colors.green),
       floatingActionButtonTheme:
@@ -36,6 +36,7 @@ ThemeData get appThemeLight => ThemeData(
                   MaterialStateProperty.resolveWith((states) => Colors.amber))),
       dividerColor: Colors.grey[300],
       inputDecorationTheme: InputDecorationTheme(
+          labelStyle: TextStyle(color: Color(0xff227C9D)),
           errorMaxLines: 3,
           errorBorder: OutlineInputBorder(
             gapPadding: 0,
@@ -46,23 +47,26 @@ ThemeData get appThemeLight => ThemeData(
           ),
           filled: true,
           border: OutlineInputBorder(
+            gapPadding: 0,
             borderRadius: BorderRadius.all(
               Radius.circular(20),
             ),
-            borderSide: BorderSide(color: Color(0XFF17C3B2), width: 2),
+            borderSide: BorderSide(color: Color(0xffC5C986), width: 2),
           ),
           enabledBorder: OutlineInputBorder(
+            gapPadding: 0,
             borderRadius: BorderRadius.all(
               Radius.circular(20),
             ),
-            borderSide: BorderSide(color: Color(0XFF17C3B2), width: 1.5),
+            borderSide: BorderSide(color: Color(0xffC5C986), width: 1.5),
           ),
-          labelStyle: TextStyle(color: Colors.black),
+          // labelStyle: TextStyle(color: Colors.black),
           focusedBorder: OutlineInputBorder(
+            gapPadding: 0,
             borderRadius: BorderRadius.all(
               Radius.circular(25),
             ),
-            borderSide: BorderSide(color: Color(0xffC5C986), width: 1.5),
+            borderSide: BorderSide(color: Color(0XFF17C3B2), width: 1.5),
           )),
     );
 
@@ -151,8 +155,5 @@ ThemeData get appThemeDark => ThemeData(
           ),
           borderSide: BorderSide(color: Color(0xfffe9677), width: 2),
         ),
-        // focusedBorder: OutlineInputBorder(
-        //   borderSide: BorderSide(color: Colors.purple.shade800, width: 2),
-        // )
       ),
     );

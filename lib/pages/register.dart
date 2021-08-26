@@ -44,7 +44,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration().copyWith(
-                          hintText: 'What is your name?',
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelText: 'What is your name?',
                           helperText:
                               'It should be at least 4 characters long'),
                       validator: (val) => val!.isEmpty
@@ -59,7 +60,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       // initialValue: '@',
                       controller: _nickNameController,
                       decoration: InputDecoration().copyWith(
-                          hintText: 'Enter your nickname',
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelText: 'Enter your nickname',
                           helperText: 'It should start with @'),
                       // onSaved:   authCubit.isNickNameUnique(_nickNameController.text).toString();,
                       validator: (val) {
@@ -79,8 +81,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   TextFormField(
                       controller: _emailController,
-                      decoration: InputDecoration()
-                          .copyWith(hintText: 'Enter your e-mail'),
+                      decoration: InputDecoration().copyWith(
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelText: 'Enter e-mail'),
                       validator: (val) {
                         if (val?.isEmpty == true) {
                           return 'Enter an email adress';
@@ -96,7 +99,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration().copyWith(
-                        hintText: 'Create password',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        labelText: 'Create password',
                         helperText: 'It should be at least 6 chatacters long'),
                     validator: (val) =>
                         val!.length < 6 ? "Enter an password 6+ long" : null,

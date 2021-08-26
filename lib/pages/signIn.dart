@@ -47,8 +47,13 @@ class _SignInPageState extends State<SignInPage> {
                     TextFormField(
                       // initialValue: 'test@mail.com',
                       controller: _emailController,
-                      decoration:
-                          InputDecoration().copyWith(hintText: 'E-mail'),
+                      decoration: InputDecoration().copyWith(
+                          alignLabelWithHint: true,
+                          // hintText: 'E-mail',
+                          labelText: 'E-mail',
+                          labelStyle:
+                              TextStyle(color: Theme.of(context).accentColor),
+                          floatingLabelBehavior: FloatingLabelBehavior.always),
                       validator: (val) {
                         if (val?.isEmpty == true) {
                           return 'Enter a valid email';
@@ -64,8 +69,11 @@ class _SignInPageState extends State<SignInPage> {
                     TextFormField(
                       // initialValue: 'test123',
                       controller: _passwordController,
-                      decoration:
-                          InputDecoration().copyWith(hintText: 'Password'),
+                      decoration: InputDecoration().copyWith(
+                          labelStyle:
+                              TextStyle(color: Theme.of(context).accentColor),
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelText: 'Password'),
                       validator: (val) {
                         // val!.length < 6 ? "Enter an password 6+ long" : null,
                         if (val!.length < 6) {
@@ -109,18 +117,19 @@ class _SignInPageState extends State<SignInPage> {
                         if (result?.isNotEmpty == true) {
                           if (result!.contains('password')) {
                             _passError = result;
-                          } else {
+                          } else if (result.contains('user')) {
                             _emailError = result;
                           }
                           // print('that if shit here:$_emailError');
                           // return _emailError;
                         }
+                        print(
+                            'THAT print from button: $_passError, $_emailError');
                         if (_formKey.currentState!.validate()) {
                           // _passError = '';
                           // _emailError = '';
                           // result!.isNotEmpty ? _emailError = result : null;
-                          print(
-                              'THAT print from button: $_passError, $_emailError');
+
                         }
                       },
                     ),

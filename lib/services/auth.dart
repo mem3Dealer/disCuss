@@ -76,7 +76,7 @@ class AuthService {
   //sign in with email and password
   Future<dynamic> signInWithEmailandPassword(
       String email, String password) async {
-    AuthResultStatus _status;
+    AuthResultStatus? _status;
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -88,7 +88,7 @@ class AuthService {
         _status = AuthResultStatus.successful;
         return _userFromFirebase(_fbUser, password);
       } else {
-        _status = AuthResultStatus.undefined;
+        _status = null;
       }
       // print("FB USER IS ${_fbUser.toString()}");
     } catch (e) {
