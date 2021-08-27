@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:my_chat_app/pages/chatPage.dart';
+import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/widgets/messageTile.dart';
-import 'package:my_chat_app/widgets/sendFieldandButton.dart';
 
 class ChatMessages extends StatefulWidget {
   const ChatMessages({Key? key}) : super(key: key);
@@ -14,7 +12,7 @@ class ChatMessages extends StatefulWidget {
 }
 
 class _ChatMessagesState extends State<ChatMessages> {
-  List? listUsers;
+  List<MyUser> listUsers = [];
   ScrollController _thisController = ScrollController();
   String? senderId;
   dynamic snapshot;
@@ -30,15 +28,15 @@ class _ChatMessagesState extends State<ChatMessages> {
   }
 
   Widget chatMessages(
-      List? listUsers, snapshot, _thisController, String? senderId) {
+      List<MyUser> listUsers, snapshot, _thisController, String? senderId) {
     final _messages = snapshot?.data.docs;
     bool _isNewAuthor;
     bool _isAuthorOver;
     // HomePage home = HomePage();
-    DataBaseService data = DataBaseService();
+    // DataBaseService data = DataBaseService();
 
     return Container(
-      child: listUsers == null
+      child: listUsers.isEmpty
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -73,8 +71,9 @@ class _ChatMessagesState extends State<ChatMessages> {
                     firstMessageOfAuthor: _isNewAuthor,
                     lastMessageOfAuthor: _isAuthorOver,
                     author: _isNewAuthor
-                        ? data.getUserName(
-                            message['sender'].toString(), listUsers)
+                        ? ''
+                        // data.getUserName(
+                        //     message['sender'].toString(), listUsers)
                         : '',
                     // snapshot.data.docs[index]['author'].toString(),
                     message: message['recentMessage'].toString(),

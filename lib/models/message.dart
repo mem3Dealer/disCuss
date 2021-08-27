@@ -1,15 +1,12 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:my_chat_app/models/user.dart';
 
 class Message {
   String? content;
-  String? sender;
+  MyUser? sender;
   Timestamp? time;
   bool isFirst;
   bool isLast;
@@ -24,7 +21,7 @@ class Message {
 
   Message copyWith({
     String? content,
-    String? sender,
+    MyUser? sender,
     Timestamp? time,
     bool? isFirst,
     bool? isLast,
@@ -41,7 +38,7 @@ class Message {
   Map<String, dynamic> toMap() {
     return {
       'content': content,
-      'sender': sender,
+      'sender': sender?.toMap(),
       // 'time': time?.toMap(),
       'isFirst': isFirst,
       'isLast': isLast,
@@ -50,11 +47,11 @@ class Message {
 
   factory Message.fromMap(Map<String, dynamic> map) {
     return Message(
-      content: map['content'],
-      sender: map['sender'],
-      // time: Timestamp.fromMap(map['time']),
-      isFirst: map['isFirst'],
-      isLast: map['isLast'],
+      content: map['recentMessage'],
+      sender: MyUser.fromMap(map['sender']),
+      time: (map['time']),
+      // isFirst: map['isFirst'],
+      // isLast: map['isLast'],
     );
   }
 
@@ -92,7 +89,7 @@ class Message {
   static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
     return Message(
         content: e.get('recentMessage'),
-        sender: e.get('sender'),
+        sender: MyUser.fromMapForMessages(e.get('sender')),
         time: e.get('time'));
   }
 
@@ -102,18 +99,18 @@ class Message {
   //           orElse: () => MyUser(name: 'null name'))
   //       .name;
   // }
-  getTimed(
-      Timestamp? stamp, index, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
-    final messages = snapshot.data?.docs;
-    int _timeStamp = messages?[index]['time'].seconds;
-    var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
-    var formattedDate = DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
-    return formattedDate;
-  }
+  // getTimed(
+  //     Timestamp? stamp, index, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
+  //   final messages = snapshot.data?.docs;
+  //   int _timeStamp = messages?[index]['time'].seconds;
+  //   var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
+  //   var formattedDate = DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
+  //   return formattedDate;
+  // }
 
-  String? getUserName(String? sender, List<MyUser>? listUsers) {
+  String? getUserName(MyUser? sender, List<MyUser>? listUsers) {
     return listUsers!
-        .firstWhere((e) => e.uid == sender,
+        .firstWhere((e) => e.uid == sender?.uid,
             orElse: () => MyUser(name: 'null name'))
         .name;
   }

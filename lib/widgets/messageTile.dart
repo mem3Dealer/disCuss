@@ -25,6 +25,7 @@ class MessageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.only(
         top: firstMessageOfAuthor ? 4 : 1,
@@ -75,15 +76,21 @@ class MessageTile extends StatelessWidget {
                                 topRight: Radius.circular(18),
                                 bottomRight: Radius.circular(18),
                               ),
-            color: sentByMe
-                ? Colors.lightBlueAccent.shade400
-                : Colors.grey.shade700),
+            color: theme.brightness == Brightness.dark
+                ? sentByMe
+                    ? Color(0xff7556c8)
+                    : Color(0xff7f2982)
+                : sentByMe
+                    ? Color(0xffffb703)
+                    : Colors.grey[400]
+            // Color(0xffa47e1b),
+            ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Text("${firstMessageOfAuthor} $lastMessageOfAuthor"),
             if (author!.isNotEmpty) messageAuthor(author),
-            messageContent(message!),
+            messageContent(message!, context),
             SizedBox(
               height: 3,
             ),
@@ -94,6 +101,7 @@ class MessageTile extends StatelessWidget {
                 Text(time!,
                     // textAlign: sentByMe ? TextAlign.right : TextAlign.left,
                     style: TextStyle(
+                      // color: Colors.black,
                       fontSize: 11,
                     )),
               ],
@@ -119,9 +127,14 @@ class MessageTile extends StatelessWidget {
     );
   }
 
-  Widget messageContent(String message) {
+  Widget messageContent(String message, BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     return Text(message,
         textAlign: TextAlign.start,
-        style: TextStyle(fontSize: 15.0, color: Colors.white));
+        style: TextStyle(
+            fontSize: 15.0,
+            color: theme.brightness == Brightness.dark
+                ? Colors.white
+                : Colors.black));
   }
 }

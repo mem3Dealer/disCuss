@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:my_chat_app/services/auth.dart';
+import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
+import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/services/database.dart';
-import 'package:my_chat_app/shared/input.dart';
 
 class RegisterPage extends StatefulWidget {
   // const RegisterPage({Key? key}) : super(key: key);
@@ -14,108 +15,137 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  final AuthService _auth = AuthService();
-  DataBaseService data = DataBaseService();
+  // final _auth = AuthService();
+  final data = DataBaseService();
+  final userCubit = GetIt.I.get<UserCubit>();
+  final authCubit = GetIt.I.get<AuthCubit>();
 
-  String email = '';
-  String password = '';
-  String error = '';
-  String name = '';
-
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _nickNameController = TextEditingController();
+  String? nickNameValidator;
+  String? _emailTaken;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(7.0),
-            child: ElevatedButton.icon(
-              icon: Icon(Icons.person),
-              label: Text('Sign In'),
-              onPressed: () {
-                widget.letsToggleView!();
-                print('pressed');
-              },
-            ),
-          )
-        ],
-        title: Text('this is register page'),
-      ),
-      body: Container(
-        padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextFormField(
-                  decoration: textInputDecoration.copyWith(
-                      hintText: 'What`s your name?'),
-                  validator: (val) =>
-                      val!.isEmpty ? "introduce yourself" : null,
-                  onChanged: (val) {
-                    setState(() {
-                      name = val;
-                      // data.updateCurrentUser(name);
-                    });
-                  },
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  decoration: textInputDecoration.copyWith(hintText: 'Email'),
-                  validator: (val) => val!.isEmpty ? "Enter an email" : null,
-                  onChanged: (val) {
-                    setState(() {
-                      email = val;
-                    });
-                  },
-                ), // email
-                SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  decoration:
-                      textInputDecoration.copyWith(hintText: 'Password'),
-                  validator: (val) =>
-                      val!.length < 6 ? "Enter an password 6+ long" : null,
-                  obscureText: true,
-                  onChanged: (val) {
-                    setState(() {
-                      password = val;
-                    });
-                  },
-                ), // password
-                SizedBox(height: 20),
-                ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.purple.shade900)),
-                  child:
-                      Text('Register', style: TextStyle(color: Colors.white)),
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      // setState(() => loading = true);
-                      dynamic result = await _auth.registerWithEmailandPassword(
-                          name, email, password);
-                      if (result == null) {
-                        setState(() {
-                          // loading = false;
-                          error = 'this is an error message';
-                        });
+      body: Center(
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration().copyWith(
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelText: 'What is your name?',
+                          helperText:
+                              'It should be at least 4 characters long'),
+                      validator: (val) => val!.isEmpty
+                          ? "Please, enter your name"
+                          : val.length < 4
+                              ? 'Name should be at least 4 chars long'
+                              : null),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                      // initialValue: '@',
+                      controller: _nickNameController,
+                      decoration: InputDecoration().copyWith(
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelText: 'Enter your nickname',
+                          helperText: 'It should start with @'),
+                      // onSaved:   authCubit.isNickNameUnique(_nickNameController.text).toString();,
+                      validator: (val) {
+                        if (val?.contains('@') == false) {
+                          return 'please enter nickname starting with @';
+                        }
+                        if (val!.length <= 4) {
+                          return 'Nickname should be at least 4 characters long';
+                        }
+                        if (nickNameValidator == '') {
+                          return null;
+                        } else
+                          return nickNameValidator.toString();
+                      }),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                      controller: _emailController,
+                      decoration: InputDecoration().copyWith(
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelText: 'Enter e-mail'),
+                      validator: (val) {
+                        if (val?.isEmpty == true) {
+                          return 'Enter an email adress';
+                        } else if (val?.contains('@') == false) {
+                          return 'Please enter valid email';
+                        } else if (_emailTaken?.isNotEmpty == true) {
+                          return _emailTaken;
+                        }
+                      }), // email
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration().copyWith(
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        labelText: 'Create password',
+                        helperText: 'It should be at least 6 chatacters long'),
+                    validator: (val) =>
+                        val!.length < 6 ? "Enter an password 6+ long" : null,
+                    obscureText: true,
+                  ), // password
+                  SizedBox(height: 10),
+                  TextButton(
+                      onPressed: () {
+                        widget.letsToggleView!();
+                      },
+                      child: Text('Already have an account? Sign in',
+                          style:
+                              TextStyle(color: Theme.of(context).accentColor))),
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                    child: Text('Register'),
+                    onPressed: () async {
+                      nickNameValidator = await authCubit
+                          .isNickNameUnique(_nickNameController.text);
+
+                      var result = await authCubit.registrate(
+                          _nameController.text.trim(),
+                          _emailController.text.trim(),
+                          _passwordController.text.trim(),
+                          _nickNameController.text.trim());
+
+                      print('THIS IS THIS PRINT: $result');
+                      if (result != null && result.runtimeType == String) {
+                        _emailTaken = result;
                       }
-                    }
-                    // print("email: $email");
-                    // print("password: $password");
-                  },
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(error)
-              ],
+
+                      if (_formKey.currentState!.validate()) {
+                        // try {
+                        // } catch (e) {
+                        //   print('ERROR IS ${}');
+                        // }
+                      }
+                    },
+                  ),
+                  // SizedBox(
+                  //   height: 20,
+                  // ),
+                  // Text('')
+                ],
+              ),
             ),
           ),
         ),

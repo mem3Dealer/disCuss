@@ -2,54 +2,78 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:my_chat_app/models/message.dart';
+import 'package:my_chat_app/models/user.dart';
 
 class Room {
-  String groupName;
-  String admin;
-  String members;
-  String groupID;
-  Room(
-    this.groupName,
-    this.admin,
-    this.members,
-    this.groupID,
-  );
+  bool isPrivate = false;
+  String? topicTheme;
+  String? topicContent;
+  Message? lastMessage;
+  String? groupID;
+  // String? groupName;
+  // MyUser? admin;
+  List<MyUser>? members;
+  List<Message>? chatMessages;
+  // bool isActive;
 
-  static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
-    return Room(e.get('groupName'), e.get('admin'), e.get('groupID'),
-        e.get('members').toString());
-  }
+  Room({
+    required this.isPrivate,
+    this.topicTheme,
+    this.topicContent,
+    this.lastMessage,
+    this.groupID,
+    this.members,
+    this.chatMessages,
+  });
+
+  // static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
+  //   return Room(e.get('groupName'), e.get('admin'), e.get('groupID'),
+  //       e.get('members').toString());
+  // }
 
   Room copyWith({
-    String? groupName,
-    String? admin,
-    String? members,
+    bool? isPrivate,
+    String? topicTheme,
+    String? topicContent,
+    Message? lastMessage,
     String? groupID,
+    List<MyUser>? members,
+    List<Message>? chatMessages,
   }) {
     return Room(
-      groupName ?? this.groupName,
-      admin ?? this.admin,
-      members ?? this.members,
-      groupID ?? this.groupID,
+      isPrivate: isPrivate ?? this.isPrivate,
+      topicTheme: topicTheme ?? this.topicTheme,
+      topicContent: topicContent ?? this.topicContent,
+      lastMessage: lastMessage ?? this.lastMessage,
+      groupID: groupID ?? this.groupID,
+      members: members ?? this.members,
+      chatMessages: chatMessages ?? this.chatMessages,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'groupName': groupName,
-      'admin': admin,
-      'members': members,
+      'isPrivate': isPrivate,
+      'topicTheme': topicTheme,
+      'topicContent': topicContent,
+      'lastMessage': lastMessage?.toMap(),
       'groupID': groupID,
+      'members': members?.map((x) => x.toMap()).toList(),
+      'chatMessages': chatMessages?.map((x) => x.toMap()).toList(),
     };
   }
 
   factory Room.fromMap(Map<String, dynamic> map) {
     return Room(
-      map['groupName'],
-      map['admin'],
-      map['members'],
-      map['groupID'],
+      isPrivate: map['isPrivate'],
+      topicTheme: map['topicTheme'],
+      topicContent: map['topicContent'],
+      lastMessage: Message.fromMap(map['lastMessage']),
+      groupID: map['groupID'],
+      members: List<MyUser>.from(map['members']?.map((x) => MyUser.fromMap(x))),
+      chatMessages: List<Message>.from(
+          map['chatMessages']?.map((x) => Message.fromMap(x))),
     );
   }
 
@@ -59,7 +83,7 @@ class Room {
 
   @override
   String toString() {
-    return 'Room(groupName: $groupName, admin: $admin, members: $members, groupID: $groupID)';
+    return 'Room(isPrivate: $isPrivate, topicTheme: $topicTheme, topicContent: $topicContent, lastMessage: $lastMessage, groupID: $groupID, members: $members, chatMessages: $chatMessages)';
   }
 
   @override
@@ -67,17 +91,38 @@ class Room {
     if (identical(this, other)) return true;
 
     return other is Room &&
-        other.groupName == groupName &&
-        other.admin == admin &&
-        other.members == members &&
-        other.groupID == groupID;
+        other.isPrivate == isPrivate &&
+        other.topicTheme == topicTheme &&
+        other.topicContent == topicContent &&
+        other.lastMessage == lastMessage &&
+        other.groupID == groupID &&
+        listEquals(other.members, members) &&
+        listEquals(other.chatMessages, chatMessages);
   }
 
   @override
   int get hashCode {
-    return groupName.hashCode ^
-        admin.hashCode ^
+    return isPrivate.hashCode ^
+        topicTheme.hashCode ^
+        topicContent.hashCode ^
+        lastMessage.hashCode ^
+        groupID.hashCode ^
         members.hashCode ^
-        groupID.hashCode;
+        chatMessages.hashCode;
+  }
+
+  static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
+    return Room(
+        isPrivate: e.get('isPrivate'),
+        topicContent: e.get('topicContent'),
+        topicTheme: e.get('topicTheme'),
+        lastMessage: Message.fromMap(e.get('lastMessage')),
+        groupID: e.id,
+        // groupName: e.get('groupName'),
+        // admin: MyUser.fromMap(e.get('admin')),
+        members: e
+            .get('members')
+            .map<MyUser>((user) => MyUser.fromMap(user))
+            .toList());
   }
 }
