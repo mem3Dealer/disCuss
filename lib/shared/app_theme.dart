@@ -17,7 +17,7 @@ ThemeData get appThemeLight => ThemeData(
       colorScheme: ColorScheme.light(),
       primaryColor: Color(0xffFFCB77),
       accentColor: Color(0xff227C9D),
-      // scaffoldBackgroundColor: Color(0xffFEF9EF),
+      scaffoldBackgroundColor: Color(0xffFEF9EF),
       // elevatedButtonTheme: ElevatedButtonTheme(d),
       buttonTheme: ButtonThemeData(buttonColor: Colors.green),
       floatingActionButtonTheme:

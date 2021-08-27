@@ -17,7 +17,8 @@ import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/widgets/messageTile.dart';
 import 'package:my_chat_app/pages/roomMembersPage.dart';
-import '../sliver_test.dart';
+// import '../sliver_test.dart';
+import 'package:animated_icon_button/animated_icon_button.dart';
 
 class ChatPage extends StatefulWidget {
   final String groupID;
@@ -75,13 +76,6 @@ class _ChatPageState extends State<ChatPage>
           currentMemberofThisRoom?.isApporved == false)
         ScaffoldMessenger.of(context).showSnackBar(entryPublicRoomSnackBar);
 
-      if (!roomCubit.state.messagesOfThisChatRoom!.any((element) {
-        return element.sender?.uid == currentMemberofThisRoom?.uid;
-      })) {
-        _controller.fling(velocity: -1);
-        print('evoked');
-      }
-
       // print(roomCubit.state.messagesOfThisChatRoom);
     });
   }
@@ -98,7 +92,7 @@ class _ChatPageState extends State<ChatPage>
         status == AnimationStatus.forward;
   }
 
-  static const _PANEL_HEADER_HEIGHT = 80.0;
+  static const _PANEL_HEADER_HEIGHT = 77.0;
 
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
     final double height = constraints.biggest.height;
@@ -111,7 +105,13 @@ class _ChatPageState extends State<ChatPage>
 
   @override
   Widget build(BuildContext context) {
-    // MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
+    MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
+    if (!roomCubit.state.messagesOfThisChatRoom!.any((element) {
+      // print('${element.sender?.uid == currentMemberofThisRoom?.uid}');
+      return element.sender?.uid == currentMemberofThisRoom?.uid;
+    })) {
+      _controller.fling(velocity: -1);
+    }
 
     Room? currentRoom = roomCubit.state.currentRoom;
     final requestSentSnackBar = SnackBar(
@@ -168,13 +168,35 @@ class _ChatPageState extends State<ChatPage>
                         child: Row(
                           children: [
                             if (!userIsbanned)
-                              IconButton(
-                                  splashRadius: 15,
+                              AnimatedIconButton(
+                                  splashRadius: 5,
                                   onPressed: () {
                                     _controller.fling(
                                         velocity: _isPanelVisible ? -1.0 : 1.0);
                                   },
-                                  icon: Icon(Icons.info_outline_rounded)),
+                                  icons: [
+                                    AnimatedIconItem(
+                                        icon: Icon(
+                                      Icons.arrow_downward_sharp,
+                                      size: 24,
+                                      color: Colors.black,
+                                    )),
+                                    AnimatedIconItem(
+                                        icon: Icon(
+                                      Icons.arrow_upward_sharp,
+                                      color: Colors.black,
+                                      size: 24,
+                                    ))
+                                  ]),
+                            // IconButton(
+                            //     splashRadius: 15,
+                            //     onPressed: () {
+                            //       _controller.fling(
+                            //           velocity: _isPanelVisible ? -1.0 : 1.0);
+                            //     },
+                            //     icon: AnimatedIcon(
+                            //         icon: AnimatedIcons.search_ellipsis,
+                            //         progress: _controller)),
                             if (currentMemberofThisRoom?.isApporved == false &&
                                 currentMemberofThisRoom?.canWrite == false)
                               IconButton(
@@ -241,19 +263,19 @@ class _ChatPageState extends State<ChatPage>
           Padding(
             padding: EdgeInsets.all(15.0),
             child: SafeArea(
-              minimum: EdgeInsets.only(bottom: 75),
+              minimum: EdgeInsets.only(bottom: 70),
               child: ListView(
                 // mainAxisAlignment: MainAxisAlignment.start,
                 // mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text(topic, style: theme.textTheme.headline5),
+                  Text(topic,
+                      style: theme.textTheme.headline5,
+                      textAlign: TextAlign.justify),
                   SizedBox(height: 20),
                   Container(
-                    child: Text(
-                      content,
-                      style: theme.textTheme.bodyText1,
-                      // textAlign: TextAlign.center,
-                    ),
+                    child: Text(content,
+                        style: theme.textTheme.bodyText1,
+                        textAlign: TextAlign.justify),
                   ),
                   // SizedBox(height: 30),
                 ],
@@ -384,7 +406,7 @@ class _ChatPageState extends State<ChatPage>
     return Align(
       alignment: Alignment.bottomCenter,
       child: GestureDetector(
-        onVerticalDragUpdate: (details) {
+        onTap: () {
           _controller.fling(velocity: 1);
         },
         // onVerticalDrag: (details) {
