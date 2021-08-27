@@ -26,7 +26,8 @@ class ChatPage extends StatefulWidget {
   _ChatPageState createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin {
+class _ChatPageState extends State<ChatPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   CollectionReference users = FirebaseFirestore.instance.collection('users');
   CollectionReference chat = FirebaseFirestore.instance.collection('chat');
@@ -42,7 +43,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
 
   @override
   void initState() {
-    _controller = AnimationController(duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
       bool userIsbanned = (currentMemberofThisRoom?.uid != null &&
@@ -50,7 +52,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
           currentMemberofThisRoom?.isApporved == false);
       final entrySnackBar = SnackBar(
           duration: Duration(seconds: 3),
-          content: Text('Well, ${authCubit.state.currentUser?.name}, you can`t write here. Go ask for perm.',
+          content: Text(
+              'Well, ${authCubit.state.currentUser?.name}, you can`t write here. Go ask for perm.',
               style: TextStyle(
                 fontSize: 17,
               )));
@@ -60,15 +63,26 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
               style: TextStyle(
                 fontSize: 17,
               )));
-      if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate == true) if (currentMemberofThisRoom?.canWrite ==
-                  false &&
+      if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate ==
+          true) if (currentMemberofThisRoom?.canWrite == false &&
               currentMemberofThisRoom?.isApporved == false ||
           currentMemberofThisRoom == null) {
         ScaffoldMessenger.of(context).showSnackBar(entrySnackBar);
       }
       if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate ==
-          false) if (currentMemberofThisRoom?.canWrite == false || currentMemberofThisRoom?.isApporved == false)
+          false) if (currentMemberofThisRoom?.canWrite ==
+              false ||
+          currentMemberofThisRoom?.isApporved == false)
         ScaffoldMessenger.of(context).showSnackBar(entryPublicRoomSnackBar);
+
+      if (!roomCubit.state.messagesOfThisChatRoom!.any((element) {
+        return element.sender?.uid == currentMemberofThisRoom?.uid;
+      })) {
+        _controller.fling(velocity: -1);
+        print('evoked');
+      }
+
+      // print(roomCubit.state.messagesOfThisChatRoom);
     });
   }
 
@@ -80,7 +94,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
 
   bool get _isPanelVisible {
     final AnimationStatus status = _controller.status;
-    return status == AnimationStatus.completed || status == AnimationStatus.forward;
+    return status == AnimationStatus.completed ||
+        status == AnimationStatus.forward;
   }
 
   static const _PANEL_HEADER_HEIGHT = 80.0;
@@ -96,6 +111,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    // MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
+
     Room? currentRoom = roomCubit.state.currentRoom;
     final requestSentSnackBar = SnackBar(
         duration: Duration(seconds: 2),
@@ -122,22 +139,20 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
         // BoxConstraints? constraints;
 
         return Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-                scale: 0.3,
-                repeat: ImageRepeat.repeat,
-                // fit: BoxFit.cover,
-                image: theme.brightness == Brightness.dark
-                    ? ExactAssetImage('assets/dark_back.png')
-                    : ExactAssetImage('assets/light_back.jpg')),
-          ),
-          child:
-              // BackdropFilter(
-              //   filter: theme.brightness == Brightness.dark
-              //       ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
-              //       : ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-              //   child:
-              Scaffold(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                  scale: 0.3,
+                  repeat: ImageRepeat.repeat,
+                  // fit: BoxFit.cover,
+                  image: theme.brightness == Brightness.dark
+                      ? ExactAssetImage('assets/dark_back.png')
+                      : ExactAssetImage('assets/light_back.jpg')),
+            ),
+            child: BackdropFilter(
+              filter: theme.brightness == Brightness.dark
+                  ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
+                  : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+              child: Scaffold(
                   backgroundColor: Colors.transparent,
                   appBar: AppBar(
                     backgroundColor: Colors.transparent,
@@ -156,7 +171,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
                               IconButton(
                                   splashRadius: 15,
                                   onPressed: () {
-                                    _controller.fling(velocity: _isPanelVisible ? -1.0 : 1.0);
+                                    _controller.fling(
+                                        velocity: _isPanelVisible ? -1.0 : 1.0);
                                   },
                                   icon: Icon(Icons.info_outline_rounded)),
                             if (currentMemberofThisRoom?.isApporved == false &&
@@ -167,8 +183,11 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
                                       authCubit.state.currentUser,
                                     );
                                     currentRoom!.isPrivate
-                                        ? ScaffoldMessenger.of(context).showSnackBar(requestSentSnackBar)
-                                        : ScaffoldMessenger.of(context).showSnackBar(youHaveJoinedSnackBar);
+                                        ? ScaffoldMessenger.of(context)
+                                            .showSnackBar(requestSentSnackBar)
+                                        : ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                                youHaveJoinedSnackBar);
                                   },
                                   icon: Icon(Icons.add)),
                             if (currentMemberofThisRoom?.isApporved == true &&
@@ -178,7 +197,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
                                   onPressed: () {
                                     Navigator.of(context).push(
                                       MaterialPageRoute<void>(
-                                        builder: (BuildContext context) => RoomMembersPage(widget.groupID),
+                                        builder: (BuildContext context) =>
+                                            RoomMembersPage(widget.groupID),
                                       ),
                                     );
                                   },
@@ -194,7 +214,7 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
                   // _buildChatBody(userIsbanned, currentRoom,
                   //     currentMemberofThisRoom, _localChat)
                   ),
-        );
+            ));
       },
     );
   }
@@ -220,27 +240,32 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
         children: <Widget>[
           Padding(
             padding: EdgeInsets.all(15.0),
-            child: ListView(
-              // mainAxisAlignment: MainAxisAlignment.start,
-              // mainAxisSize: MainAxisSize.max,
-              children: [
-                Text(topic, style: theme.textTheme.headline5),
-                SizedBox(height: 20),
-                Container(
-                  child: Text(
-                    content,
-                    style: theme.textTheme.bodyText1,
-                    // textAlign: TextAlign.center,
+            child: SafeArea(
+              minimum: EdgeInsets.only(bottom: 75),
+              child: ListView(
+                // mainAxisAlignment: MainAxisAlignment.start,
+                // mainAxisSize: MainAxisSize.max,
+                children: [
+                  Text(topic, style: theme.textTheme.headline5),
+                  SizedBox(height: 20),
+                  Container(
+                    child: Text(
+                      content,
+                      style: theme.textTheme.bodyText1,
+                      // textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-                SizedBox(height: 30),
-              ],
+                  // SizedBox(height: 30),
+                ],
+              ),
             ),
           ),
           PositionedTransition(
             rect: animation,
             child: ClipRRect(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0)),
               child: Align(
                 alignment: Alignment.bottomCenter,
                 heightFactor: 1.0,
@@ -270,32 +295,46 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
                       else if (currentRoom?.isPrivate == true)
                         Expanded(
                             child: Container(
-                                child: currentMemberofThisRoom?.canWrite == false &&
-                                        currentMemberofThisRoom?.isApporved == false
+                                child: currentMemberofThisRoom?.canWrite ==
+                                            false &&
+                                        currentMemberofThisRoom?.isApporved ==
+                                            false
                                     ? Center(
                                         child: Text(
                                           'You are not yet member of this group',
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: 23, fontWeight: FontWeight.w300),
+                                          style: TextStyle(
+                                              fontSize: 23,
+                                              fontWeight: FontWeight.w300),
                                         ),
                                       )
-                                    : currentMemberofThisRoom?.isApporved == true &&
-                                            currentMemberofThisRoom?.canWrite == false
+                                    : currentMemberofThisRoom?.isApporved ==
+                                                true &&
+                                            currentMemberofThisRoom?.canWrite ==
+                                                false
                                         ? Center(
                                             child: Text(
                                               'Your request is under develeopement',
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(fontSize: 23, fontWeight: FontWeight.w300),
+                                              style: TextStyle(
+                                                  fontSize: 23,
+                                                  fontWeight: FontWeight.w300),
                                             ),
                                           )
                                         : _localChat!.isEmpty
-                                            ? Center(child: Chip(label: Text('ooops... Such empty!')))
+                                            ? Center(
+                                                child: Chip(
+                                                    label: Text(
+                                                        'ooops... Such empty!')))
                                             : _buildChat(_localChat)))
                       else if (currentRoom?.isPrivate == false)
                         Expanded(
                             child: Container(
                                 child: _localChat!.isEmpty
-                                    ? Center(child: Chip(label: Text('ooops... Such empty!')))
+                                    ? Center(
+                                        child: Chip(
+                                            label:
+                                                Text('ooops... Such empty!')))
                                     : _buildChat(_localChat))),
                       if (currentMemberofThisRoom?.canWrite == false ||
                           currentMemberofThisRoom?.isApporved == false ||
@@ -308,7 +347,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
                             return Column(
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.only(left: 13.0, right: 13),
+                                  padding:
+                                      EdgeInsets.only(left: 13.0, right: 13),
                                   child: Divider(
                                     height: 2,
                                     thickness: 2.5,
@@ -343,52 +383,61 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
   Align sendFieldandButton() {
     return Align(
       alignment: Alignment.bottomCenter,
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(left: 10.0, right: 10),
-          ),
-          Container(
-            decoration: BoxDecoration(color: Colors.transparent),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 7.0, right: 7),
-                    child: Container(
-                      child: Padding(
-                        padding: EdgeInsets.zero,
-                        child: TextField(
-                          maxLines: null,
-                          controller: _messageEditingController,
-                          style: TextStyle(color: Colors.black),
-                          decoration: InputDecoration().copyWith(
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
+      child: GestureDetector(
+        onVerticalDragUpdate: (details) {
+          _controller.fling(velocity: 1);
+        },
+        // onVerticalDrag: (details) {
+        //   _controller.fling(velocity: 1);
+        //   print('hey');
+        // },
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 10.0, right: 10),
+            ),
+            Container(
+              decoration: BoxDecoration(color: Colors.transparent),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 7.0, right: 7),
+                      child: Container(
+                        child: Padding(
+                          padding: EdgeInsets.zero,
+                          child: TextField(
+                            maxLines: null,
+                            controller: _messageEditingController,
+                            style: TextStyle(color: Colors.black),
+                            decoration: InputDecoration().copyWith(
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(20),
+                                  ),
                                 ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(20),
+                                  ),
                                 ),
-                              ),
-                              hintStyle: TextStyle(color: Colors.black54),
-                              hintText: 'type here...',
-                              fillColor: Colors.grey[300]),
+                                hintStyle: TextStyle(color: Colors.black54),
+                                hintText: 'type here...',
+                                fillColor: Colors.grey[300]),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(right: 8.0, left: 5),
-                  child: sendButton(),
-                ),
-              ],
+                  Padding(
+                    padding: EdgeInsets.only(right: 8.0, left: 5),
+                    child: sendButton(),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -398,14 +447,16 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
       onTap: () {
         _messageEditingController.text.trim();
         if (_messageEditingController.text.isNotEmpty)
-          data.sendMessage(_messageEditingController.text.trim(), authCubit.state.currentUser!, widget.groupID);
+          data.sendMessage(_messageEditingController.text.trim(),
+              authCubit.state.currentUser!, widget.groupID);
         _messageEditingController.clear();
       },
       child: Container(
         height: 50.0,
         width: 50.0,
         decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor, borderRadius: BorderRadius.all(Radius.elliptical(17, 17))),
+            color: Theme.of(context).primaryColor,
+            borderRadius: BorderRadius.all(Radius.elliptical(17, 17))),
         child: Center(child: Icon(Icons.send, color: Colors.white)),
       ),
     );
@@ -426,7 +477,10 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
             time: formattedDate,
             firstMessageOfAuthor: message.isFirst,
             lastMessageOfAuthor: message.isLast,
-            author: message.isFirst ? message.getUserName(message.sender, roomCubit.state.currentRoom?.members) : '',
+            author: message.isFirst
+                ? message.getUserName(
+                    message.sender, roomCubit.state.currentRoom?.members)
+                : '',
             message: message.content!.trim(),
             sentByMe: senderId == message.sender?.uid);
       },

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -53,150 +55,179 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     final _themeEditingController =
         TextEditingController(text: roomCubit.state.currentRoom?.topicTheme);
     // print("PRINT FROM BUILD: ${userCubit.state.selectedUsers}");
-    return Scaffold(
-        backgroundColor: theme.primaryColor,
-        // resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          elevation: 0,
-          title:
-              _isEditing ? Text('Editing page') : Text('Start new discussion'),
-        ),
-        body: ClipRRect(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
-          child: Container(
-              height: double.infinity,
-              decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
-              child: SingleChildScrollView(
-                child: Column(
-                  // mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Form(
-                      key: formKey,
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            buildTopicTheme(
-                                _isEditing, _themeEditingController),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            BlocBuilder<RoomCubit, RoomState>(
-                              bloc: roomCubit,
-                              builder: (context, state) {
-                                return buildTopicContent(
-                                    _isEditing, _editingTopicContent);
-                              },
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Divider(),
-                            Text(
-                              _isEditing
-                                  ? 'Add new members'
-                                  : 'You may add future participants below:',
-                              style: TextStyle(fontWeight: FontWeight.w200),
-                              // textAlign: TextAlign.start,
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Form(
-                              key: _isEditing ? _editFormKey : verySpecialKey,
-                              child: TextFormField(
-                                // key: ,
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+            scale: 0.3,
+            repeat: ImageRepeat.repeat,
+            // fit: BoxFit.cover,
+            image: theme.brightness == Brightness.dark
+                ? ExactAssetImage('assets/dark_back.png')
+                : ExactAssetImage('assets/light_back.jpg')),
+      ),
+      child: BackdropFilter(
+        filter: theme.brightness == Brightness.dark
+            ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
+            : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+        child: Scaffold(
+            backgroundColor: Colors.transparent,
+            // resizeToAvoidBottomInset: false,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: _isEditing
+                  ? Text('Editing page')
+                  : Text('Start new discussion'),
+            ),
+            body: ClipRRect(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25.0),
+                  topRight: Radius.circular(25.0)),
+              child: Container(
+                  height: double.infinity,
+                  decoration:
+                      BoxDecoration(color: theme.scaffoldBackgroundColor),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      // mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Form(
+                          key: formKey,
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                buildTopicTheme(
+                                    _isEditing, _themeEditingController),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                BlocBuilder<RoomCubit, RoomState>(
+                                  bloc: roomCubit,
+                                  builder: (context, state) {
+                                    return buildTopicContent(
+                                        _isEditing, _editingTopicContent);
+                                  },
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Divider(),
+                                Text(
+                                  _isEditing
+                                      ? 'Add new members'
+                                      : 'You may add future participants below:',
+                                  style: theme.textTheme.caption
+                                      ?.copyWith(fontSize: 13),
+                                  // textAlign: TextAlign.start,
+                                ),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Form(
+                                  key: _isEditing
+                                      ? _editFormKey
+                                      : verySpecialKey,
+                                  child: TextFormField(
+                                    // key: ,
 
-                                decoration: InputDecoration().copyWith(
-                                    suffixIcon: IconButton(
-                                        padding: EdgeInsets.all(0),
-                                        onPressed: () async {
-                                          var _user =
-                                              await userCubit.searchMember(
-                                                  _searchBy.text.trim());
-                                          bool? contained;
-                                          bool? alsoContained;
-                                          bool? isContainedNewRoom;
-                                          if (_user.runtimeType == String) {
-                                            nickNameIsValid = _user.toString();
-                                            // print('PRINT OUT: $nickNameIsValid');
-                                          } else {
-                                            MyUser? _addingUser = _user;
-                                            // print(_addingUser);
-                                            if (_isEditing) {
-                                              contained = roomCubit
-                                                  .state.currentRoom!.members!
-                                                  .any((element) {
-                                                return element.uid ==
-                                                    _addingUser!.uid;
-                                              });
-                                              alsoContained = userCubit
-                                                  .state.selectedUsers!
-                                                  .any((element) {
-                                                return element.uid ==
-                                                    _addingUser!.uid;
-                                              });
-                                            } else {
-                                              isContainedNewRoom = userCubit
-                                                  .state.selectedUsers!
-                                                  .any((element) {
-                                                return element.uid ==
-                                                    _addingUser!.uid;
-                                              });
-                                            }
+                                    decoration: InputDecoration().copyWith(
+                                        suffixIcon: IconButton(
+                                            padding: EdgeInsets.all(0),
+                                            onPressed: () async {
+                                              var _user =
+                                                  await userCubit.searchMember(
+                                                      _searchBy.text.trim());
+                                              bool? contained;
+                                              bool? alsoContained;
+                                              bool? isContainedNewRoom;
+                                              if (_user.runtimeType == String) {
+                                                nickNameIsValid =
+                                                    _user.toString();
+                                                // print('PRINT OUT: $nickNameIsValid');
+                                              } else {
+                                                MyUser? _addingUser = _user;
+                                                // print(_addingUser);
+                                                if (_isEditing) {
+                                                  contained = roomCubit.state
+                                                      .currentRoom!.members!
+                                                      .any((element) {
+                                                    return element.uid ==
+                                                        _addingUser!.uid;
+                                                  });
+                                                  alsoContained = userCubit
+                                                      .state.selectedUsers!
+                                                      .any((element) {
+                                                    return element.uid ==
+                                                        _addingUser!.uid;
+                                                  });
+                                                } else {
+                                                  isContainedNewRoom = userCubit
+                                                      .state.selectedUsers!
+                                                      .any((element) {
+                                                    return element.uid ==
+                                                        _addingUser!.uid;
+                                                  });
+                                                }
 
-                                            if (contained != null &&
-                                                    contained == true ||
-                                                alsoContained != null &&
-                                                    alsoContained == true ||
-                                                isContainedNewRoom != null &&
-                                                    isContainedNewRoom ==
-                                                        true) {
-                                              // print('THIS IS PRINT: $contained');
-                                              nickNameIsValid =
-                                                  'This user is already selected';
-                                              // print('THIS IS PRINT: $nickNameIsValid');
-                                            } else {
-                                              userCubit
-                                                  .selectUser(_addingUser!);
-                                            }
-                                          }
-                                          if (_isEditing
-                                              ? _editFormKey.currentState!
-                                                  .validate()
-                                              : verySpecialKey.currentState!
-                                                  .validate()) {}
-                                        },
-                                        icon: Icon(Icons.add)),
-                                    hintText: '@nickname'),
-                                controller: _searchBy,
-                                validator: (val) {
-                                  if (val?.contains('@') == false) {
-                                    return 'please enter nickname starting with @';
-                                  }
-                                  if (nickNameIsValid.runtimeType == String) {
-                                    print('final print: $nickNameIsValid');
-                                    // return nickNameIsValid.toString();
-                                    return '$nickNameIsValid';
-                                  } else
-                                    return null;
-                                },
-                              ),
-                            )
-                          ],
+                                                if (contained != null &&
+                                                        contained == true ||
+                                                    alsoContained != null &&
+                                                        alsoContained == true ||
+                                                    isContainedNewRoom !=
+                                                            null &&
+                                                        isContainedNewRoom ==
+                                                            true) {
+                                                  // print('THIS IS PRINT: $contained');
+                                                  nickNameIsValid =
+                                                      'This user is already selected';
+                                                  // print('THIS IS PRINT: $nickNameIsValid');
+                                                } else {
+                                                  userCubit
+                                                      .selectUser(_addingUser!);
+                                                }
+                                              }
+                                              if (_isEditing
+                                                  ? _editFormKey.currentState!
+                                                      .validate()
+                                                  : verySpecialKey.currentState!
+                                                      .validate()) {}
+                                            },
+                                            icon: Icon(Icons.add)),
+                                        hintText: '@nickname'),
+                                    controller: _searchBy,
+                                    validator: (val) {
+                                      if (val?.contains('@') == false) {
+                                        return 'please enter nickname starting with @';
+                                      }
+                                      if (nickNameIsValid.runtimeType ==
+                                          String) {
+                                        print('final print: $nickNameIsValid');
+                                        // return nickNameIsValid.toString();
+                                        return '$nickNameIsValid';
+                                      } else
+                                        return null;
+                                    },
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                        _buildAddingMembersTiles(),
+                        // _isEditing
+                        //     ?
+                        _buildCreateOrSaveButton(
+                            _isEditing,
+                            _editingTopicContent,
+                            _themeEditingController,
+                            context)
+                      ],
                     ),
-                    _buildAddingMembersTiles(),
-                    // _isEditing
-                    //     ?
-                    _buildCreateOrSaveButton(_isEditing, _editingTopicContent,
-                        _themeEditingController, context)
-                  ],
-                ),
-              )),
-        ));
+                  )),
+            )),
+      ),
+    );
   }
 
   Align _buildCreateOrSaveButton(
@@ -327,8 +358,8 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                 // isCollapsed: true,
                 labelText: 'Content of discussion',
                 alignLabelWithHint: true,
-                floatingLabelBehavior: FloatingLabelBehavior.auto,
-                hintText: 'What do you want to discuss?',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                // hintText: 'What do you want to discuss?',
                 helperText: 'Should be at least couple of words'));
   }
 
@@ -375,6 +406,6 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                 ),
                 labelText: 'Topic of discussion',
                 helperText: 'Press lock icon to make discussion private',
-                floatingLabelBehavior: FloatingLabelBehavior.auto));
+                floatingLabelBehavior: FloatingLabelBehavior.always));
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -57,72 +59,89 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<AuthCubit, AuthState>(
       bloc: authCubit,
       builder: (context, state) {
-        return Scaffold(
-          backgroundColor: theme.primaryColor,
-          appBar: AppBar(
-              elevation: 0,
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: IconButton(
-                    // style: ButtonStyle(
-                    //     backgroundColor: MaterialStateProperty.all<Color>(
-                    //         Colors.amber.shade700)),
-                    icon: Icon(Icons.exit_to_app),
-                    onPressed: () async {
-                      await authCubit.logOut();
-                      Navigator.pushAndRemoveUntil<void>(
-                        context,
-                        MaterialPageRoute<void>(
-                            builder: (BuildContext context) => Wrapper()),
-                        ModalRoute.withName('/wrapper'),
+        return Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+                scale: 0.3,
+                repeat: ImageRepeat.repeat,
+                // fit: BoxFit.cover,
+                image: theme.brightness == Brightness.dark
+                    ? ExactAssetImage('assets/dark_back.png')
+                    : ExactAssetImage('assets/light_back.jpg')),
+          ),
+          child: BackdropFilter(
+            filter: theme.brightness == Brightness.dark
+                ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
+                : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: IconButton(
+                        // style: ButtonStyle(
+                        //     backgroundColor: MaterialStateProperty.all<Color>(
+                        //         Colors.amber.shade700)),
+                        icon: Icon(Icons.exit_to_app),
+                        onPressed: () async {
+                          await authCubit.logOut();
+                          Navigator.pushAndRemoveUntil<void>(
+                            context,
+                            MaterialPageRoute<void>(
+                                builder: (BuildContext context) => Wrapper()),
+                            ModalRoute.withName('/wrapper'),
+                          );
+                          // print(
+                          //     'THIS IS LOG OUT PRINT. first param: ${authCubit.fbAuth}, second: ${authCubit.state.isLoggedIn}');
+                          // await _auth.signOut();
+                        },
+                        // label: Text('Log out'),
+                      ),
+                    )
+                  ],
+                  title: Text(
+                      "${authCubit.state.currentUser?.nickName}`s available rooms")),
+              body: Center(
+                  child: BlocBuilder<RoomCubit, RoomState>(
+                      bloc: roomCubit,
+                      builder: (context, state) {
+                        if (state.listRooms == null) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(25.0),
+                                topRight: Radius.circular(25.0)),
+                            child: Center(
+                              child: Text('There is a problem, no cap'),
+                            ),
+                          );
+                        } else if (state.listRooms!.length > 0) {
+                          return ClipRRect(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(25.0),
+                                  topRight: Radius.circular(25.0)),
+                              child: _buildRooms(state));
+                        }
+                        return CircularProgressIndicator();
+                      })),
+              floatingActionButton: FloatingActionButton(
+                child: Icon(Icons.add),
+                onPressed: () {
+                  // print(authCubit.state.currentUser);
+                  // roomCubit.loadRooms();
+                  Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>
+                              // SliverPage()
+                              AnotherGroupCreator(false)
+                          // BackDropPage()
+                          )
+                      // )
                       );
-                      // print(
-                      //     'THIS IS LOG OUT PRINT. first param: ${authCubit.fbAuth}, second: ${authCubit.state.isLoggedIn}');
-                      // await _auth.signOut();
-                    },
-                    // label: Text('Log out'),
-                  ),
-                )
-              ],
-              title: Text(
-                  "${authCubit.state.currentUser?.nickName}`s available rooms")),
-          body: Center(
-              child: BlocBuilder<RoomCubit, RoomState>(
-                  bloc: roomCubit,
-                  builder: (context, state) {
-                    if (state.listRooms == null) {
-                      return ClipRRect(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(25.0),
-                            topRight: Radius.circular(25.0)),
-                        child: Center(
-                          child: Text('There is a problem, no cap'),
-                        ),
-                      );
-                    } else if (state.listRooms!.length > 0) {
-                      return ClipRRect(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(25.0),
-                              topRight: Radius.circular(25.0)),
-                          child: _buildRooms(state));
-                    }
-                    return CircularProgressIndicator();
-                  })),
-          floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
-            onPressed: () {
-              // print(authCubit.state.currentUser);
-              // roomCubit.loadRooms();
-              Navigator.of(context).push(MaterialPageRoute<void>(
-                      builder: (BuildContext context) =>
-                          // SliverPage()
-                          AnotherGroupCreator(false)
-                      // BackDropPage()
-                      )
-                  // )
-                  );
-            },
+                },
+              ),
+            ),
           ),
         );
       },
