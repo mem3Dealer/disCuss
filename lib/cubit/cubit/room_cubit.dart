@@ -62,22 +62,28 @@ class RoomCubit extends Cubit<RoomState> {
     }
 
     data.chatStream(groupId).listen((result) {
-      List<Message>? _messages =
+      List<Message>? _msg =
           result.docs.map<Message>((e) => Message.fromSnapshot(e)).toList();
-
+      final _messages = _msg.reversed.toList();
       for (int i = 0; i < _messages.length; i++) {
-        if (i > 0 && i < _messages.length - 1)
-          _messages[i].isFirst = _messages[i + 1].sender != _messages[i].sender;
-        else
-          _messages[i].isFirst = false;
-
-        if (i > 0 && i < _messages.length)
-          _messages[i].isLast = _messages[i - 1].sender != _messages[i].sender;
-        else
+        if (i > 0 && i < _messages.length - 1) {
+          _messages[i].isLast =
+              _messages[i].sender?.uid != _messages[i + 1].sender?.uid;
+          print(
+              '$i ${_messages[i - 1].sender?.name} VS ${_messages[i].sender?.name}');
+        } else {
+          // _messages[i].isFirst = false;
           _messages[i].isLast = true;
-        _listOfMessages = _messages;
-      }
+        }
 
+        if (i > 1 && i < _messages.length) {
+          _messages[i].isFirst =
+              _messages[i - 1].sender?.uid != _messages[i].sender?.uid;
+        } else {
+          _messages[i].isFirst = true;
+        }
+        _listOfMessages = _messages.reversed.toList();
+      }
       // _listOfMessages?.forEach((element) {
       //   newCurrentRoom?.chatMessages?.add(element);
       // });
@@ -85,7 +91,7 @@ class RoomCubit extends Cubit<RoomState> {
       emit(state.copyWith(
           currentRoom: newCurrentRoom?.copyWith(chatMessages: _listOfMessages),
           version: state.version! + 1));
-      print('THIS IS NEW ROOM: ${state.currentRoom?.chatMessages}');
+      // print('THIS IS NEW ROOM: ${state.currentRoom?.chatMessages}');
     });
   }
 

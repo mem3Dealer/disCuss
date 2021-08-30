@@ -64,14 +64,13 @@ class AuthCubit extends HydratedCubit<AuthState> {
 
   Future<void> logOut() async {
     // print('AYYY');
-    try {
-      await auth.signOut();
-      emit(state.copyWith(isLoggedIn: false, version: state.version! + 1));
-      print('LOG OUT PRINT: ${state.isLoggedIn}, ${fbAuth}');
-    } catch (e) {
-      print(e.toString());
-      // return null;
-    }
+
+    auth
+        .signOut()
+        .catchError((e) => print(e.stackTrace.toString()))
+        .whenComplete(() => emit(
+            state.copyWith(isLoggedIn: false, version: state.version! + 1)));
+    print('LOG OUT PRINT: ${state.isLoggedIn}, ${fbAuth}');
   }
 
   Future<dynamic> registrate(

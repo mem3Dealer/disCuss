@@ -259,7 +259,7 @@ class _ChatPageState extends State<ChatPage>
     String content = " ${roomCubit.state.currentRoom?.topicContent}";
     String topic = " ${roomCubit.state.currentRoom?.topicTheme}";
 
-    print('THIS IS PRINT FROM BUILD:$_localChat ');
+    // print('THIS IS PRINT FROM BUILD:$_localChat ');
     return Container(
       color: Colors.transparent,
       child: Stack(

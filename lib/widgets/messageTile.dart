@@ -88,7 +88,7 @@ class MessageTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Text("${firstMessageOfAuthor} $lastMessageOfAuthor"),
+            Text("${firstMessageOfAuthor} $lastMessageOfAuthor"),
             if (author!.isNotEmpty) messageAuthor(author),
             messageContent(message!, context),
             SizedBox(
@@ -96,7 +96,7 @@ class MessageTile extends StatelessWidget {
             ),
             Row(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(time!,
                     // textAlign: sentByMe ? TextAlign.right : TextAlign.left,
@@ -115,14 +115,16 @@ class MessageTile extends StatelessWidget {
   Widget messageAuthor(String? author) {
     return Column(
       children: [
-        Text(author!.toUpperCase(),
-            textAlign: TextAlign.start,
-            style: TextStyle(
-                fontSize: 13.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                letterSpacing: -0.5)),
-        SizedBox(height: 7.0),
+        Padding(
+          padding: EdgeInsets.only(bottom: 7.0),
+          child: Text("${author!.toUpperCase()}",
+              textAlign: TextAlign.start,
+              style: TextStyle(
+                  fontSize: 13.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  letterSpacing: -0.5)),
+        ),
       ],
     );
   }
