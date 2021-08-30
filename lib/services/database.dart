@@ -152,7 +152,7 @@ class DataBaseService {
     });
   }
 
-//TODO: refactor seart with filter
+// TODO: refactor seart with filter
   Future<List<MyUser>?> getUsers({String? searchString}) async {
     // print('Before get');.
 

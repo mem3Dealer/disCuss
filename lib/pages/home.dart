@@ -84,12 +84,16 @@ class _HomePageState extends State<HomePage> {
                       icon: Icon(Icons.exit_to_app),
                       onPressed: () async {
                         await authCubit.logOut();
-                        Navigator.pushAndRemoveUntil<void>(
-                          context,
-                          MaterialPageRoute<void>(builder: (BuildContext context) => Wrapper()),
-                          ModalRoute.withName('/wrapper'),
-                        );
-                        // print(
+                        Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (BuildContext context) => Wrapper(),
+                        ));
+                        // Navigator.pushAndRemoveUntil<void>(
+                        //   context,
+                        //   MaterialPageRoute<void>(
+                        //       builder: (BuildContext context) => Wrapper()),
+                        //   ModalRoute.withName('/wrapper'),
+                        // );
+                        // // print(
                         //     'THIS IS LOG OUT PRINT. first param: ${authCubit.fbAuth}, second: ${authCubit.state.isLoggedIn}');
                         // await _auth.signOut();
                       },
@@ -97,23 +101,26 @@ class _HomePageState extends State<HomePage> {
                     ),
                   )
                 ],
-                title: Text("${authCubit.state.currentUser?.nickName}`s available rooms")),
+                title: Text(
+                    "${authCubit.state.currentUser?.nickName}`s available rooms")),
             body: Center(
                 child: BlocBuilder<RoomCubit, RoomState>(
                     bloc: roomCubit,
                     builder: (context, state) {
                       if (state.listRooms == null) {
                         return ClipRRect(
-                          borderRadius:
-                              BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(25.0),
+                              topRight: Radius.circular(25.0)),
                           child: Center(
                             child: Text('There is a problem, no cap'),
                           ),
                         );
                       } else if (state.listRooms!.length > 0) {
                         return ClipRRect(
-                            borderRadius:
-                                BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(25.0),
+                                topRight: Radius.circular(25.0)),
                             child: _buildRooms(state, theme));
                       }
                       return CircularProgressIndicator();
@@ -140,78 +147,91 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildRooms(RoomState state, ThemeData theme) {
-    return Stack(
-      children: [
-        ColorFiltered(
-          colorFilter: ColorFilter.mode(Colors.orange.shade100, BlendMode.screen),
-          child: Container(
-              height: double.infinity,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                // color: Theme.of(context).scaffoldBackgroundColor),
-                image: DecorationImage(
-                    scale: 0.3,
-                    repeat: ImageRepeat.repeat,
-                    // fit: BoxFit.cover,
-                    image: theme.brightness == Brightness.dark
-                        ? AssetImage(
-                            'assets/dark_back.png',
-                          )
-                        : AssetImage('assets/light_back.jpg')),
-              ),
-              child: BackdropFilter(
-                  filter: theme.brightness == Brightness.dark
-                      ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
-                      : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-                  child: Container()
+    return
+        // Stack(
+        //   children: [
+        //     ColorFiltered(
+        //       colorFilter:
+        //           ColorFilter.mode(Colors.amber.shade100, BlendMode.screen),
+        //       child: Container(
+        //           height: double.infinity,
+        //           width: double.infinity,
+        //           decoration: BoxDecoration(
+        //             // color: Theme.of(context).scaffoldBackgroundColor),
+        //             image: DecorationImage(
+        //                 scale: 0.3,
+        //                 repeat: ImageRepeat.repeat,
+        //                 // fit: BoxFit.cover,
+        //                 image: theme.brightness == Brightness.dark
+        //                     ? AssetImage(
+        //                         'assets/dark_back.png',
+        //                       )
+        //                     : AssetImage('assets/light_back.jpg')),
+        //           ),
+        //           child: BackdropFilter(
+        //               filter: theme.brightness == Brightness.dark
+        //                   ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
+        //                   : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+        //               child: Container()
 
-                  // Text(roomCubit.displayRooms().toString())
-                  // Text("${currentUser?.uid.toString()} \n\n $senderId")
-                  // roomCubit.displayRooms(),
-                  )),
-        ),
-        ListView.builder(
-            itemCount: state.listRooms?.length,
-            itemBuilder: (context, index) {
-              List<Room>? _list = state.listRooms;
-              // MyUser? currentUser = authCubit.state.currentUser;
-              return Column(
-                children: [
-                  ListTile(
-                    trailing: _list![index].isPrivate ? Icon(Icons.lock_outline) : SizedBox.shrink(),
-                    title: Text(
-                      "${_list[index].topicTheme}",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: _list[index].isPrivate
-                        ? _list[index].members?.contains(roomCubit.getoLocalUser(thatRoom: _list[index])) == true
-                            ? Text(
-                                "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              )
-                            : null
-                        : Text(
-                            "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                    onTap: () {
-                      roomCubit.setRoomAsCurrent(_list[index].groupID!);
-                      roomCubit.loadChat(_list[index].groupID!);
-                      // print(
-                      //     'THIS IS THAT: ${state.currentRoom}');
-                      Navigator.of(context).push(MaterialPageRoute<void>(
-                        builder: (BuildContext context) => ChatPage(_list[index].groupID!),
-                      ));
-                    },
+        //               // Text(roomCubit.displayRooms().toString())
+        //               // Text("${currentUser?.uid.toString()} \n\n $senderId")
+        //               // roomCubit.displayRooms(),
+        //               )),
+        //     ),
+        Container(
+      decoration:
+          BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
+      child: ListView.builder(
+          itemCount: state.listRooms?.length,
+          itemBuilder: (context, index) {
+            List<Room>? _list = state.listRooms;
+            // MyUser? currentUser = authCubit.state.currentUser;
+            return Column(
+              children: [
+                ListTile(
+                  trailing: _list![index].isPrivate
+                      ? Icon(Icons.lock_outline)
+                      : SizedBox.shrink(),
+                  title: Text(
+                    "${_list[index].topicTheme}",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  Divider()
-                ],
-              );
-            })
-      ],
+                  subtitle: _list[index].isPrivate
+                      ? _list[index].members?.contains(roomCubit.getoLocalUser(
+                                  thatRoom: _list[index])) ==
+                              true
+                          ? Text(
+                              "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : null
+                      : Text(
+                          "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                  onTap: () async {
+                    // roomCubit.setRoomAsCurrent(_list[index].groupID!);
+                    await roomCubit.loadChat(_list[index].groupID!).then(
+                        (value) =>
+                            Navigator.of(context).push(MaterialPageRoute<void>(
+                              builder: (BuildContext context) =>
+                                  ChatPage(_list[index].groupID!),
+                            ))
+                        // print(
+                        //     'THIS IS THAT: ${state.currentRoom?.chatMessages}')
+                        );
+                  },
+                ),
+                Divider()
+              ],
+            );
+          }),
     );
+    //   ],
+    // );
   }
 }

@@ -118,6 +118,10 @@ class Room {
         topicTheme: e.get('topicTheme'),
         lastMessage: Message.fromMap(e.get('lastMessage')),
         groupID: e.id,
+        // chatMessages: e
+        //     .get('messages')
+        //     .map<Message>((message) => Message.fromMap(message))
+        //     .toList(),
         // groupName: e.get('groupName'),
         // admin: MyUser.fromMap(e.get('admin')),
         members: e

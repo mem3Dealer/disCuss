@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -33,6 +32,7 @@ class _ChatPageState extends State<ChatPage>
   CollectionReference users = FirebaseFirestore.instance.collection('users');
   CollectionReference chat = FirebaseFirestore.instance.collection('chat');
   String? senderId = FirebaseAuth.instance.currentUser?.uid;
+
   List<MyUser>? listUsers;
   final _messageEditingController = TextEditingController();
   final _scrollController = new ScrollController();
@@ -60,7 +60,7 @@ class _ChatPageState extends State<ChatPage>
               )));
       final entryPublicRoomSnackBar = SnackBar(
           duration: Duration(seconds: 3),
-          content: Text('Hit join to send messages in this room',
+          content: Text('Hit + to send messages in this room',
               style: TextStyle(
                 fontSize: 17,
               )));
@@ -82,8 +82,8 @@ class _ChatPageState extends State<ChatPage>
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
+    super.dispose();
   }
 
   bool get _isPanelVisible {
@@ -105,15 +105,20 @@ class _ChatPageState extends State<ChatPage>
 
   @override
   Widget build(BuildContext context) {
+    Room? currentRoom = roomCubit.state.currentRoom;
     MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
-    if (!roomCubit.state.messagesOfThisChatRoom!.any((element) {
-      // print('${element.sender?.uid == currentMemberofThisRoom?.uid}');
+    bool? didIWrite;
+
+    didIWrite = currentRoom?.chatMessages?.any((element) {
       return element.sender?.uid == currentMemberofThisRoom?.uid;
-    })) {
+    });
+    // print(
+    //     'THIS IS PRINT FROM SCAFFOLD BUILD ${roomCubit.state.currentRoom?.chatMessages}');
+
+    if (didIWrite == false) {
       _controller.fling(velocity: -1);
     }
 
-    Room? currentRoom = roomCubit.state.currentRoom;
     final requestSentSnackBar = SnackBar(
         duration: Duration(seconds: 2),
         content: Text(
@@ -134,7 +139,7 @@ class _ChatPageState extends State<ChatPage>
             currentMemberofThisRoom?.canWrite == false &&
             currentMemberofThisRoom?.isApporved == false);
         // List<Message>? _localChat = state.messagesOfThisChatRoom;
-        String title = " ${roomCubit.state.currentRoom?.topicTheme!}";
+        String title = " ${roomCubit.state.currentRoom?.topicTheme}";
         final ThemeData theme = Theme.of(context);
         // BoxConstraints? constraints;
 
@@ -173,30 +178,28 @@ class _ChatPageState extends State<ChatPage>
                                   onPressed: () {
                                     _controller.fling(
                                         velocity: _isPanelVisible ? -1.0 : 1.0);
+                                    // print(_controller.velocity);
                                   },
                                   icons: [
                                     AnimatedIconItem(
                                         icon: Icon(
                                       Icons.arrow_downward_sharp,
                                       size: 24,
-                                      color: Colors.black,
+                                      color:
+                                          theme.brightness == Brightness.light
+                                              ? Colors.black
+                                              : Colors.white,
                                     )),
                                     AnimatedIconItem(
                                         icon: Icon(
                                       Icons.arrow_upward_sharp,
-                                      color: Colors.black,
+                                      color:
+                                          theme.brightness == Brightness.light
+                                              ? Colors.black
+                                              : Colors.white,
                                       size: 24,
-                                    ))
+                                    )),
                                   ]),
-                            // IconButton(
-                            //     splashRadius: 15,
-                            //     onPressed: () {
-                            //       _controller.fling(
-                            //           velocity: _isPanelVisible ? -1.0 : 1.0);
-                            //     },
-                            //     icon: AnimatedIcon(
-                            //         icon: AnimatedIcons.search_ellipsis,
-                            //         progress: _controller)),
                             if (currentMemberofThisRoom?.isApporved == false &&
                                 currentMemberofThisRoom?.canWrite == false)
                               IconButton(
@@ -246,16 +249,17 @@ class _ChatPageState extends State<ChatPage>
     BoxConstraints constraints,
   ) {
     Room? currentRoom = roomCubit.state.currentRoom;
-    List<Message>? _localChat = roomCubit.state.messagesOfThisChatRoom;
+    List<Message>? _localChat = currentRoom?.chatMessages;
     MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
     bool userIsbanned = (currentMemberofThisRoom?.uid != null &&
         currentMemberofThisRoom?.canWrite == false &&
         currentMemberofThisRoom?.isApporved == false);
     final Animation<RelativeRect> animation = _getPanelAnimation(constraints);
     final ThemeData theme = Theme.of(context);
-    String content = " ${roomCubit.state.currentRoom?.topicContent!}";
-    String topic = " ${roomCubit.state.currentRoom?.topicTheme!}";
+    String content = " ${roomCubit.state.currentRoom?.topicContent}";
+    String topic = " ${roomCubit.state.currentRoom?.topicTheme}";
 
+    print('THIS IS PRINT FROM BUILD:$_localChat ');
     return Container(
       color: Colors.transparent,
       child: Stack(
@@ -300,13 +304,7 @@ class _ChatPageState extends State<ChatPage>
                     //         : ExactAssetImage('assets/light_back.png')),
                     color: theme.scaffoldBackgroundColor,
                   ),
-                  child:
-                      // BackdropFilter(
-                      //   filter: theme.brightness == Brightness.dark
-                      //       ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
-                      //       : ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                      //   child:
-                      Column(
+                  child: Column(
                     children: [
                       if (userIsbanned)
                         Expanded(
@@ -350,14 +348,20 @@ class _ChatPageState extends State<ChatPage>
                                                         'ooops... Such empty!')))
                                             : _buildChat(_localChat)))
                       else if (currentRoom?.isPrivate == false)
-                        Expanded(
-                            child: Container(
-                                child: _localChat!.isEmpty
-                                    ? Center(
-                                        child: Chip(
-                                            label:
-                                                Text('ooops... Such empty!')))
-                                    : _buildChat(_localChat))),
+                        if (_localChat?.isEmpty == true)
+                          Expanded(
+                              child: Container(
+                                  child: Center(
+                                      child: Chip(
+                                          label:
+                                              Text('ooops... Such empty!')))))
+                        else if (_localChat?.isNotEmpty == true)
+                          Expanded(child: _buildChat(_localChat)),
+                      // _localChat.forEach((element) {
+                      //     element.time.toString();
+                      //   })
+                      // Center(
+                      //     child: Text(_localChat!.first.time.toString())),
                       if (currentMemberofThisRoom?.canWrite == false ||
                           currentMemberofThisRoom?.isApporved == false ||
                           currentMemberofThisRoom == null)
@@ -484,7 +488,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
-  ListView _buildChat(List<Message>? _localChat) {
+  Widget _buildChat(List<Message>? _localChat) {
     return ListView.builder(
       controller: _scrollController,
       reverse: true,
