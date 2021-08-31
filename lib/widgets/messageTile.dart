@@ -35,8 +35,7 @@ class MessageTile extends StatelessWidget {
       ),
       alignment: sentByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin:
-            sentByMe ? EdgeInsets.only(left: 30) : EdgeInsets.only(right: 30),
+        margin: sentByMe ? EdgeInsets.only(left: 30) : EdgeInsets.only(right: 30),
         padding: EdgeInsets.only(right: 20, left: 20, top: 12, bottom: 12),
         decoration: BoxDecoration(
             borderRadius: sentByMe
@@ -88,15 +87,14 @@ class MessageTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Text("${firstMessageOfAuthor} $lastMessageOfAuthor"),
-            if (author!.isNotEmpty) messageAuthor(author),
+            if (author!.isNotEmpty) messageAuthor(context, author),
             messageContent(message!, context),
             SizedBox(
               height: 3,
             ),
             Row(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(time!,
                     // textAlign: sentByMe ? TextAlign.right : TextAlign.left,
@@ -112,17 +110,19 @@ class MessageTile extends StatelessWidget {
     );
   }
 
-  Widget messageAuthor(String? author) {
+  Widget messageAuthor(BuildContext context, String? author) {
     return Column(
       children: [
-        Text(author!.toUpperCase(),
-            textAlign: TextAlign.start,
-            style: TextStyle(
-                fontSize: 13.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                letterSpacing: -0.5)),
-        SizedBox(height: 7.0),
+        Padding(
+          padding: EdgeInsets.only(bottom: 7.0),
+          child: Text("${author!.toUpperCase()}",
+              textAlign: TextAlign.start,
+              style: Theme.of(context).textTheme.caption?.copyWith(
+                  fontSize: (Theme.of(context).textTheme.caption!.fontSize! - 3),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade100,
+                  letterSpacing: -0.5)),
+        ),
       ],
     );
   }
@@ -131,10 +131,6 @@ class MessageTile extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     return Text(message,
         textAlign: TextAlign.start,
-        style: TextStyle(
-            fontSize: 15.0,
-            color: theme.brightness == Brightness.dark
-                ? Colors.white
-                : Colors.black));
+        style: TextStyle(fontSize: 15.0, color: theme.brightness == Brightness.dark ? Colors.white : Colors.black));
   }
 }
