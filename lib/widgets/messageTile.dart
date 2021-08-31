@@ -123,7 +123,7 @@ class MessageTile extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: theme.brightness == Brightness.dark
                       ? Colors.white
-                      : Colors.black,
+                      : Color(0xfffefae0),
                   letterSpacing: -0.5)),
         ),
       ],
