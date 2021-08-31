@@ -24,9 +24,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
       String? nickName = await fetchNickName(signInRes.uid.toString());
       // print("I see $signInRes");
       emit(state.copyWith(
-          isLoggedIn: true,
-          currentUser: signInRes.copyWith(nickName: nickName),
-          version: state.version! + 1));
+          isLoggedIn: true, currentUser: signInRes.copyWith(nickName: nickName), version: state.version! + 1));
     }
     if (signInRes != null && signInRes.runtimeType == String) {
       emit(state.copyWith(version: state.version! + 1));
@@ -48,10 +46,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
   }
 
   Future<String> isNickNameUnique(String val) async {
-    final userExists = data.userCollection
-        .where('nickName', isEqualTo: val)
-        .get()
-        .then((snapshot) {
+    final userExists = data.userCollection.where('nickName', isEqualTo: val).get().then((snapshot) {
       return snapshot.docs.length > 0;
     });
 
@@ -65,19 +60,20 @@ class AuthCubit extends HydratedCubit<AuthState> {
   Future<void> logOut() async {
     // print('AYYY');
     try {
-      await auth.signOut();
-      emit(state.copyWith(isLoggedIn: false, version: state.version! + 1));
-      print('LOG OUT PRINT: ${state.isLoggedIn}, ${fbAuth}');
+      auth.signOut().catchError((e) {
+        print(e.toString());
+      }).whenComplete(() {
+        emit(state.copyWith(isLoggedIn: false, version: state.version! + 1));
+        print('LOG OUT PRINT: ${state.isLoggedIn}, $fbAuth');
+      });
     } catch (e) {
       print(e.toString());
       // return null;
     }
   }
 
-  Future<dynamic> registrate(
-      String name, String email, String password, String nickName) async {
-    dynamic regResult = await auth.registerWithEmailandPassword(
-        name, email, password, nickName);
+  Future<dynamic> registrate(String name, String email, String password, String nickName) async {
+    dynamic regResult = await auth.registerWithEmailandPassword(name, email, password, nickName);
 
     print("I watch $regResult");
     if (regResult != null && regResult.runtimeType == MyUser) {
@@ -96,8 +92,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
 
   @override
   AuthState? fromJson(Map<String, dynamic> json) {
-    return AuthState(
-        currentUser: MyUser.fromHydrant(json), version: 0, isLoggedIn: false);
+    return AuthState(currentUser: MyUser.fromHydrant(json), version: 0, isLoggedIn: false);
   }
 
   @override
