@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
@@ -144,22 +143,29 @@ class _RegisterPageState extends State<RegisterPage> {
                           nickNameValidator = await authCubit
                               .isNickNameUnique(_nickNameController.text);
 
-                          var result = await authCubit.registrate(
-                              _nameController.text.trim(),
-                              _emailController.text.trim(),
-                              _passwordController.text.trim(),
-                              _nickNameController.text.trim());
+                          // var result = await authCubit.registrate(
+                          //     _nameController.text.trim(),
+                          //     _emailController.text.trim(),
+                          //     _passwordController.text.trim(),
+                          //     _nickNameController.text.trim());
 
-                          print('THIS IS THIS PRINT: $result');
-                          if (result != null && result.runtimeType == String) {
-                            _emailTaken = result;
-                          }
+                          // print('THIS IS THIS PRINT: $result');
+                          // if (result != null && result.runtimeType == String) {
+                          //   _emailTaken = result;
+                          // }
 
                           if (_formKey.currentState!.validate()) {
-                            // try {
-                            // } catch (e) {
-                            //   print('ERROR IS ${}');
-                            // }
+                            var result = await authCubit.registrate(
+                                _nameController.text.trim(),
+                                _emailController.text.trim(),
+                                _passwordController.text.trim(),
+                                _nickNameController.text.trim());
+
+                            print('THIS IS THIS PRINT: $result');
+                            if (result != null &&
+                                result.runtimeType == String) {
+                              _emailTaken = result;
+                            }
                           }
                         },
                       ),

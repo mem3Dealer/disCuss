@@ -1,3 +1,6 @@
+import 'dart:math';
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
@@ -121,7 +124,7 @@ class DataBaseService {
     // print('Controlle text ${messageContent}');
 
     final message = {
-      'recentMessage': messageContent.trim(),
+      'content': messageContent.trim(),
       'time': DateTime.now().toUtc(),
       'sender': sender.senderToMap(),
       // 'author':
@@ -139,7 +142,10 @@ class DataBaseService {
     // _controller.clear();
   }
 
-  Future<void>? updateUserData(MyUser user) async {
+  Future<void>? updateUserData(MyUser user, {String? nickName}) async {
+    Color color = Color.fromARGB(255, Random().nextInt(10) * 10 + 100,
+        Random().nextInt(10) * 10 + 100, Random().nextInt(10) * 10 + 100);
+    int colorCode = color.value;
     return await userCollection.doc(user.uid).set({
       'name': user.name,
       'email': user.email,
@@ -148,9 +154,19 @@ class DataBaseService {
       'isAdmin': user.isAdmin,
       'canWrite': user.canWrite,
       'isApporved': user.isApporved,
-      'nickName': user.nickName
+      'nickName': nickName,
+      'colorCode': colorCode
     });
   }
+
+  // Future<void>? updateUserColor(MyUser user) async {
+  //   Color color = Color.fromARGB(255, Random().nextInt(100) + 100,
+  //       Random().nextInt(100) + 100, Random().nextInt(100) + 100);
+  //   int colorCode = color.value;
+  //   return await userCollection.doc(user.uid).set({
+  //     'colorCode': colorCode,
+  //   });
+  // }
 
 // TODO: refactor seart with filter
   Future<List<MyUser>?> getUsers({String? searchString}) async {

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -143,6 +144,37 @@ class _ChatPageState extends State<ChatPage>
         final ThemeData theme = Theme.of(context);
         // BoxConstraints? constraints;
 
+        Color color = Color.fromARGB(255, Random().nextInt(100) + 100,
+            Random().nextInt(100) + 100, Random().nextInt(100) + 100);
+        int hexCode = color.value;
+        // print('USERS COLOR IS: ${hexCode}');
+        // var colorCode = color.toString().substring(6, 16);
+        // var colorCodeAlaInt = int.parse(colorCode);
+        // print('Color is: ${colorCodeAlaInt}');
+        // return Scaffold(
+        //   // backgroundColor: co  lor,
+        //   body: Center(
+        //     child: Column(
+        //       mainAxisAlignment: MainAxisAlignment.center,
+        //       children: [
+        //         Container(
+        //             width: 300,
+        //             height: 150,
+        //             color: color,
+        //             child: Text(color.toString().substring(6, 16))),
+        //         SizedBox(height: 20),
+        //         Container(
+        //           width: 300,
+        //           height: 150,
+        //           color: Color(hexCode),
+        //           child: Center(
+        //             child: Text('This color is: ${Color(hexCode)}'),
+        //           ),
+        //         )
+        //       ],
+        //     ),
+        //   ),
+        // );
         return Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -258,6 +290,8 @@ class _ChatPageState extends State<ChatPage>
     final ThemeData theme = Theme.of(context);
     String content = " ${roomCubit.state.currentRoom?.topicContent}";
     String topic = " ${roomCubit.state.currentRoom?.topicTheme}";
+
+    // print('Colors is: $color');
 
     // print('THIS IS PRINT FROM BUILD:$_localChat ');
     return Container(
@@ -500,6 +534,7 @@ class _ChatPageState extends State<ChatPage>
         var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
         var formattedDate = DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
         return MessageTile(
+            userColorCode: message.sender!.colorCode!,
             time: formattedDate,
             firstMessageOfAuthor: message.isFirst,
             lastMessageOfAuthor: message.isLast,

@@ -245,7 +245,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
             return ElevatedButton(
               style: ButtonStyle().copyWith(
                   backgroundColor: MaterialStateProperty.resolveWith(
-                      (states) => Theme.of(context).accentColor)),
+                      (states) => Theme.of(context).primaryColor)),
               child: Text(
                 _isEditing ? "Save changes" : 'Discuss',
                 style: TextStyle(fontSize: 20),

@@ -1,5 +1,6 @@
 import "package:firebase_auth/firebase_auth.dart";
 import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/services/database.dart';
 // import 'package:my_chat_app/services/database.dart';
@@ -61,10 +62,12 @@ class AuthService {
           ?.copyWith(name: name, nickName: nickName);
 
       //create a new doc for that user with the uid
-      await dbService.updateUserData(newUser!);
+      await dbService.updateUserData(newUser!, nickName: nickName);
+
+      int colorCode = await AuthCubit().fetchColor(newUser.uid!);
 
       print('FILTER: $newUser');
-      return newUser;
+      return newUser.copyWith(colorCode: colorCode);
       // _userFromFirebase(_fbUser, password);
     } catch (e) {
       print('Exception @createAccount: $e');

@@ -13,6 +13,7 @@ class MyUser {
   String? name;
   String? email;
   String? password;
+  int? colorCode;
   MyUser({
     this.isSelected = false,
     this.isOwner = false,
@@ -24,6 +25,7 @@ class MyUser {
     this.name,
     this.email,
     this.password,
+    this.colorCode,
   });
 
   MyUser copyWith({
@@ -37,6 +39,7 @@ class MyUser {
     String? name,
     String? email,
     String? password,
+    int? colorCode,
   }) {
     return MyUser(
       isSelected: isSelected ?? this.isSelected,
@@ -49,6 +52,7 @@ class MyUser {
       name: name ?? this.name,
       email: email ?? this.email,
       password: password ?? this.password,
+      colorCode: colorCode ?? this.colorCode,
     );
   }
 
@@ -63,6 +67,8 @@ class MyUser {
       'uid': uid,
       'name': name,
       'email': email,
+      'password': password,
+      'colorCode': colorCode,
     };
   }
 
@@ -73,6 +79,7 @@ class MyUser {
       // 'isAdmin': isAdmin,
       // 'canWrite': canWrite,
       // 'isApporved': isApporved,
+      'colorCode': colorCode,
       'nickName': nickName,
       'uid': uid,
       'name': name,
@@ -98,23 +105,25 @@ class MyUser {
       uid: map['uid'],
       name: map['name'],
       email: map['email'],
-      // password: map['password'],
+      password: map['password'],
+      colorCode: map['colorCode'],
     );
   }
 
   factory MyUser.fromMapForMessages(Map<String, dynamic> map) {
     return MyUser(
-      // isSelected: map['isSelected'],
-      // isOwner: map['isOwner'],
-      // isAdmin: map['isAdmin'],
-      // canWrite: map['canWrite'],
-      // isApporved: map['isApporved'],
-      nickName: map['nickName'],
-      uid: map['uid'],
-      name: map['name'],
-      email: map['email'],
-      // password: map['password'],
-    );
+        // isSelected: map['isSelected'],
+        // isOwner: map['isOwner'],
+        // isAdmin: map['isAdmin'],
+        // canWrite: map['canWrite'],
+        // isApporved: map['isApporved'],
+        nickName: map['nickName'],
+        uid: map['uid'],
+        name: map['name'],
+        email: map['email'],
+        colorCode: map['colorCode']
+        // password: map['password'],
+        );
   }
 
   factory MyUser.fromHydrant(Map<String, dynamic> map) {
@@ -131,7 +140,7 @@ class MyUser {
 
   @override
   String toString() {
-    return 'MyUser(isSelected: $isSelected, isOwner: $isOwner, isAdmin: $isAdmin, canWrite: $canWrite, isApporved: $isApporved, nickName: $nickName, uid: $uid, name: $name, email: $email, password: $password)';
+    return 'MyUser(isSelected: $isSelected, isOwner: $isOwner, isAdmin: $isAdmin, canWrite: $canWrite, isApporved: $isApporved, nickName: $nickName, uid: $uid, name: $name, email: $email, password: $password, colorCode: $colorCode)';
   }
 
   @override
@@ -148,7 +157,8 @@ class MyUser {
         other.uid == uid &&
         other.name == name &&
         other.email == email &&
-        other.password == password;
+        other.password == password &&
+        other.colorCode == colorCode;
   }
 
   @override
@@ -162,19 +172,22 @@ class MyUser {
         uid.hashCode ^
         name.hashCode ^
         email.hashCode ^
-        password.hashCode;
+        password.hashCode ^
+        colorCode.hashCode;
   }
 
   static fromSnapshot(QueryDocumentSnapshot e) {
     return MyUser(
-        uid: e.id,
-        name: e.get('name'),
-        nickName: e.get('nickName'),
-        email: e.get('email'),
-        isOwner: e.get('isOwner'),
-        isAdmin: e.get('isAdmin'),
-        canWrite: e.get('canWrite'),
-        isApporved: e.get('isApporved'));
+      uid: e.id,
+      name: e.get('name'),
+      nickName: e.get('nickName'),
+      email: e.get('email'),
+      isOwner: e.get('isOwner'),
+      isAdmin: e.get('isAdmin'),
+      canWrite: e.get('canWrite'),
+      isApporved: e.get('isApporved'),
+      colorCode: e.get('colorCode'),
+    );
   }
 
   // static myFromSnapshot(QueryDocumentSnapshot<Object?> e) {

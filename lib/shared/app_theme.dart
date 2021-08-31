@@ -48,7 +48,7 @@ ThemeData get appThemeLight => ThemeData(
             borderRadius: BorderRadius.all(
               Radius.circular(15),
             ),
-            borderSide: BorderSide(color: Colors.red, width: 2),
+            borderSide: BorderSide(color: Colors.red, width: 1),
           ),
           filled: true,
           // border: OutlineInputBorder(

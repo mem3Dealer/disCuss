@@ -47,7 +47,7 @@ class Message {
 
   factory Message.fromMap(Map<String, dynamic> map) {
     return Message(
-      content: map['recentMessage'],
+      content: map['content'],
       sender: MyUser.fromMap(map['sender']),
       time: (map['time']),
       // isFirst: map['isFirst'],
@@ -88,7 +88,7 @@ class Message {
 
   static fromSnapshot(QueryDocumentSnapshot<Object?> e) {
     return Message(
-        content: e.get('recentMessage'),
+        content: e.get('content'),
         sender: MyUser.fromMapForMessages(e.get('sender')),
         time: e.get('time'));
   }

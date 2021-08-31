@@ -59,6 +59,7 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<AuthCubit, AuthState>(
       bloc: authCubit,
       builder: (context, state) {
+        print('this users code: ${state.currentUser?.colorCode}');
         return Container(
           decoration: BoxDecoration(
             image: DecorationImage(
