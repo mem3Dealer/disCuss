@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class _HomePageState extends State<HomePage> {
   final authCubit = GetIt.I.get<AuthCubit>();
   final roomCubit = GetIt.I.get<RoomCubit>();
   final formKey = GlobalKey<FormState>();
+  final scrollController = ScrollController();
 
   // final _auth = GetIt.I.get<FirebaseAuth>();
   // final dialog = GetIt.I.get<AnotherGroupCreator>();
@@ -45,21 +47,35 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
-      if (userCubit.state.listUsers == null) {
-        await userCubit.getUsersList();
-      }
-      roomCubit.loadRooms();
+      // if (userCubit.state.listUsers == null) {
+      //   await userCubit.getUsersList();
+      // }
+      roomCubit.loadRooms(); //тут он хочет фючу как и было у меня
+      scrollController.addListener(() {
+        if (scrollController.position.atEdge) {
+          if (scrollController.position.pixels == 0) {
+            print('we are on top');
+          } else {
+            print('we are at bottom');
+            roomCubit.getNextRooms();
+          }
+        }
+      });
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    print(authCubit.state.currentUser);
+
+    // roomCubit.fetchDocs(
+    //     data.roomsStream()); // я просто тестил что он работает хотя бы так
     final ThemeData theme = Theme.of(context);
     return BlocBuilder<AuthCubit, AuthState>(
       bloc: authCubit,
       builder: (context, state) {
-        print('this users code: ${state.currentUser?.colorCode}');
+        // print('this users code: ${state.currentUser?.colorCode}');
         return Container(
           decoration: BoxDecoration(
             image: DecorationImage(
@@ -99,11 +115,11 @@ class _HomePageState extends State<HomePage> {
                         // await _auth.signOut();
                       },
                       // label: Text('Log out'),
+                      /// где загрузка на этой странце]\
                     ),
                   )
                 ],
-                title: Text(
-                    "${authCubit.state.currentUser?.nickName}`s available rooms")),
+                title: Text("${roomCubit.state.category} rooms")),
             body: Center(
                 child: BlocBuilder<RoomCubit, RoomState>(
                     bloc: roomCubit,
@@ -122,23 +138,46 @@ class _HomePageState extends State<HomePage> {
                             borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(25.0),
                                 topRight: Radius.circular(25.0)),
-                            child: _buildRooms(state, theme));
+                            child: _buildRooms(state, theme, scrollController));
                       }
                       return CircularProgressIndicator();
                     })),
             floatingActionButton: FloatingActionButton(
               child: Icon(Icons.add),
               onPressed: () {
+                // List cats = [];
+                // data.categories.forEach((element) {
+                //   cats.add(element['option']);
+                // });
+                // // print(cats);
+                // for (var i = 0; i < 200; i++) {
+                //   String _cat = cats[Random().nextInt(cats.length)];
+                //   data.createGroup([
+                //     authCubit.state.currentUser!.copyWith(
+                //       isAdmin: true,
+                //       canWrite: true,
+                //       isOwner: true,
+                //       isApporved: true,
+                //     )
+                //   ],
+                //       authCubit.state.currentUser!,
+                //       '$_cat room number $i',
+                //       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                //       false,
+                //       _cat);
+                // }
+
                 // print(authCubit.state.currentUser);
                 // roomCubit.loadRooms();
-                Navigator.of(context).push(MaterialPageRoute<void>(
-                        builder: (BuildContext context) =>
-                            // SliverPage()
-                            AnotherGroupCreator(false)
-                        // BackDropPage()
-                        )
-                    // )
-                    );
+                // Navigator.of(context).push(MaterialPageRoute<void>(
+                //         builder: (BuildContext context) =>
+                //             // SliverPage()
+                //             AnotherGroupCreator(false,
+                //                 category: roomCubit.state.category)
+                //         // BackDropPage()
+                //         )
+                //     // )
+                //     );
               },
             ),
           ),
@@ -147,7 +186,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildRooms(RoomState state, ThemeData theme) {
+  Widget _buildRooms(
+      RoomState state, ThemeData theme, ScrollController scrollController) {
     return
         // Stack(
         //   children: [
@@ -184,18 +224,21 @@ class _HomePageState extends State<HomePage> {
       decoration:
           BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
       child: ListView.builder(
+          controller: scrollController,
           itemCount: state.listRooms?.length,
           itemBuilder: (context, index) {
             List<Room>? _list = state.listRooms;
+            // print(_list?.length);
             // MyUser? currentUser = authCubit.state.currentUser;
             return Column(
               children: [
                 ListTile(
-                  trailing: _list![index].isPrivate
-                      ? Icon(Icons.lock_outline)
-                      : SizedBox.shrink(),
+                  trailing: Text("$index"),
+                  //  _list![index].isPrivate
+                  //     ? Icon(Icons.lock_outline)
+                  //     : SizedBox.shrink(),
                   title: Text(
-                    "${_list[index].topicTheme}",
+                    "${_list![index].topicTheme}",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

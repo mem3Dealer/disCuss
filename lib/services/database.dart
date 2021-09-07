@@ -2,16 +2,38 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
+import 'package:my_chat_app/cubit/states/room_state.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
 
 class DataBaseService {
+  //final roomCubit = GetIt.I.get<RoomCubit>(); // изза этого ошиба
   // String? uid;
   DataBaseService() {
     // initializeFB();
   }
+  List<Map<String, String>> categories = [
+    {'option': 'Sport', 'label': "Sport"},
+    {'option': 'Games', 'label': "Computer game"},
+    {'option': 'Books', 'label': "Literature"},
+    {'option': 'Music', 'label': "Rock`n`Roll"},
+    {'option': 'Science', 'label': "Physics"},
+    {'option': 'Art', 'label': "Renissans"},
+    {'option': 'Movies', 'label': "Star Wars"},
+    {'option': 'Activities', 'label': "Hike"},
+    {'option': 'Politics', 'label': "Politics"},
+    {'option': 'Ecology', 'label': "Global Warming"},
+    {'option': 'History', 'label': "Belgium Crysis"},
+    {'option': 'Fashion', 'label': "Clothes"},
+    {'option': 'Psychologies', 'label': "Psychologies"},
+    {'option': 'Stars', 'label': "Astrology"},
+    {'option': 'Pets', 'label': "Cats"},
 
+    /// TODO: add more here
+  ];
   // final authCubit = GetIt.I.get<AuthCubit>();
   CollectionReference userCollection =
       FirebaseFirestore.instance.collection('users');
@@ -19,32 +41,37 @@ class DataBaseService {
   CollectionReference dummyChats =
       FirebaseFirestore.instance.collection('chatsCollection');
 
-  Stream<QuerySnapshot> roomsStream(MyUser currentUser) {
+  Stream<QuerySnapshot> roomsStream(String? category) {
+    print('I see ${category}');
+    //текущая комната у меня определяется после выбора тайла чата. То есть сейчас текущей нет. мне помнится были огромные проблемы подгружать чтото раньше датабейса
     return FirebaseFirestore.instance
         .collection('chatsCollection')
-        .orderBy('lastMessage.time', descending: true)
+        .where('category', isEqualTo: category ?? '*')
+
+        ///кажется так, попробуем, в крайнем случае сделать два мы можем сделать 2 запроса есть есть катрегория и если нет
+        .orderBy('topicTheme',
+            descending:
+                true) //TODO не забыть вернуть к сортировке по последнему сообщению
+        .limit(15)
         .snapshots();
   }
 
-  // Future<List<Room>?> getRooms() async {
-  //   var serverRooms = await dummyChats.get();
-  //   return serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+  // Stream<QuerySnapshot> nextRoomsStream(DocumentSnapshot documentSnapshot) {
+  //   return FirebaseFirestore.instance
+  //       .collection('chatsCollection')
+  //       .orderBy('lastMessage.time', descending: true).startAfterDocument(documentSnapshot)
+  //       .limit(15)
+  //       .snapshots();
   // }
-
-  // Future<String> getUserNickName(String uid) async {
-  //   final thatUser = await userCollection.where('uid', isEqualTo: uid).snapshots();
-  //   thatUser.map<MyUser>((e) => MyUser.fromSnapshot(e)).toList();
-  // }
-
   Future<void> createGroup(List<MyUser>? selectedUsers, MyUser? user,
-      String topicTheme, String topicContent, bool isPrivate,
-      {Message? lastMessage, String? groupName}
+      String topicTheme, String topicContent, bool isPrivate, String? category,
+      {Message? lastMessage}
       // String userId,
       ) async {
     List _mappedUsers = [];
 
     selectedUsers!.forEach((element) {
-      _mappedUsers.add(element.toMap());
+      _mappedUsers.add(element.memberToMap());
     });
     // Room newRoom;
     DocumentReference roomDocRef = await dummyChats.add({
@@ -53,6 +80,7 @@ class DataBaseService {
         'sender': user?.senderToMap(),
         'time': DateTime.now()
       },
+      'category': category,
       'isPrivate': isPrivate,
       'topicTheme': topicTheme,
       'topicContent': topicContent,
@@ -97,14 +125,9 @@ class DataBaseService {
     dummyChats.doc(groupID).update({'members': FieldValue.arrayUnion(_list)});
   }
 
-  Stream<QuerySnapshot> usersStream() => FirebaseFirestore.instance
-      .collection('users')
-      // .orderBy('time', descending: true)
-      .snapshots();
-
-  // Stream<QuerySnapshot> chatStream() => FirebaseFirestore.instance
-  //     .collection('chat')
-  //     .orderBy('time', descending: true)
+  // Stream<QuerySnapshot> usersStream() => FirebaseFirestore.instance
+  //     .collection('users')
+  //     // .orderBy('time', descending: true)
   //     .snapshots();
 
   Stream<QuerySnapshot> chatStream(String groupId) => FirebaseFirestore.instance
@@ -159,16 +182,6 @@ class DataBaseService {
     });
   }
 
-  // Future<void>? updateUserColor(MyUser user) async {
-  //   Color color = Color.fromARGB(255, Random().nextInt(100) + 100,
-  //       Random().nextInt(100) + 100, Random().nextInt(100) + 100);
-  //   int colorCode = color.value;
-  //   return await userCollection.doc(user.uid).set({
-  //     'colorCode': colorCode,
-  //   });
-  // }
-
-// TODO: refactor seart with filter
   Future<List<MyUser>?> getUsers({String? searchString}) async {
     // print('Before get');.
 
@@ -229,7 +242,7 @@ class DataBaseService {
     List? newMembers = [];
 
     selectedUsers?.forEach((element) {
-      newMembers.add(element.toMap());
+      newMembers.add(element.memberToMap());
     });
 
     dummyChats.doc(groupID).update({

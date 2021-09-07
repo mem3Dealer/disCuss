@@ -8,6 +8,7 @@ import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/states/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
+import 'package:my_chat_app/cubit/states/room_state.dart';
 import 'package:my_chat_app/pages/authenticate.dart';
 import 'package:my_chat_app/pages/home.dart';
 import 'package:my_chat_app/pages/signIn.dart';
@@ -30,11 +31,14 @@ void main() async {
   // WidgetsFlutterBinding.ensureInitialized();
   // print('ayy');
   GetIt.instance
+    //..registerSingleton<RoomState>(
+    //  RoomState()) // может не синглтон? или порядок не тот
     ..registerSingleton<DataBaseService>(DataBaseService())
     ..registerSingleton<UserCubit>(UserCubit())
     ..registerFactory(() => AuthService())
     ..registerSingleton<AuthCubit>(AuthCubit())
     ..registerSingleton<RoomCubit>(RoomCubit())
+
     // ..registerFactory(() => RoomCubit())
     ..registerSingleton<FirebaseAuth>(FirebaseAuth.instance);
 
@@ -58,7 +62,7 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
                 themeMode: ThemeMode.system,
                 theme: appThemeLight,
-                // darkTheme: appThemeDark,
+                darkTheme: appThemeDark,
                 routes: <String, WidgetBuilder>{
                   '/home_page': (BuildContext context) => HomePage(),
                   '/wrapper': (BuildContext context) => Wrapper(),

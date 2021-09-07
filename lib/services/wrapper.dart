@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/states/auth_state.dart';
 import 'package:my_chat_app/pages/authenticate.dart';
+import 'package:my_chat_app/pages/category_page.dart';
 import 'package:my_chat_app/pages/home.dart';
 
 class Wrapper extends StatelessWidget {
@@ -18,7 +19,7 @@ class Wrapper extends StatelessWidget {
       bloc: authCubit,
       builder: (context, state) {
         if (authCubit.fbAuth != null || state.isLoggedIn == true) {
-          return HomePage();
+          return CategoryPage();
         } else {
           return Authenticate();
         }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/user.dart';
 
@@ -11,7 +12,7 @@ class Room {
   String? topicContent;
   Message? lastMessage;
   String? groupID;
-  // String? groupName;
+  String? category;
   // MyUser? admin;
   List<MyUser>? members;
   List<Message>? chatMessages;
@@ -23,6 +24,7 @@ class Room {
     this.topicContent,
     this.lastMessage,
     this.groupID,
+    this.category,
     this.members,
     this.chatMessages,
   });
@@ -38,6 +40,7 @@ class Room {
     String? topicContent,
     Message? lastMessage,
     String? groupID,
+    String? category,
     List<MyUser>? members,
     List<Message>? chatMessages,
   }) {
@@ -47,6 +50,7 @@ class Room {
       topicContent: topicContent ?? this.topicContent,
       lastMessage: lastMessage ?? this.lastMessage,
       groupID: groupID ?? this.groupID,
+      category: category ?? this.category,
       members: members ?? this.members,
       chatMessages: chatMessages ?? this.chatMessages,
     );
@@ -59,6 +63,7 @@ class Room {
       'topicContent': topicContent,
       'lastMessage': lastMessage?.toMap(),
       'groupID': groupID,
+      'category': category,
       'members': members?.map((x) => x.toMap()).toList(),
       'chatMessages': chatMessages?.map((x) => x.toMap()).toList(),
     };
@@ -71,6 +76,7 @@ class Room {
       topicContent: map['topicContent'],
       lastMessage: Message.fromMap(map['lastMessage']),
       groupID: map['groupID'],
+      category: map['category'],
       members: List<MyUser>.from(map['members']?.map((x) => MyUser.fromMap(x))),
       chatMessages: List<Message>.from(
           map['chatMessages']?.map((x) => Message.fromMap(x))),
@@ -83,7 +89,7 @@ class Room {
 
   @override
   String toString() {
-    return 'Room(isPrivate: $isPrivate, topicTheme: $topicTheme, topicContent: $topicContent, lastMessage: $lastMessage, groupID: $groupID, members: $members, chatMessages: $chatMessages)';
+    return 'Room(isPrivate: $isPrivate, topicTheme: $topicTheme, topicContent: $topicContent, lastMessage: $lastMessage, groupID: $groupID, category: $category, members: $members, chatMessages: $chatMessages)';
   }
 
   @override
@@ -96,6 +102,7 @@ class Room {
         other.topicContent == topicContent &&
         other.lastMessage == lastMessage &&
         other.groupID == groupID &&
+        other.category == category &&
         listEquals(other.members, members) &&
         listEquals(other.chatMessages, chatMessages);
   }
@@ -107,6 +114,7 @@ class Room {
         topicContent.hashCode ^
         lastMessage.hashCode ^
         groupID.hashCode ^
+        category.hashCode ^
         members.hashCode ^
         chatMessages.hashCode;
   }

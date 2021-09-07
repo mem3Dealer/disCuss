@@ -26,6 +26,8 @@ class AuthCubit extends HydratedCubit<AuthState> {
     if (signInRes != null && signInRes.runtimeType == MyUser) {
       String? nickName = await fetchNickName(signInRes.uid.toString());
       int userColorCode = await fetchColor((signInRes.uid));
+
+      print('FILTER: $userColorCode');
       if (userColorCode == 0) {
         data.updateUserData(signInRes, nickName: nickName);
         userColorCode = await fetchColor((signInRes.uid));

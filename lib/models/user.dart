@@ -72,13 +72,24 @@ class MyUser {
     };
   }
 
-  Map<String, dynamic> senderToMap() {
+  Map<String, dynamic> memberToMap() {
     return {
       // 'isSelected': isSelected,
-      // 'isOwner': isOwner,
-      // 'isAdmin': isAdmin,
-      // 'canWrite': canWrite,
-      // 'isApporved': isApporved,
+      'isOwner': isOwner,
+      'isAdmin': isAdmin,
+      'canWrite': canWrite,
+      'isApporved': isApporved,
+      'nickName': nickName,
+      'uid': uid,
+      'name': name,
+      'email': email,
+      // 'password': password,
+      'colorCode': colorCode,
+    };
+  }
+
+  Map<String, dynamic> senderToMap() {
+    return {
       'colorCode': colorCode,
       'nickName': nickName,
       'uid': uid,
@@ -89,9 +100,19 @@ class MyUser {
 
   Map<String, dynamic> toHydrant() {
     return {
-      'uid': uid, 'name': name, 'email': email, 'nickname': nickName
+      'uid': uid, 'name': name, 'email': email, 'nickname': nickName,
+      "colorCode": colorCode
       //  'password': password
     };
+  }
+
+  factory MyUser.fromHydrant(Map<String, dynamic> map) {
+    return MyUser(
+        colorCode: map['colorCode'],
+        uid: map['uid'],
+        name: map['name'],
+        email: map['email'],
+        nickName: map['nickname']);
   }
 
   factory MyUser.fromMap(Map<String, dynamic> map) {
@@ -124,14 +145,6 @@ class MyUser {
         colorCode: map['colorCode']
         // password: map['password'],
         );
-  }
-
-  factory MyUser.fromHydrant(Map<String, dynamic> map) {
-    return MyUser(
-        uid: map['uid'],
-        name: map['name'],
-        email: map['email'],
-        nickName: map['nickname']);
   }
 
   String toJson() => json.encode(toMap());

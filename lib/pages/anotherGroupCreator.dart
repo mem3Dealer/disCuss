@@ -18,7 +18,8 @@ final verySpecialKey = GlobalKey<FormState>();
 
 class AnotherGroupCreator extends StatefulWidget {
   bool? isEditing;
-  AnotherGroupCreator(this.isEditing);
+  String? category;
+  AnotherGroupCreator(this.isEditing, {this.category});
   @override
   _AnotherGroupCreatorState createState() => _AnotherGroupCreatorState();
 }
@@ -50,11 +51,13 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
         _selectedUsers.add(authCurrentUser!.copyWith(
             isOwner: true, canWrite: true, isAdmin: true, isApporved: true));
     }
+    //final _categoryController = (items: items)
     final _editingTopicContent =
         TextEditingController(text: roomCubit.state.currentRoom?.topicContent);
     final _themeEditingController =
         TextEditingController(text: roomCubit.state.currentRoom?.topicTheme);
     // print("PRINT FROM BUILD: ${userCubit.state.selectedUsers}");
+    String? _category = widget.category;
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -77,7 +80,9 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
               elevation: 0,
               title: _isEditing
                   ? Text('Editing page')
-                  : Text('Start new discussion'),
+                  : _category == null
+                      ? Text('Create new discussion')
+                      : Text('New $_category discussion'),
             ),
             body: ClipRRect(
               borderRadius: BorderRadius.only(
@@ -112,6 +117,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                                 SizedBox(
                                   height: 15,
                                 ),
+                                _buildSelectCategory(_category),
                                 Divider(),
                                 Text(
                                   _isEditing
@@ -221,7 +227,8 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                             _isEditing,
                             _editingTopicContent,
                             _themeEditingController,
-                            context)
+                            context,
+                            _category)
                       ],
                     ),
                   )),
@@ -230,11 +237,40 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     );
   }
 
+  DropdownButtonFormField<String> _buildSelectCategory(String? category) {
+    // List<DropdownMenuItem<String>> dropDownCats = [];
+    // data.categories.forEach((element) {
+    //   dropDownCats.add(DropdownMenuItem(
+    //       value: element['label']!, child: Text(element['label']!)));
+    // });
+
+    return DropdownButtonFormField(
+      value: category,
+      items: data.categories.map<DropdownMenuItem<String>>((e) {
+        return DropdownMenuItem(
+          // onTap: () {},
+          value: e['option']!,
+          child: Text((e['label']!)),
+        );
+      }).toList(),
+      validator: (value) => value == null ? 'Please select category' : null,
+      onChanged: category == null
+          ? (value) async {
+              category = value!;
+              roomCubit.setCategory(value);
+              // print("I see new room cat: ${roomCubit.state.category}");
+            }
+          : null,
+      hint: Text('Select category'),
+    );
+  }
+
   Align _buildCreateOrSaveButton(
       bool _isEditing,
       TextEditingController _editingTopicContent,
       TextEditingController _themeEditingController,
-      BuildContext context) {
+      BuildContext context,
+      String? category) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -282,6 +318,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                             // authCubit.state.currentUser!,
                             userCubit.state.selectedUsers?.first,
                             context,
+                            roomCubit.state.category!,
                             _topicTheme.text,
                             _topicContent.text,
                             _isPrivate)

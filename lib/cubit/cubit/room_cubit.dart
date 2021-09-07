@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class RoomCubit extends Cubit<RoomState> {
   final userCubit = GetIt.I.get<UserCubit>();
   final data = GetIt.I.get<DataBaseService>();
   Room? backUpRoomState;
+  late QuerySnapshot collectionState;
   RoomCubit()
       : super(RoomState(
           version: 0,
@@ -30,18 +32,36 @@ class RoomCubit extends Cubit<RoomState> {
           // messagesOfThisChatRoom: []
         ));
 
-  Future<void> loadRooms() async {
-    List<Room>? thisFuckingList = [];
+  List<Room>? newRoomsList = [];
+  // late QueryDocumentSnapshot<Object?> lastRoom;
 
-    data.roomsStream(authCubit.state.currentUser!).listen((result) {
+  // fetchDocs(Stream<QuerySnapshot> collection) {
+  //   collection.listen((event) {
+  //     collectionState = event;
+  //     newRoomsList = event.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+  //   });
+  //   lastRoom = collectionState.docs[collectionState.docs.length - 1];
+  //   print('FETCHING DOCS TEST: ${lastRoom.data()}}');
+  // }
+
+  // то есть я пришёл к чему-то этому, что я кидал по ссылке ранее это оно? Да окей я продолжу пытаться его перетащить. Он там рпосто не со стримами работает
+  Future<void> getNextRooms() async {
+    // var lastVisibleRoom = state.listRooms![state.listRooms!.length - 1];
+  }
+
+  Future<void> loadRooms() async {
+    print('I see ${state.category}');
+    data.roomsStream(state.category).listen((result) {
+      // где мы были до этого?
+      // тоже, что и выше. Он тут слушает, а ты сделал фючу. ok?
       List<Room> listOfRooms =
           result.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
       // print('FIRST ONE: $listOfRooms');
-      thisFuckingList = listOfRooms;
+      newRoomsList = listOfRooms;
 
       // print('SECOND ONE: $listOfRooms');
-      emit(state.copyWith(
-          listRooms: thisFuckingList, version: state.version! + 1));
+      emit(
+          state.copyWith(listRooms: newRoomsList, version: state.version! + 1));
     });
     // print('PRINT OUT FROM LOADROOMS: ${state.listRooms}');
   }
@@ -114,33 +134,18 @@ class RoomCubit extends Cubit<RoomState> {
     // print('STATE ');
   }
 
-  // Future<void> setRoomAsCurrent(String groupId) async {
-  //   // print("THIS IS GROUPID: $groupId, ${state.listRooms?.length}");
-  //   Room? newCurrentRoom;
-  //   try {
-  //     // print(state.listRooms);
-  //     newCurrentRoom = state.listRooms?.firstWhere((element) {
-  //       return element.groupID == groupId;
-  //     });
-  //   } on Exception catch (e) {
-  //     print(e);
-  //   }
-  //   // print('PRINTOUT FROM SETTER: ${newCurrentRoom?.groupID}');
-  //   emit(state.copyWith(
-  //       currentRoom: newCurrentRoom, version: state.version! + 1));
-  // }
-
   Future<void> createRoom(
       List<MyUser>? selectedUsers,
       MyUser? creator,
       BuildContext context,
+      String category,
       String topicTheme,
       String topicContent,
       bool isPrivate) async {
     List<MyUser> _filtered = selectedUsers!.toSet().toList();
 
     await data.createGroup(
-        _filtered, creator, topicTheme, topicContent, isPrivate);
+        _filtered, creator, topicTheme, topicContent, isPrivate, category);
     emit(state.copyWith(
         currentRoom: Room(
             isPrivate: isPrivate,
@@ -151,7 +156,11 @@ class RoomCubit extends Cubit<RoomState> {
     userCubit.dismissSelected();
     // textFieldController.clear();
     // print('NEW ROOM DONE: ${state.currentRoom}');
-    Navigator.of(context).pop(); //TODO: ДОБАВИТЬ ПРЕХОД В НОВУЮ КОМНАТУ
+    Navigator.of(context).pop();
+  }
+
+  Future<void> setCategory(String category) async {
+    emit(state.copyWith(category: category)); // ok
   }
 
   Future<void> dissolveRoom(String groupId) async {
@@ -169,15 +178,9 @@ class RoomCubit extends Cubit<RoomState> {
   }
 
   bool markAsPrivate() {
-    // bool _isprivate = state.currentRoom!.isPrivate;
-    // print("PRINT FROM THIS MARKER: ${_isprivate}");
-    // _isprivate = !_isprivate;
-    // print("PRINT FROM THIS MARKER: ${_isprivate}");
     state.currentRoom!.isPrivate = !state.currentRoom!.isPrivate;
     emit(state.copyWith(version: state.version! + 1));
     return state.currentRoom!.isPrivate;
-    // print("PRINT FROM THIS MARKER: ${state.currentRoom!.isPrivate}");
-    // return state.currentRoom?.isPrivate;
   }
 
   MyUser? getoLocalUser({Room? thatRoom}) {
@@ -229,8 +232,8 @@ class RoomCubit extends Cubit<RoomState> {
       List<MyUser>? selectedUsers,
       bool? isPrivate}) async {
     selectedUsers?.forEach((element) {
-      state.currentRoom?.members?.add(element.copyWith(
-          canWrite: true, isApporved: true, isSelected: false));
+      state.currentRoom?.members
+          ?.add(element.copyWith(canWrite: true, isApporved: true));
     });
 
     List<MyUser>? updatedMembers = state.currentRoom?.members;
@@ -276,18 +279,6 @@ class RoomCubit extends Cubit<RoomState> {
     //     'THIS IS another PRINT: ${state.currentRoom?.topicContent}, ${state.currentRoom?.topicTheme}');
   }
 
-  // void addNewMember(MyUser? user) {
-  //   List<MyUser>? _members = state.currentRoom?.members;
-  //   _members?.add(
-  //       user!.copyWith(isSelected: true, canWrite: true, isApporved: true));
-
-  //   emit(
-  //     state.copyWith(
-  //         version: state.version! + 1,
-  //         currentRoom: state.currentRoom?.copyWith(members: _members)),
-  //   );
-  // }
-
   Future<void> saveRoomChanges() async {
     data.updateRoom(state.currentRoom!.groupID!, state.currentRoom!);
     emit(state.copyWith(
@@ -301,8 +292,6 @@ class RoomCubit extends Cubit<RoomState> {
   }
 
   void discardChanges() {
-    // print('DISCARD PRINT: $backUpRoomState');
-    // Room? _newRoom = state.currentRoom?.copyWith(members: backUpRoomState);
     emit(state.copyWith(
         currentRoom: backUpRoomState, version: state.version! + 1));
   }
