@@ -102,6 +102,37 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                             padding: EdgeInsets.all(16.0),
                             child: Column(
                               children: [
+                                _isEditing == false
+                                    ? _category != null
+                                        ? Text(
+                                            'You are creating new discussion in $_category category.',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w300))
+                                        : Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(left: 11.0),
+                                                child: Text(
+                                                  'Please, select category for future discussion below:',
+                                                  style:
+                                                      theme.textTheme.caption,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              _buildSelectCategory(_category),
+                                            ],
+                                          )
+                                    : SizedBox.shrink(),
+                                SizedBox(
+                                  height: 20,
+                                ),
                                 buildTopicTheme(
                                     _isEditing, _themeEditingController),
                                 SizedBox(
@@ -117,9 +148,6 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                                 SizedBox(
                                   height: 15,
                                 ),
-                                _isEditing == false
-                                    ? _buildSelectCategory(_category)
-                                    : SizedBox.shrink(),
                                 Divider(),
                                 Text(
                                   _isEditing
@@ -444,7 +472,9 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                   },
                 ),
                 labelText: 'Topic of discussion',
-                helperText: 'Press lock icon to make discussion private',
+                helperMaxLines: 3,
+                helperText:
+                    'Enter main idea of this discussion. Press lock icon to make discussion private',
                 floatingLabelBehavior: FloatingLabelBehavior.always));
   }
 }

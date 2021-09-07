@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/states/room_state.dart';
@@ -15,24 +16,42 @@ class DataBaseService {
   DataBaseService() {
     // initializeFB();
   }
-  List<Map<String, String>> categories = [
-    {'option': 'Sport', 'label': "Sport"},
-    {'option': 'Games', 'label': "Computer game"},
-    {'option': 'Books', 'label': "Literature"},
-    {'option': 'Music', 'label': "Rock`n`Roll"},
-    {'option': 'Science', 'label': "Physics"},
-    {'option': 'Art', 'label': "Renissans"},
-    {'option': 'Movies', 'label': "Star Wars"},
-    {'option': 'Activities', 'label': "Hike"},
-    {'option': 'Politics', 'label': "Politics"},
-    {'option': 'Ecology', 'label': "Global Warming"},
-    {'option': 'History', 'label': "Belgium Crysis"},
-    {'option': 'Fashion', 'label': "Clothes"},
-    {'option': 'Psychologies', 'label': "Psychologies"},
-    {'option': 'Stars', 'label': "Astrology"},
-    {'option': 'Pets', 'label': "Cats"},
-
-    /// TODO: add more here
+  List<Map<String, dynamic>> categories = [
+    {'option': 'Sport', 'label': "Sport", 'icon': Icons.sports_soccer_rounded},
+    {
+      'option': 'Games',
+      'label': "Video games",
+      'icon': Icons.sports_esports_rounded
+    },
+    {'option': 'Books', 'label': "Literature", 'icon': Icons.bookmarks_rounded},
+    {
+      'option': 'Music',
+      'label': "Rock`n`Roll",
+      'icon': Icons.music_note_rounded
+    },
+    {'option': 'Science', 'label': "Physics", 'icon': Icons.science_rounded},
+    {'option': 'Art', 'label': "Renissans", 'icon': Icons.palette_rounded},
+    {'option': 'Movies', 'label': "Star Wars", 'icon': Icons.theaters_rounded},
+    {'option': 'Activities', 'label': "Hike", 'icon': Icons.terrain_rounded},
+    {'option': 'Politics', 'label': "Politics", 'icon': Icons.festival_rounded},
+    {
+      'option': 'Ecology',
+      'label': "Global Warming",
+      'icon': Icons.fire_extinguisher_rounded
+    },
+    {
+      'option': 'History',
+      'label': "Belgium Crysis",
+      'icon': Icons.history_edu_rounded
+    },
+    {'option': 'Fashion', 'label': "Clothes", 'icon': Icons.local_mall_rounded},
+    {
+      'option': 'Psychologies',
+      'label': "Psychologies",
+      'icon': Icons.self_improvement_rounded
+    },
+    {'option': 'Stars', 'label': "Astrology", 'icon': Icons.stars_rounded},
+    {'option': 'Pets', 'label': "Cats", 'icon': Icons.pets_rounded},
   ];
   // final authCubit = GetIt.I.get<AuthCubit>();
   CollectionReference userCollection =
@@ -56,13 +75,17 @@ class DataBaseService {
         .snapshots();
   }
 
-  // Stream<QuerySnapshot> nextRoomsStream(DocumentSnapshot documentSnapshot) {
-  //   return FirebaseFirestore.instance
-  //       .collection('chatsCollection')
-  //       .orderBy('lastMessage.time', descending: true).startAfterDocument(documentSnapshot)
-  //       .limit(15)
-  //       .snapshots();
-  // }
+  Stream<QuerySnapshot> nextRoomsStream(
+      DocumentSnapshot lastRoom, String? category) {
+    return FirebaseFirestore.instance
+        .collection('chatsCollection')
+        .where('category', isEqualTo: category ?? '*')
+        .orderBy('topicTheme', descending: true)
+        .startAfterDocument(lastRoom)
+        .limit(5)
+        .snapshots();
+  }
+
   Future<void> createGroup(List<MyUser>? selectedUsers, MyUser? user,
       String topicTheme, String topicContent, bool isPrivate, String? category,
       {Message? lastMessage}
