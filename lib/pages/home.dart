@@ -69,8 +69,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     print(authCubit.state.currentUser);
 
-    // roomCubit.fetchDocs(
-    //     data.roomsStream()); // я просто тестил что он работает хотя бы так
+    // roomCubit.fetchDocs(data.roomsStream(roomCubit
+    //     .state.category)); // я просто тестил что он работает хотя бы так
     final ThemeData theme = Theme.of(context);
     return BlocBuilder<AuthCubit, AuthState>(
       bloc: authCubit,
@@ -169,15 +169,15 @@ class _HomePageState extends State<HomePage> {
 
                 // print(authCubit.state.currentUser);
                 // roomCubit.loadRooms();
-                // Navigator.of(context).push(MaterialPageRoute<void>(
-                //         builder: (BuildContext context) =>
-                //             // SliverPage()
-                //             AnotherGroupCreator(false,
-                //                 category: roomCubit.state.category)
-                //         // BackDropPage()
-                //         )
-                //     // )
-                //     );
+                Navigator.of(context).push(MaterialPageRoute<void>(
+                        builder: (BuildContext context) =>
+                            // SliverPage()
+                            AnotherGroupCreator(false,
+                                category: roomCubit.state.category)
+                        // BackDropPage()
+                        )
+                    // )
+                    );
               },
             ),
           ),

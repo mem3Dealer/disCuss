@@ -34,15 +34,16 @@ class RoomCubit extends Cubit<RoomState> {
 
   List<Room>? newRoomsList = [];
   // late QueryDocumentSnapshot<Object?> lastRoom;
+  late QueryDocumentSnapshot lastRoom;
 
-  // fetchDocs(Stream<QuerySnapshot> collection) {
-  //   collection.listen((event) {
-  //     collectionState = event;
-  //     newRoomsList = event.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
-  //   });
-  //   lastRoom = collectionState.docs[collectionState.docs.length - 1];
-  //   print('FETCHING DOCS TEST: ${lastRoom.data()}}');
-  // }
+  fetchDocs(Stream<QuerySnapshot> collection) async {
+    collection.listen((event) {
+      collectionState = event;
+      newRoomsList = event.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+    });
+    lastRoom = collectionState.docs[collectionState.docs.length - 1];
+    print('FETCHING DOCS TEST: ${lastRoom.id}}');
+  }
 
   // то есть я пришёл к чему-то этому, что я кидал по ссылке ранее это оно? Да окей я продолжу пытаться его перетащить. Он там рпосто не со стримами работает
   Future<void> getNextRooms() async {
