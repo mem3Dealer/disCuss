@@ -182,25 +182,25 @@ class DataBaseService {
     });
   }
 
-  Future<List<MyUser>?> getUsers({String? searchString}) async {
-    // print('Before get');.
+  // Future<List<MyUser>?> getUsers({String? searchString}) async {
+  //   // print('Before get');.
 
-    QuerySnapshot? serverUsers;
-    try {
-      serverUsers = await userCollection.get();
-      // print("USERS: $serverUsers");
-    } catch (e) {
-      print("ERROR: ${e.toString()}");
-    }
-    return serverUsers?.docs
-        .map<MyUser>((e) => MyUser.fromSnapshot(e))
-        .toList();
-  }
+  //   QuerySnapshot? serverUsers;
+  //   try {
+  //     serverUsers = await userCollection.get();
+  //     // print("USERS: $serverUsers");
+  //   } catch (e) {
+  //     print("ERROR: ${e.toString()}");
+  //   }
+  //   return serverUsers?.docs
+  //       .map<MyUser>((e) => MyUser.fromSnapshot(e))
+  //       .toList();
+  // }
 
-  Future<List<Room>?> getRooms() async {
-    var serverRooms = await dummyChats.get();
-    return serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
-  }
+  // Future<List<Room>?> getRooms() async {
+  //   var serverRooms = await dummyChats.get();
+  //   return serverRooms.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+  // }
 
   Future<void> kickUser(String groupID, List<Map<String, dynamic>> list) async {
     DocumentReference roomDocRef =

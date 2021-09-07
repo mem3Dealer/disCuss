@@ -18,11 +18,11 @@ class UserCubit extends Cubit<UserListState> {
           selectedUsers: [],
         ));
 
-  Future<void> getUsersList() async {
-    List<MyUser>? _usersList = await data.getUsers();
-    // print(_usersList);
-    emit(state.copyWith(version: state.version! + 1, listUsers: _usersList));
-  }
+  // Future<void> getUsersList() async {
+  //   List<MyUser>? _usersList = await data.getUsers();
+  //   // print(_usersList);
+  //   emit(state.copyWith(version: state.version! + 1, listUsers: _usersList));
+  // }
 
   // bool checkForUniqueNickName(String val) {
   //   userExists =

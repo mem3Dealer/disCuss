@@ -117,7 +117,9 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                                 SizedBox(
                                   height: 15,
                                 ),
-                                _buildSelectCategory(_category),
+                                _isEditing == false
+                                    ? _buildSelectCategory(_category)
+                                    : SizedBox.shrink(),
                                 Divider(),
                                 Text(
                                   _isEditing
