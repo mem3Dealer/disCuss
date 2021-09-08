@@ -1,11 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
-import 'package:my_chat_app/cubit/states/room_state.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
@@ -18,27 +14,49 @@ class DataBaseService {
   }
   List<Map<String, dynamic>> categories = [
     {'option': 'Sport', 'label': "Sport", 'icon': Icons.sports_soccer_rounded},
-    {'option': 'Games', 'label': "Video games", 'icon': Icons.sports_esports_rounded},
+    {
+      'option': 'Games',
+      'label': "Video games",
+      'icon': Icons.sports_esports_rounded
+    },
     {'option': 'Books', 'label': "Literature", 'icon': Icons.bookmarks_rounded},
-    {'option': 'Music', 'label': "Rock`n`Roll", 'icon': Icons.music_note_rounded},
+    {
+      'option': 'Music',
+      'label': "Rock`n`Roll",
+      'icon': Icons.music_note_rounded
+    },
     {'option': 'Science', 'label': "Physics", 'icon': Icons.science_rounded},
     {'option': 'Art', 'label': "Renissans", 'icon': Icons.palette_rounded},
     {'option': 'Movies', 'label': "Star Wars", 'icon': Icons.theaters_rounded},
     {'option': 'Activities', 'label': "Hike", 'icon': Icons.terrain_rounded},
     {'option': 'Politics', 'label': "Politics", 'icon': Icons.festival_rounded},
-    {'option': 'Ecology', 'label': "Global Warming", 'icon': Icons.fire_extinguisher_rounded},
-    {'option': 'History', 'label': "Belgium Crysis", 'icon': Icons.history_edu_rounded},
+    {
+      'option': 'Ecology',
+      'label': "Global Warming",
+      'icon': Icons.fire_extinguisher_rounded
+    },
+    {
+      'option': 'History',
+      'label': "Belgium Crysis",
+      'icon': Icons.history_edu_rounded
+    },
     {'option': 'Fashion', 'label': "Clothes", 'icon': Icons.local_mall_rounded},
-    {'option': 'Psychologies', 'label': "Psychologies", 'icon': Icons.self_improvement_rounded},
+    {
+      'option': 'Psychologies',
+      'label': "Psychologies",
+      'icon': Icons.self_improvement_rounded
+    },
     {'option': 'Stars', 'label': "Astrology", 'icon': Icons.stars_rounded},
     {'option': 'Pets', 'label': "Cats", 'icon': Icons.pets_rounded},
   ];
   // final authCubit = GetIt.I.get<AuthCubit>();
-  CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
+  CollectionReference userCollection =
+      FirebaseFirestore.instance.collection('users');
 
-  CollectionReference dummyChats = FirebaseFirestore.instance.collection('chatsCollection');
+  CollectionReference dummyChats =
+      FirebaseFirestore.instance.collection('chatsCollection');
 
-  Stream<QuerySnapshot> roomsStream(String? category) {
+  Future<QuerySnapshot> getRooms(String? category) async {
     print('I see ${category}');
     //текущая комната у меня определяется после выбора тайла чата. То есть сейчас текущей нет. мне помнится были огромные проблемы подгружать чтото раньше датабейса
     return FirebaseFirestore.instance
@@ -46,23 +64,28 @@ class DataBaseService {
         .where('category', isEqualTo: category ?? '*')
 
         ///кажется так, попробуем, в крайнем случае сделать два мы можем сделать 2 запроса есть есть катрегория и если нет
-        .orderBy('topicTheme', descending: true) //TODO не забыть вернуть к сортировке по последнему сообщению
+        .orderBy('lastMessage.time', descending: true)
         .limit(15)
-        .snapshots();
+        .get();
   }
 
-  Stream<QuerySnapshot> nextRoomsStream(DocumentSnapshot lastRoom, String? category) {
+  // по хорошему, ты делал это когда у тебя был бесконечный поток
+  // я бы для комнат оказалсяз от стримов. Вообще? или только для подтягивания? Вообще. Когда ты попадаешь на страницу категории, грузишь первые 15 и ничего больше не ждешь, когда юзверь крутит грузишь следующие и все. Хорошо, но что тогда, если не стрим?
+  Future<QuerySnapshot> nextRooms(
+      DocumentSnapshot lastRoom, String? category) async {
     return FirebaseFirestore.instance
         .collection('chatsCollection')
         .where('category', isEqualTo: category ?? '*')
-        .orderBy('topicTheme', descending: true)
+        .orderBy('lastMessage.time',
+            descending:
+                true) // может быть по времени публикации?у меня было по времени отправки последнго сообщения. да просто так нужно было. В общем могу вернуть к сортировке по ообщению. Да
         .startAfterDocument(lastRoom)
-        .limit(5)
-        .snapshots();
+        .limit(15)
+        .get();
   }
 
-  Future<void> createGroup(List<MyUser>? selectedUsers, MyUser? user, String topicTheme, String topicContent,
-      bool isPrivate, String? category,
+  Future<void> createGroup(List<MyUser>? selectedUsers, MyUser? user,
+      String topicTheme, String topicContent, bool isPrivate, String? category,
       {Message? lastMessage}
       // String userId,
       ) async {
@@ -73,7 +96,11 @@ class DataBaseService {
     });
     // Room newRoom;
     DocumentReference roomDocRef = await dummyChats.add({
-      'lastMessage': {'recentMessage': '', 'sender': user?.senderToMap(), 'time': DateTime.now()},
+      'lastMessage': {
+        'recentMessage': '',
+        'sender': user?.senderToMap(),
+        'time': DateTime.now()
+      },
       'category': category,
       'isPrivate': isPrivate,
       'topicTheme': topicTheme,
@@ -131,8 +158,10 @@ class DataBaseService {
       .orderBy('time', descending: true)
       .snapshots();
 
-  Future<void>? sendMessage(String messageContent, MyUser sender, String groupID) {
-    CollectionReference testChat = dummyChats.doc(groupID).collection('messages');
+  Future<void>? sendMessage(
+      String messageContent, MyUser sender, String groupID) {
+    CollectionReference testChat =
+        dummyChats.doc(groupID).collection('messages');
     // String? userName = FirebaseAuth.instance.currentUser?.displayName;
     // Stream<QuerySnapshot> _userStream = users.snapshots();
     // try {
@@ -146,7 +175,8 @@ class DataBaseService {
     };
     print(message);
     if (messageContent.isNotEmpty) {
-      testChat.add(message).then((doc) => testChat.doc(doc.id).get().then((value) => print(value.data())));
+      testChat.add(message).then((doc) =>
+          testChat.doc(doc.id).get().then((value) => print(value.data())));
 
       dummyChats.doc(groupID).update({'lastMessage': message});
     }
@@ -157,8 +187,8 @@ class DataBaseService {
   }
 
   Future<void>? updateUserData(MyUser user, {String? nickName}) async {
-    Color color = Color.fromARGB(
-        255, Random().nextInt(10) * 10 + 100, Random().nextInt(10) * 10 + 100, Random().nextInt(10) * 10 + 100);
+    Color color = Color.fromARGB(255, Random().nextInt(10) * 10 + 100,
+        Random().nextInt(10) * 10 + 100, Random().nextInt(10) * 10 + 100);
     int colorCode = color.value;
     return await userCollection.doc(user.uid).set({
       'name': user.name,
@@ -194,7 +224,8 @@ class DataBaseService {
   // }
 
   Future<void> kickUser(String groupID, List<Map<String, dynamic>> list) async {
-    DocumentReference roomDocRef = FirebaseFirestore.instance.collection('chatsCollection').doc(groupID);
+    DocumentReference roomDocRef =
+        FirebaseFirestore.instance.collection('chatsCollection').doc(groupID);
 
     roomDocRef.update({"members": FieldValue.arrayRemove(list)});
     // print('we got here');
@@ -224,7 +255,11 @@ class DataBaseService {
   }
 
   Future<void> editRoom(
-      String groupID, String? topicTheme, String? topicContent, List<MyUser>? selectedUsers, bool? isPrivate) async {
+      String groupID,
+      String? topicTheme,
+      String? topicContent,
+      List<MyUser>? selectedUsers,
+      bool? isPrivate) async {
     List? newMembers = [];
 
     selectedUsers?.forEach((element) {

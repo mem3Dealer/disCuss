@@ -33,43 +33,53 @@ class RoomCubit extends Cubit<RoomState> {
         ));
 
   List<Room>? newRoomsList = [];
-  // late QueryDocumentSnapshot<Object?> lastRoom;
-  // late QueryDocumentSnapshot lastRoom;
 
-  // fetchDocs(Stream<QuerySnapshot> collection) async {
-  //   collection.listen((event) {
-  //     collectionState = event;
-  //     newRoomsList = event.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
-  //   });
-  //   lastRoom = collectionState.docs[collectionState.docs.length - 1];
-  //   print('FETCHING DOCS TEST: ${lastRoom.id}}');
-  // }
   late QueryDocumentSnapshot lastRoom;
-
-  // то есть я пришёл к чему-то этому, что я кидал по ссылке ранее это оно? Да окей я продолжу пытаться его перетащить. Он там рпосто не со стримами работает
   Future<void> pullNewRooms() async {
-    // data.roomsStream(state.category).listen((result) {
-    //   lastRoom = result.docs[result.docs.length - 1];
+    try {
+      print('THIS IS LAST ROOM: ${lastRoom.id}');
+      // data.nextRooms(lastRoom, state.category).listen((event) {
+      await data.nextRooms(lastRoom, state.category).then((request) {
+        if (request.docs.isNotEmpty) {
+          List<QueryDocumentSnapshot<Object?>>? _dbRooms = request.docs;
+          lastRoom = _dbRooms.last; //try catch? здрасьте
+          List<Room> pulledRooms =
+              _dbRooms.map<Room>((e) => Room.fromSnapshot(e)).toList();
+          // event.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+          newRoomsList?.addAll(pulledRooms);
+          // доделаешь?
+          // }); ты про нижнего? его я думаю да, по аналогии делай я посмотрю. ну в общем это не работает Рабтает
 
-    print('THIS IS LAST ROOM: ${lastRoom.id}');
-    data.nextRoomsStream(lastRoom, state.category).listen((event) {
-      List<Room> pulledRooms =
-          event.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
-      newRoomsList?.addAll(pulledRooms);
-      lastRoom = event.docs[event.docs.length - 1];
-    });
-    emit(state.copyWith(listRooms: newRoomsList, version: state.version! + 1));
+          emit(state.copyWith(
+              listRooms: newRoomsList, version: state.version! + 1));
+        }
 
+        /// Вот тут можно сделать вспывайку дескать: дальше ничего нет :) Ну не знаю. а если будет всего 10 чатов и он будет каджый раз его выкидывать? Мне кажется это лишним уже немного. Ок
+        /// потом
+        /// потом так потом
+        /// пока
+        /// спасибо!
+      });
+    } catch (e, trace) {
+      /// do не оч представляю что ду то
+      print("ERROR IS: $e + $trace");
+    }
+    //она в целом работет, но в какой то момент начаинет подгружать все те же комнаты.В общем через раз и с костылями( которых нет
+    //спулил! все мои иконки пошли в тар тарары. хм
     // var lastVisibleRoom = state.listRooms![state.listRooms!.length - 1];
   }
 
   Future<void> loadRooms() async {
     print('I see ${state.category}');
-    data.roomsStream(state.category).listen((result) {
-      lastRoom = result.docs[result.docs.length - 1];
+    // data.roomsStream(state.category).listen((result) {
+    // lastRoom = result.docs[result.docs.length - 1];
+    await data.getRooms(state.category).then((result) {
+      List<QueryDocumentSnapshot<Object?>> _dbRooms = result.docs;
+      lastRoom = _dbRooms.last; //yes
       List<Room> listOfRooms =
-          result.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+          _dbRooms.map<Room>((e) => Room.fromSnapshot(e)).toList();
       newRoomsList = listOfRooms;
+      // });  ну вроде бы
       emit(
           state.copyWith(listRooms: newRoomsList, version: state.version! + 1));
     });

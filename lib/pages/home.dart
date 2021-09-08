@@ -1,10 +1,7 @@
-import 'dart:math';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:my_chat_app/cubit/backdrop_test.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/states/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
@@ -18,8 +15,7 @@ import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/services/database.dart';
 import 'package:my_chat_app/services/wrapper.dart';
 import 'package:my_chat_app/pages/anotherGroupCreator.dart';
-
-import '../sliver_test.dart';
+import 'package:my_chat_app/shared/myScaffold.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -40,7 +36,6 @@ class _HomePageState extends State<HomePage> {
   final roomCubit = GetIt.I.get<RoomCubit>();
   final formKey = GlobalKey<FormState>();
   final scrollController = ScrollController();
-  bool pullNewRooms = false;
 
   // final _auth = GetIt.I.get<FirebaseAuth>();
   // final dialog = GetIt.I.get<AnotherGroupCreator>();
@@ -48,10 +43,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
-      // if (userCubit.state.listUsers == null) {
-      //   await userCubit.getUsersList();
-      // }
-      //тут он хочет фючу как и было у меня
       scrollController.addListener(() {
         if (scrollController.position.atEdge) {
           if (scrollController.position.pixels == 0) {
@@ -76,118 +67,71 @@ class _HomePageState extends State<HomePage> {
     //     .state.category)); // я просто тестил что он работает хотя бы так
     final ThemeData theme = Theme.of(context);
     return BlocBuilder<AuthCubit, AuthState>(
-      bloc: authCubit,
-      builder: (context, state) {
-        // print('this users code: ${state.currentUser?.colorCode}');
-        return Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-                scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
-                repeat: ImageRepeat.repeat,
-                // fit: BoxFit.cover,
-                image: theme.brightness == Brightness.dark
-                    ? ExactAssetImage('assets/dark_back.png')
-                    : ExactAssetImage('assets/light_back.jpg')),
-          ),
-          child: BackdropFilter(
-            filter: theme.brightness == Brightness.dark
-                ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
-                : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              appBar: AppBar(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: IconButton(
-                        // style: ButtonStyle(
-                        //     backgroundColor: MaterialStateProperty.all<Color>(
-                        //         Colors.amber.shade700)),
-                        icon: Icon(Icons.exit_to_app),
-                        onPressed: () async {
-                          await authCubit.logOut();
-                          Navigator.of(context).push(MaterialPageRoute<void>(
-                            builder: (BuildContext context) => Wrapper(),
-                          ));
-                        },
-                        // label: Text('Log out'),
-                        /// где загрузка на этой странце]\
-                      ),
-                    )
-                  ],
-                  title: Text("${roomCubit.state.category} rooms")),
-              body: Center(
-                  child: BlocBuilder<RoomCubit, RoomState>(
-                      bloc: roomCubit,
-                      builder: (context, state) {
-                        if (state.listRooms == null) {
-                          return ClipRRect(
-                            borderRadius:
-                                BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
-                            child: Center(
-                              child: Text('There is a problem, no cap'),
-                            ),
-                          );
-                        } else if (state.listRooms!.length > 0) {
-                          return ClipRRect(
-                              borderRadius:
-                                  BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
-                              child: _buildRooms(state, theme, scrollController));
-                        }
-                        return CircularProgressIndicator();
-                      })),
-              // floatingActionButton:
-              //     // scrollController.position.atEdge.pixels == 0?
-              //     FloatingActionButton(
-              //   child: Icon(Icons.add),
-              //   onPressed: () {
-              //     // List cats = [];
-              //     // data.categories.forEach((element) {
-              //     //   cats.add(element['option']);
-              //     // });
-              //     // // print(cats);
-              //     // for (var i = 0; i < 200; i++) {
-              //     //   String _cat = cats[Random().nextInt(cats.length)];
-              //     //   data.createGroup([
-              //     //     authCubit.state.currentUser!.copyWith(
-              //     //       isAdmin: true,
-              //     //       canWrite: true,
-              //     //       isOwner: true,
-              //     //       isApporved: true,
-              //     //     )
-              //     //   ],
-              //     //       authCubit.state.currentUser!,
-              //     //       '$_cat room number $i',
-              //     //       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-              //     //       false,
-              //     //       _cat);
-              //     // }
-
-              //     // print(authCubit.state.currentUser);
-              //     // roomCubit.loadRooms();
-              //     Navigator.of(context).push(MaterialPageRoute<void>(
-              //             builder: (BuildContext context) =>
-              //                 // SliverPage()
-              //                 AnotherGroupCreator(false,
-              //                     category: roomCubit.state.category)
-              //             // BackDropPage()
-              //             )
-              //         // )
-              //         );
-              //   },
-              // ),
-            ),
-          ),
-        );
-      },
-    );
+        bloc: authCubit,
+        builder: (context, state) {
+          return MyScaffold(
+            Text('${roomCubit.state.category} rooms'),
+            Center(
+                child: BlocBuilder<RoomCubit, RoomState>(
+                    bloc: roomCubit,
+                    builder: (context, state) {
+                      if (state.listRooms == null) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(25.0),
+                              topRight: Radius.circular(25.0)),
+                          child: Center(
+                            child: Text('There is a problem, no cap'),
+                          ),
+                        );
+                      } else if (state.listRooms!.length > 0) {
+                        return ClipRRect(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(25.0),
+                                topRight: Radius.circular(25.0)),
+                            child: _buildRooms(state, theme, scrollController));
+                      }
+                      return CircularProgressIndicator();
+                    })),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: IconButton(
+                  // style: ButtonStyle(
+                  //     backgroundColor: MaterialStateProperty.all<Color>(
+                  //         Colors.amber.shade700)),
+                  icon: Icon(Icons.exit_to_app),
+                  onPressed: () async {
+                    await authCubit.logOut();
+                    Navigator.of(context).push(MaterialPageRoute<void>(
+                      builder: (BuildContext context) => Wrapper(),
+                    ));
+                  },
+                  // label: Text('Log out'),
+                  /// где загрузка на этой странце]\
+                ),
+              )
+            ],
+            floatingActionButton: FloatingActionButton(
+                child: Icon(Icons.add),
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute<void>(
+                      builder: (BuildContext context) =>
+                          // SliverPage()
+                          AnotherGroupCreator(false,
+                              category: roomCubit.state.category)
+                      // BackDropPage()
+                      ));
+                }),
+          );
+        });
   }
 
-  Widget _buildRooms(RoomState state, ThemeData theme, ScrollController scrollController) {
+  Widget _buildRooms(
+      RoomState state, ThemeData theme, ScrollController scrollController) {
     return Container(
-      decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
+      decoration:
+          BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
       child: ListView.builder(
           controller: scrollController,
           itemCount: state.listRooms?.length,
@@ -198,17 +142,18 @@ class _HomePageState extends State<HomePage> {
             return Column(
               children: [
                 ListTile(
-                  trailing: Text("$index"),
-                  //  _list![index].isPrivate
-                  //     ? Icon(Icons.lock_outline)
-                  //     : SizedBox.shrink(),
+                  trailing: _list![index].isPrivate
+                      ? Icon(Icons.lock_outline)
+                      : SizedBox.shrink(),
                   title: Text(
-                    "${_list![index].topicTheme}",
+                    "${_list[index].topicTheme}",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: _list[index].isPrivate
-                      ? _list[index].members?.contains(roomCubit.getoLocalUser(thatRoom: _list[index])) == true
+                      ? _list[index].members?.contains(roomCubit.getoLocalUser(
+                                  thatRoom: _list[index])) ==
+                              true
                           ? Text(
                               "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
                               maxLines: 1,
@@ -222,14 +167,15 @@ class _HomePageState extends State<HomePage> {
                         ),
                   onTap: () async {
                     // roomCubit.setRoomAsCurrent(_list[index].groupID!);
-                    await roomCubit
-                        .loadChat(_list[index].groupID!)
-                        .then((value) => Navigator.of(context).push(MaterialPageRoute<void>(
-                                  builder: (BuildContext context) => ChatPage(_list[index].groupID!),
-                                ))
-                            // print(
-                            //     'THIS IS THAT: ${state.currentRoom?.chatMessages}')
-                            );
+                    await roomCubit.loadChat(_list[index].groupID!).then(
+                        (value) =>
+                            Navigator.of(context).push(MaterialPageRoute<void>(
+                              builder: (BuildContext context) =>
+                                  ChatPage(_list[index].groupID!),
+                            ))
+                        // print(
+                        //     'THIS IS THAT: ${state.currentRoom?.chatMessages}')
+                        );
                   },
                 ),
                 Divider()

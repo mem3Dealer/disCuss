@@ -15,6 +15,7 @@ import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
 import 'package:my_chat_app/services/database.dart';
+import 'package:my_chat_app/shared/myScaffold.dart';
 import 'package:my_chat_app/widgets/messageTile.dart';
 import 'package:my_chat_app/pages/room_members_page.dart';
 // import '../sliver_test.dart';
@@ -27,7 +28,8 @@ class ChatPage extends StatefulWidget {
   _ChatPageState createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin {
+class _ChatPageState extends State<ChatPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   CollectionReference users = FirebaseFirestore.instance.collection('users');
   CollectionReference chat = FirebaseFirestore.instance.collection('chat');
@@ -44,7 +46,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
 
   @override
   void initState() {
-    _controller = AnimationController(duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
       bool userIsbanned = (currentMemberofThisRoom?.uid != null &&
@@ -52,7 +55,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
           currentMemberofThisRoom?.isApporved == false);
       final entrySnackBar = SnackBar(
           duration: Duration(seconds: 3),
-          content: Text('Well, ${authCubit.state.currentUser?.name}, you can`t write here. Go ask for perm.',
+          content: Text(
+              'Well, ${authCubit.state.currentUser?.name}, you can`t write here. Go ask for perm.',
               style: TextStyle(
                 fontSize: 17,
               )));
@@ -62,14 +66,16 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
               style: TextStyle(
                 fontSize: 17,
               )));
-      if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate == true) if (currentMemberofThisRoom?.canWrite ==
-                  false &&
+      if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate ==
+          true) if (currentMemberofThisRoom?.canWrite == false &&
               currentMemberofThisRoom?.isApporved == false ||
           currentMemberofThisRoom == null) {
         ScaffoldMessenger.of(context).showSnackBar(entrySnackBar);
       }
       if (!userIsbanned) if (roomCubit.state.currentRoom?.isPrivate ==
-          false) if (currentMemberofThisRoom?.canWrite == false || currentMemberofThisRoom?.isApporved == false)
+          false) if (currentMemberofThisRoom?.canWrite ==
+              false ||
+          currentMemberofThisRoom?.isApporved == false)
         ScaffoldMessenger.of(context).showSnackBar(entryPublicRoomSnackBar);
 
       // print(roomCubit.state.messagesOfThisChatRoom);
@@ -84,7 +90,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
 
   bool get _isPanelVisible {
     final AnimationStatus status = _controller.status;
-    return status == AnimationStatus.completed || status == AnimationStatus.forward;
+    return status == AnimationStatus.completed ||
+        status == AnimationStatus.forward;
   }
 
   static const _PANEL_HEADER_HEIGHT = 77.0;
@@ -138,123 +145,183 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
         final ThemeData theme = Theme.of(context);
         // BoxConstraints? constraints;
 
-        Color color =
-            Color.fromARGB(255, Random().nextInt(100) + 100, Random().nextInt(100) + 100, Random().nextInt(100) + 100);
+        Color color = Color.fromARGB(255, Random().nextInt(100) + 100,
+            Random().nextInt(100) + 100, Random().nextInt(100) + 100);
         int hexCode = color.value;
-        // print('USERS COLOR IS: ${hexCode}');
-        // var colorCode = color.toString().substring(6, 16);
-        // var colorCodeAlaInt = int.parse(colorCode);
-        // print('Color is: ${colorCodeAlaInt}');
-        // return Scaffold(
-        //   // backgroundColor: co  lor,
-        //   body: Center(
-        //     child: Column(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       children: [
-        //         Container(
-        //             width: 300,
-        //             height: 150,
-        //             color: color,
-        //             child: Text(color.toString().substring(6, 16))),
-        //         SizedBox(height: 20),
-        //         Container(
-        //           width: 300,
-        //           height: 150,
-        //           color: Color(hexCode),
-        //           child: Center(
-        //             child: Text('This color is: ${Color(hexCode)}'),
-        //           ),
-        //         )
-        //       ],
-        //     ),
-        //   ),
-        // );
-        return Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                  scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
-                  repeat: ImageRepeat.repeat,
-                  // fit: BoxFit.cover,
-                  image: theme.brightness == Brightness.dark
-                      ? ExactAssetImage('assets/dark_back.png')
-                      : ExactAssetImage('assets/light_back.jpg')),
-            ),
-            child: BackdropFilter(
-              filter: theme.brightness == Brightness.dark
-                  ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
-                  : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-              child: Scaffold(
-                  backgroundColor: Colors.transparent,
-                  appBar: AppBar(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    title: Text(
-                      title,
-                      style: Theme.of(context).textTheme.headline1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    actions: [
-                      Padding(
-                        padding: EdgeInsets.only(right: 10.0),
-                        child: Row(
-                          children: [
-                            if (!userIsbanned)
-                              AnimatedIconButton(
-                                  splashRadius: 5,
-                                  onPressed: () {
-                                    _controller.fling(velocity: _isPanelVisible ? -1.0 : 1.0);
-                                    // print(_controller.velocity);
-                                  },
-                                  icons: [
-                                    AnimatedIconItem(
-                                        icon: Icon(
-                                      Icons.arrow_downward_sharp,
-                                      size: 24,
-                                      color: theme.brightness == Brightness.light ? Colors.black : Colors.white,
-                                    )),
-                                    AnimatedIconItem(
-                                        icon: Icon(
-                                      Icons.arrow_upward_sharp,
-                                      color: theme.brightness == Brightness.light ? Colors.black : Colors.white,
-                                      size: 24,
-                                    )),
-                                  ]),
-                            if (currentMemberofThisRoom?.isApporved == false &&
-                                currentMemberofThisRoom?.canWrite == false)
-                              IconButton(
-                                  onPressed: () {
-                                    roomCubit.sentRequest(
-                                      authCubit.state.currentUser,
-                                    );
-                                    currentRoom!.isPrivate
-                                        ? ScaffoldMessenger.of(context).showSnackBar(requestSentSnackBar)
-                                        : ScaffoldMessenger.of(context).showSnackBar(youHaveJoinedSnackBar);
-                                  },
-                                  icon: Icon(Icons.add)),
-                            if (currentMemberofThisRoom?.isApporved == true &&
-                                currentMemberofThisRoom?.canWrite == true)
-                              IconButton(
-                                  padding: EdgeInsets.zero,
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute<void>(
-                                        builder: (BuildContext context) => RoomMembersPage(widget.groupID),
-                                      ),
-                                    );
-                                  },
-                                  icon: Icon(Icons.people))
-                          ],
+        return
+            // MyScaffold(
+            //   Text(
+            //     title,
+            //     style: Theme.of(context).textTheme.headline1,
+            //     overflow: TextOverflow.ellipsis,
+            //   ),
+            //   LayoutBuilder(
+            //     builder: _buildChatBody,
+            //   ),
+            //   actions: [
+            //     Padding(
+            //       padding: EdgeInsets.only(right: 10.0),
+            //       child: Row(
+            //         children: [
+            //           if (!userIsbanned)
+            //             AnimatedIconButton(
+            //                 splashRadius: 5,
+            //                 onPressed: () {
+            //                   _controller.fling(
+            //                       velocity: _isPanelVisible ? -1.0 : 1.0);
+            //                   // print(_controller.velocity);
+            //                 },
+            //                 icons: [
+            //                   AnimatedIconItem(
+            //                       icon: Icon(
+            //                     Icons.arrow_downward_sharp,
+            //                     size: 24,
+            //                     color: theme.brightness == Brightness.light
+            //                         ? Colors.black
+            //                         : Colors.white,
+            //                   )),
+            //                   AnimatedIconItem(
+            //                       icon: Icon(
+            //                     Icons.arrow_upward_sharp,
+            //                     color: theme.brightness == Brightness.light
+            //                         ? Colors.black
+            //                         : Colors.white,
+            //                     size: 24,
+            //                   )),
+            //                 ]),
+            //           if (currentMemberofThisRoom?.isApporved == false &&
+            //               currentMemberofThisRoom?.canWrite == false)
+            //             IconButton(
+            //                 onPressed: () {
+            //                   roomCubit.sentRequest(
+            //                     authCubit.state.currentUser,
+            //                   );
+            //                   currentRoom!.isPrivate
+            //                       ? ScaffoldMessenger.of(context)
+            //                           .showSnackBar(requestSentSnackBar)
+            //                       : ScaffoldMessenger.of(context)
+            //                           .showSnackBar(youHaveJoinedSnackBar);
+            //                 },
+            //                 icon: Icon(Icons.add)),
+            //           if (currentMemberofThisRoom?.isApporved == true &&
+            //               currentMemberofThisRoom?.canWrite == true)
+            //             IconButton(
+            //                 padding: EdgeInsets.zero,
+            //                 onPressed: () {
+            //                   Navigator.of(context).push(
+            //                     MaterialPageRoute<void>(
+            //                       builder: (BuildContext context) =>
+            //                           RoomMembersPage(widget.groupID),
+            //                     ),
+            //                   );
+            //                 },
+            //                 icon: Icon(Icons.people))
+            //         ],
+            //       ),
+            //     )
+            //   ],
+            // );
+            Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                      scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
+                      repeat: ImageRepeat.repeat,
+                      // fit: BoxFit.cover,
+                      image: theme.brightness == Brightness.dark
+                          ? ExactAssetImage('assets/dark_back.png')
+                          : ExactAssetImage('assets/light_back.jpg')),
+                ),
+                child: BackdropFilter(
+                    filter: theme.brightness == Brightness.dark
+                        ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
+                        : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+                    child: Scaffold(
+                      backgroundColor: Colors.transparent,
+                      appBar: AppBar(
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        title: Text(
+                          title,
+                          style: Theme.of(context).textTheme.headline1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      )
-                    ],
-                  ),
-                  body: LayoutBuilder(
-                    builder: _buildChatBody,
-                  )
-                  // _buildChatBody(userIsbanned, currentRoom,
-                  //     currentMemberofThisRoom, _localChat)
-                  ),
-            ));
+                        actions: [
+                          Padding(
+                            padding: EdgeInsets.only(right: 10.0),
+                            child: Row(
+                              children: [
+                                if (!userIsbanned)
+                                  AnimatedIconButton(
+                                      splashRadius: 5,
+                                      onPressed: () {
+                                        _controller.fling(
+                                            velocity:
+                                                _isPanelVisible ? -1.0 : 1.0);
+                                        // print(_controller.velocity);
+                                      },
+                                      icons: [
+                                        AnimatedIconItem(
+                                            icon: Icon(
+                                          Icons.arrow_downward_sharp,
+                                          size: 24,
+                                          color: theme.brightness ==
+                                                  Brightness.light
+                                              ? Colors.black
+                                              : Colors.white,
+                                        )),
+                                        AnimatedIconItem(
+                                            icon: Icon(
+                                          Icons.arrow_upward_sharp,
+                                          color: theme.brightness ==
+                                                  Brightness.light
+                                              ? Colors.black
+                                              : Colors.white,
+                                          size: 24,
+                                        )),
+                                      ]),
+                                if (currentMemberofThisRoom?.isApporved ==
+                                        false &&
+                                    currentMemberofThisRoom?.canWrite == false)
+                                  IconButton(
+                                      onPressed: () {
+                                        roomCubit.sentRequest(
+                                          authCubit.state.currentUser,
+                                        );
+                                        currentRoom!.isPrivate
+                                            ? ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                                    requestSentSnackBar)
+                                            : ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                                    youHaveJoinedSnackBar);
+                                      },
+                                      icon: Icon(Icons.add)),
+                                if (currentMemberofThisRoom?.isApporved ==
+                                        true &&
+                                    currentMemberofThisRoom?.canWrite == true)
+                                  IconButton(
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute<void>(
+                                            builder: (BuildContext context) =>
+                                                RoomMembersPage(widget.groupID),
+                                          ),
+                                        );
+                                      },
+                                      icon: Icon(Icons.people))
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                      body: LayoutBuilder(
+                        builder: _buildChatBody,
+                      ),
+
+                      // _buildChatBody(userIsbanned, currentRoom,
+                      //     currentMemberofThisRoom, _localChat)
+                    )));
       },
     );
   }
@@ -289,10 +356,14 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
                 // mainAxisAlignment: MainAxisAlignment.start,
                 // mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text(topic, style: theme.textTheme.headline5, textAlign: TextAlign.justify),
+                  Text(topic,
+                      style: theme.textTheme.headline5,
+                      textAlign: TextAlign.justify),
                   SizedBox(height: 20),
                   Container(
-                    child: Text(content, style: theme.textTheme.bodyText1, textAlign: TextAlign.justify),
+                    child: Text(content,
+                        style: theme.textTheme.bodyText1,
+                        textAlign: TextAlign.justify),
                   ),
                   // SizedBox(height: 30),
                 ],
@@ -302,7 +373,9 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
           PositionedTransition(
             rect: animation,
             child: ClipRRect(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0)),
               child: Align(
                 alignment: Alignment.bottomCenter,
                 heightFactor: 1.0,
@@ -326,30 +399,46 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
                       else if (currentRoom?.isPrivate == true)
                         Expanded(
                             child: Container(
-                                child: currentMemberofThisRoom?.canWrite == false &&
-                                        currentMemberofThisRoom?.isApporved == false
+                                child: currentMemberofThisRoom?.canWrite ==
+                                            false &&
+                                        currentMemberofThisRoom?.isApporved ==
+                                            false
                                     ? Center(
                                         child: Text(
                                           'You are not yet member of this group',
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: 23, fontWeight: FontWeight.w300),
+                                          style: TextStyle(
+                                              fontSize: 23,
+                                              fontWeight: FontWeight.w300),
                                         ),
                                       )
-                                    : currentMemberofThisRoom?.isApporved == true &&
-                                            currentMemberofThisRoom?.canWrite == false
+                                    : currentMemberofThisRoom?.isApporved ==
+                                                true &&
+                                            currentMemberofThisRoom?.canWrite ==
+                                                false
                                         ? Center(
                                             child: Text(
                                               'Your request is under develeopement',
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(fontSize: 23, fontWeight: FontWeight.w300),
+                                              style: TextStyle(
+                                                  fontSize: 23,
+                                                  fontWeight: FontWeight.w300),
                                             ),
                                           )
                                         : _localChat!.isEmpty
-                                            ? Center(child: Chip(label: Text('ooops... Such empty!')))
+                                            ? Center(
+                                                child: Chip(
+                                                    label: Text(
+                                                        'ooops... Such empty!')))
                                             : _buildChat(_localChat)))
                       else if (currentRoom?.isPrivate == false)
                         if (_localChat?.isEmpty == true)
-                          Expanded(child: Container(child: Center(child: Chip(label: Text('ooops... Such empty!')))))
+                          Expanded(
+                              child: Container(
+                                  child: Center(
+                                      child: Chip(
+                                          label:
+                                              Text('ooops... Such empty!')))))
                         else if (_localChat?.isNotEmpty == true)
                           Expanded(child: _buildChat(_localChat)),
                       // _localChat.forEach((element) {
@@ -368,7 +457,8 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
                             return Column(
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.only(left: 13.0, right: 13),
+                                  padding:
+                                      EdgeInsets.only(left: 13.0, right: 13),
                                   child: Divider(
                                     height: 2,
                                     thickness: 2.5,
@@ -467,14 +557,16 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
       onTap: () {
         _messageEditingController.text.trim();
         if (_messageEditingController.text.isNotEmpty)
-          data.sendMessage(_messageEditingController.text.trim(), authCubit.state.currentUser!, widget.groupID);
+          data.sendMessage(_messageEditingController.text.trim(),
+              authCubit.state.currentUser!, widget.groupID);
         _messageEditingController.clear();
       },
       child: Container(
         height: 50.0,
         width: 50.0,
         decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor, borderRadius: BorderRadius.all(Radius.elliptical(17, 17))),
+            color: Theme.of(context).primaryColor,
+            borderRadius: BorderRadius.all(Radius.elliptical(17, 17))),
         child: Center(child: Icon(Icons.send, color: Colors.white)),
       ),
     );
@@ -496,7 +588,10 @@ class _ChatPageState extends State<ChatPage> with SingleTickerProviderStateMixin
             time: formattedDate,
             firstMessageOfAuthor: message.isFirst,
             lastMessageOfAuthor: message.isLast,
-            author: message.isFirst ? message.getUserName(message.sender, roomCubit.state.currentRoom?.members) : '',
+            author: message.isFirst
+                ? message.getUserName(
+                    message.sender, roomCubit.state.currentRoom?.members)
+                : '',
             message: message.content!.trim(),
             sentByMe: senderId == message.sender?.uid);
       },
