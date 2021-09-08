@@ -24,7 +24,7 @@ class _SignInPageState extends State<SignInPage> {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-            scale: 0.3,
+            scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
             repeat: ImageRepeat.repeat,
             // fit: BoxFit.cover,
             image: theme.brightness == Brightness.dark
@@ -33,7 +33,7 @@ class _SignInPageState extends State<SignInPage> {
       ),
       child: BackdropFilter(
         filter: theme.brightness == Brightness.dark
-            ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
+            ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
             : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
         child: Scaffold(
             backgroundColor: Colors.transparent,
@@ -53,10 +53,8 @@ class _SignInPageState extends State<SignInPage> {
                           decoration: InputDecoration().copyWith(
                               alignLabelWithHint: true,
                               labelText: 'E-mail',
-                              labelStyle: TextStyle(
-                                  color: Theme.of(context).accentColor),
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always),
+                              labelStyle: TextStyle(color: Theme.of(context).accentColor),
+                              floatingLabelBehavior: FloatingLabelBehavior.always),
                           validator: (val) {
                             if (val?.isEmpty == true) {
                               return 'Enter a valid email';
@@ -72,10 +70,8 @@ class _SignInPageState extends State<SignInPage> {
                         TextFormField(
                           controller: _passwordController,
                           decoration: InputDecoration().copyWith(
-                              labelStyle: TextStyle(
-                                  color: Theme.of(context).accentColor),
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always,
+                              labelStyle: TextStyle(color: Theme.of(context).accentColor),
+                              floatingLabelBehavior: FloatingLabelBehavior.always,
                               labelText: 'Password'),
                           validator: (val) {
                             if (val!.isEmpty) {
@@ -97,8 +93,7 @@ class _SignInPageState extends State<SignInPage> {
                             },
                             child: Text(
                               'New to DisCuss? Register',
-                              style: TextStyle(
-                                  color: Theme.of(context).accentColor),
+                              style: TextStyle(color: Theme.of(context).accentColor),
                             )),
                         SizedBox(height: 10),
                         ElevatedButton(
@@ -108,9 +103,8 @@ class _SignInPageState extends State<SignInPage> {
                           onPressed: () async {
                             _passError = '';
                             _emailError = '';
-                            var result = await authCubit.signIn(
-                                _emailController.text.trim(),
-                                _passwordController.text.trim());
+                            var result =
+                                await authCubit.signIn(_emailController.text.trim(), _passwordController.text.trim());
                             if (result?.isNotEmpty == true) {
                               if (result!.contains('password')) {
                                 _passError = result;

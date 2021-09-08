@@ -23,7 +23,7 @@ class RoomCubit extends Cubit<RoomState> {
   final userCubit = GetIt.I.get<UserCubit>();
   final data = GetIt.I.get<DataBaseService>();
   Room? backUpRoomState;
-  late QuerySnapshot collectionState;
+  // late QuerySnapshot collectionState;
   RoomCubit()
       : super(RoomState(
           version: 0,
@@ -34,37 +34,45 @@ class RoomCubit extends Cubit<RoomState> {
 
   List<Room>? newRoomsList = [];
   // late QueryDocumentSnapshot<Object?> lastRoom;
+  // late QueryDocumentSnapshot lastRoom;
+
+  // fetchDocs(Stream<QuerySnapshot> collection) async {
+  //   collection.listen((event) {
+  //     collectionState = event;
+  //     newRoomsList = event.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+  //   });
+  //   lastRoom = collectionState.docs[collectionState.docs.length - 1];
+  //   print('FETCHING DOCS TEST: ${lastRoom.id}}');
+  // }
   late QueryDocumentSnapshot lastRoom;
 
-  fetchDocs(Stream<QuerySnapshot> collection) async {
-    collection.listen((event) {
-      collectionState = event;
-      newRoomsList = event.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
-    });
-    lastRoom = collectionState.docs[collectionState.docs.length - 1];
-    print('FETCHING DOCS TEST: ${lastRoom.id}}');
-  }
-
   // то есть я пришёл к чему-то этому, что я кидал по ссылке ранее это оно? Да окей я продолжу пытаться его перетащить. Он там рпосто не со стримами работает
-  Future<void> getNextRooms() async {
+  Future<void> pullNewRooms() async {
+    // data.roomsStream(state.category).listen((result) {
+    //   lastRoom = result.docs[result.docs.length - 1];
+
+    print('THIS IS LAST ROOM: ${lastRoom.id}');
+    data.nextRoomsStream(lastRoom, state.category).listen((event) {
+      List<Room> pulledRooms =
+          event.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
+      newRoomsList?.addAll(pulledRooms);
+      lastRoom = event.docs[event.docs.length - 1];
+    });
+    emit(state.copyWith(listRooms: newRoomsList, version: state.version! + 1));
+
     // var lastVisibleRoom = state.listRooms![state.listRooms!.length - 1];
   }
 
   Future<void> loadRooms() async {
     print('I see ${state.category}');
     data.roomsStream(state.category).listen((result) {
-      // где мы были до этого?
-      // тоже, что и выше. Он тут слушает, а ты сделал фючу. ok?
+      lastRoom = result.docs[result.docs.length - 1];
       List<Room> listOfRooms =
           result.docs.map<Room>((e) => Room.fromSnapshot(e)).toList();
-      // print('FIRST ONE: $listOfRooms');
       newRoomsList = listOfRooms;
-
-      // print('SECOND ONE: $listOfRooms');
       emit(
           state.copyWith(listRooms: newRoomsList, version: state.version! + 1));
     });
-    // print('PRINT OUT FROM LOADROOMS: ${state.listRooms}');
   }
 
   Future<void> loadChat(String groupId) async {

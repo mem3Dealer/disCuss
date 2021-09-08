@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
@@ -18,7 +20,7 @@ class CategoryPage extends StatelessWidget {
     return Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-              scale: theme.brightness == Brightness.dark ? 0.05 : 0.3,
+              scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
               repeat: ImageRepeat.repeat,
               // fit: BoxFit.cover,
               image: theme.brightness == Brightness.dark
@@ -27,7 +29,7 @@ class CategoryPage extends StatelessWidget {
         ),
         child: BackdropFilter(
           filter: theme.brightness == Brightness.dark
-              ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
+              ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
               : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Scaffold(
             backgroundColor: Colors.transparent,
@@ -77,4 +79,10 @@ class CategoryPage extends StatelessWidget {
           ),
         ));
   }
+
+  // Widget categoryTile() {
+  // return data.categories.map((e) {
+  //     return ListTile();
+  //   });
+  // }
 }

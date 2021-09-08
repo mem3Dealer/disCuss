@@ -33,7 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-            scale: 0.3,
+            scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
             repeat: ImageRepeat.repeat,
             // fit: BoxFit.cover,
             image: theme.brightness == Brightness.dark
@@ -42,7 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       child: BackdropFilter(
         filter: theme.brightness == Brightness.dark
-            ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
+            ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
             : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
         child: Scaffold(
           backgroundColor: Colors.transparent,
@@ -61,11 +61,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       TextFormField(
                           controller: _nameController,
                           decoration: InputDecoration().copyWith(
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always,
+                              floatingLabelBehavior: FloatingLabelBehavior.always,
                               labelText: 'What is your name?',
-                              helperText:
-                                  'It should be at least 4 characters long'),
+                              helperText: 'It should be at least 4 characters long'),
                           validator: (val) => val!.isEmpty
                               ? "Please, enter your name"
                               : val.length < 4
@@ -78,8 +76,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           // initialValue: '@',
                           controller: _nickNameController,
                           decoration: InputDecoration().copyWith(
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always,
+                              floatingLabelBehavior: FloatingLabelBehavior.always,
                               labelText: 'Enter your nickname',
                               helperText: 'It should start with @'),
                           // onSaved:   authCubit.isNickNameUnique(_nickNameController.text).toString();,
@@ -100,10 +97,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       TextFormField(
                           controller: _emailController,
-                          decoration: InputDecoration().copyWith(
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always,
-                              labelText: 'Enter e-mail'),
+                          decoration: InputDecoration()
+                              .copyWith(floatingLabelBehavior: FloatingLabelBehavior.always, labelText: 'Enter e-mail'),
                           validator: (val) {
                             if (val?.isEmpty == true) {
                               return 'Enter an email adress';
@@ -121,11 +116,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         decoration: InputDecoration().copyWith(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                             labelText: 'Create password',
-                            helperText:
-                                'It should be at least 6 chatacters long'),
-                        validator: (val) => val!.length < 6
-                            ? "Enter an password 6+ long"
-                            : null,
+                            helperText: 'It should be at least 6 chatacters long'),
+                        validator: (val) => val!.length < 6 ? "Enter an password 6+ long" : null,
                         obscureText: true,
                       ), // password
                       SizedBox(height: 10),
@@ -134,14 +126,12 @@ class _RegisterPageState extends State<RegisterPage> {
                             widget.letsToggleView!();
                           },
                           child: Text('Already have an account? Sign in',
-                              style: TextStyle(
-                                  color: Theme.of(context).accentColor))),
+                              style: TextStyle(color: Theme.of(context).accentColor))),
                       SizedBox(height: 10),
                       ElevatedButton(
                         child: Text('Register'),
                         onPressed: () async {
-                          nickNameValidator = await authCubit
-                              .isNickNameUnique(_nickNameController.text);
+                          nickNameValidator = await authCubit.isNickNameUnique(_nickNameController.text);
 
                           // var result = await authCubit.registrate(
                           //     _nameController.text.trim(),
@@ -162,8 +152,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 _nickNameController.text.trim());
 
                             print('THIS IS THIS PRINT: $result');
-                            if (result != null &&
-                                result.runtimeType == String) {
+                            if (result != null && result.runtimeType == String) {
                               _emailTaken = result;
                             }
                           }

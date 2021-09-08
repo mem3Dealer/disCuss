@@ -40,6 +40,7 @@ class _HomePageState extends State<HomePage> {
   final roomCubit = GetIt.I.get<RoomCubit>();
   final formKey = GlobalKey<FormState>();
   final scrollController = ScrollController();
+  bool pullNewRooms = false;
 
   // final _auth = GetIt.I.get<FirebaseAuth>();
   // final dialog = GetIt.I.get<AnotherGroupCreator>();
@@ -50,17 +51,19 @@ class _HomePageState extends State<HomePage> {
       // if (userCubit.state.listUsers == null) {
       //   await userCubit.getUsersList();
       // }
-      roomCubit.loadRooms(); //тут он хочет фючу как и было у меня
+      //тут он хочет фючу как и было у меня
       scrollController.addListener(() {
         if (scrollController.position.atEdge) {
           if (scrollController.position.pixels == 0) {
             print('we are on top');
           } else {
             print('we are at bottom');
-            roomCubit.getNextRooms();
+            roomCubit.pullNewRooms();
+            // pullNewRooms = true;
           }
         }
       });
+      roomCubit.loadRooms();
     });
     super.initState();
   }
@@ -79,106 +82,102 @@ class _HomePageState extends State<HomePage> {
         return Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-                scale: 0.3,
+                scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
                 repeat: ImageRepeat.repeat,
                 // fit: BoxFit.cover,
                 image: theme.brightness == Brightness.dark
                     ? ExactAssetImage('assets/dark_back.png')
                     : ExactAssetImage('assets/light_back.jpg')),
           ),
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: IconButton(
-                      // style: ButtonStyle(
-                      //     backgroundColor: MaterialStateProperty.all<Color>(
-                      //         Colors.amber.shade700)),
-                      icon: Icon(Icons.exit_to_app),
-                      onPressed: () async {
-                        await authCubit.logOut();
-                        Navigator.of(context).push(MaterialPageRoute<void>(
-                          builder: (BuildContext context) => Wrapper(),
-                        ));
-                        // Navigator.pushAndRemoveUntil<void>(
-                        //   context,
-                        //   MaterialPageRoute<void>(
-                        //       builder: (BuildContext context) => Wrapper()),
-                        //   ModalRoute.withName('/wrapper'),
-                        // );
-                        // // print(
-                        //     'THIS IS LOG OUT PRINT. first param: ${authCubit.fbAuth}, second: ${authCubit.state.isLoggedIn}');
-                        // await _auth.signOut();
-                      },
-                      // label: Text('Log out'),
-                      /// где загрузка на этой странце]\
-                    ),
-                  )
-                ],
-                title: Text("${roomCubit.state.category} rooms")),
-            body: Center(
-                child: BlocBuilder<RoomCubit, RoomState>(
-                    bloc: roomCubit,
-                    builder: (context, state) {
-                      if (state.listRooms == null) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(25.0),
-                              topRight: Radius.circular(25.0)),
-                          child: Center(
-                            child: Text('There is a problem, no cap'),
-                          ),
-                        );
-                      } else if (state.listRooms!.length > 0) {
-                        return ClipRRect(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(25.0),
-                                topRight: Radius.circular(25.0)),
-                            child: _buildRooms(state, theme, scrollController));
-                      }
-                      return CircularProgressIndicator();
-                    })),
-            floatingActionButton: FloatingActionButton(
-              child: Icon(Icons.add),
-              onPressed: () {
-                // List cats = [];
-                // data.categories.forEach((element) {
-                //   cats.add(element['option']);
-                // });
-                // // print(cats);
-                // for (var i = 0; i < 200; i++) {
-                //   String _cat = cats[Random().nextInt(cats.length)];
-                //   data.createGroup([
-                //     authCubit.state.currentUser!.copyWith(
-                //       isAdmin: true,
-                //       canWrite: true,
-                //       isOwner: true,
-                //       isApporved: true,
-                //     )
-                //   ],
-                //       authCubit.state.currentUser!,
-                //       '$_cat room number $i',
-                //       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                //       false,
-                //       _cat);
-                // }
+          child: BackdropFilter(
+            filter: theme.brightness == Brightness.dark
+                ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
+                : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: IconButton(
+                        // style: ButtonStyle(
+                        //     backgroundColor: MaterialStateProperty.all<Color>(
+                        //         Colors.amber.shade700)),
+                        icon: Icon(Icons.exit_to_app),
+                        onPressed: () async {
+                          await authCubit.logOut();
+                          Navigator.of(context).push(MaterialPageRoute<void>(
+                            builder: (BuildContext context) => Wrapper(),
+                          ));
+                        },
+                        // label: Text('Log out'),
+                        /// где загрузка на этой странце]\
+                      ),
+                    )
+                  ],
+                  title: Text("${roomCubit.state.category} rooms")),
+              body: Center(
+                  child: BlocBuilder<RoomCubit, RoomState>(
+                      bloc: roomCubit,
+                      builder: (context, state) {
+                        if (state.listRooms == null) {
+                          return ClipRRect(
+                            borderRadius:
+                                BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
+                            child: Center(
+                              child: Text('There is a problem, no cap'),
+                            ),
+                          );
+                        } else if (state.listRooms!.length > 0) {
+                          return ClipRRect(
+                              borderRadius:
+                                  BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
+                              child: _buildRooms(state, theme, scrollController));
+                        }
+                        return CircularProgressIndicator();
+                      })),
+              // floatingActionButton:
+              //     // scrollController.position.atEdge.pixels == 0?
+              //     FloatingActionButton(
+              //   child: Icon(Icons.add),
+              //   onPressed: () {
+              //     // List cats = [];
+              //     // data.categories.forEach((element) {
+              //     //   cats.add(element['option']);
+              //     // });
+              //     // // print(cats);
+              //     // for (var i = 0; i < 200; i++) {
+              //     //   String _cat = cats[Random().nextInt(cats.length)];
+              //     //   data.createGroup([
+              //     //     authCubit.state.currentUser!.copyWith(
+              //     //       isAdmin: true,
+              //     //       canWrite: true,
+              //     //       isOwner: true,
+              //     //       isApporved: true,
+              //     //     )
+              //     //   ],
+              //     //       authCubit.state.currentUser!,
+              //     //       '$_cat room number $i',
+              //     //       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+              //     //       false,
+              //     //       _cat);
+              //     // }
 
-                // print(authCubit.state.currentUser);
-                // roomCubit.loadRooms();
-                Navigator.of(context).push(MaterialPageRoute<void>(
-                        builder: (BuildContext context) =>
-                            // SliverPage()
-                            AnotherGroupCreator(false,
-                                category: roomCubit.state.category)
-                        // BackDropPage()
-                        )
-                    // )
-                    );
-              },
+              //     // print(authCubit.state.currentUser);
+              //     // roomCubit.loadRooms();
+              //     Navigator.of(context).push(MaterialPageRoute<void>(
+              //             builder: (BuildContext context) =>
+              //                 // SliverPage()
+              //                 AnotherGroupCreator(false,
+              //                     category: roomCubit.state.category)
+              //             // BackDropPage()
+              //             )
+              //         // )
+              //         );
+              //   },
+              // ),
             ),
           ),
         );
@@ -186,43 +185,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildRooms(
-      RoomState state, ThemeData theme, ScrollController scrollController) {
-    return
-        // Stack(
-        //   children: [
-        //     ColorFiltered(
-        //       colorFilter:
-        //           ColorFilter.mode(Colors.amber.shade100, BlendMode.screen),
-        //       child: Container(
-        //           height: double.infinity,
-        //           width: double.infinity,
-        //           decoration: BoxDecoration(
-        //             // color: Theme.of(context).scaffoldBackgroundColor),
-        //             image: DecorationImage(
-        //                 scale: 0.3,
-        //                 repeat: ImageRepeat.repeat,
-        //                 // fit: BoxFit.cover,
-        //                 image: theme.brightness == Brightness.dark
-        //                     ? AssetImage(
-        //                         'assets/dark_back.png',
-        //                       )
-        //                     : AssetImage('assets/light_back.jpg')),
-        //           ),
-        //           child: BackdropFilter(
-        //               filter: theme.brightness == Brightness.dark
-        //                   ? ImageFilter.blur(sigmaX: 13.0, sigmaY: 13.0)
-        //                   : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-        //               child: Container()
-
-        //               // Text(roomCubit.displayRooms().toString())
-        //               // Text("${currentUser?.uid.toString()} \n\n $senderId")
-        //               // roomCubit.displayRooms(),
-        //               )),
-        //     ),
-        Container(
-      decoration:
-          BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
+  Widget _buildRooms(RoomState state, ThemeData theme, ScrollController scrollController) {
+    return Container(
+      decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
       child: ListView.builder(
           controller: scrollController,
           itemCount: state.listRooms?.length,
@@ -243,9 +208,7 @@ class _HomePageState extends State<HomePage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: _list[index].isPrivate
-                      ? _list[index].members?.contains(roomCubit.getoLocalUser(
-                                  thatRoom: _list[index])) ==
-                              true
+                      ? _list[index].members?.contains(roomCubit.getoLocalUser(thatRoom: _list[index])) == true
                           ? Text(
                               "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
                               maxLines: 1,
@@ -259,15 +222,14 @@ class _HomePageState extends State<HomePage> {
                         ),
                   onTap: () async {
                     // roomCubit.setRoomAsCurrent(_list[index].groupID!);
-                    await roomCubit.loadChat(_list[index].groupID!).then(
-                        (value) =>
-                            Navigator.of(context).push(MaterialPageRoute<void>(
-                              builder: (BuildContext context) =>
-                                  ChatPage(_list[index].groupID!),
-                            ))
-                        // print(
-                        //     'THIS IS THAT: ${state.currentRoom?.chatMessages}')
-                        );
+                    await roomCubit
+                        .loadChat(_list[index].groupID!)
+                        .then((value) => Navigator.of(context).push(MaterialPageRoute<void>(
+                                  builder: (BuildContext context) => ChatPage(_list[index].groupID!),
+                                ))
+                            // print(
+                            //     'THIS IS THAT: ${state.currentRoom?.chatMessages}')
+                            );
                   },
                 ),
                 Divider()
