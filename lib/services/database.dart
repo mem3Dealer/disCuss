@@ -35,11 +35,9 @@ class DataBaseService {
     /// TODO: add more here
   ];
   // final authCubit = GetIt.I.get<AuthCubit>();
-  CollectionReference userCollection =
-      FirebaseFirestore.instance.collection('users');
+  CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
 
-  CollectionReference dummyChats =
-      FirebaseFirestore.instance.collection('chatsCollection');
+  CollectionReference dummyChats = FirebaseFirestore.instance.collection('chatsCollection');
 
   Stream<QuerySnapshot> roomsStream(String? category) {
     print('I see ${category}');
@@ -49,9 +47,7 @@ class DataBaseService {
         .where('category', isEqualTo: category ?? '*')
 
         ///кажется так, попробуем, в крайнем случае сделать два мы можем сделать 2 запроса есть есть катрегория и если нет
-        .orderBy('topicTheme',
-            descending:
-                true) //TODO не забыть вернуть к сортировке по последнему сообщению
+        .orderBy('topicTheme', descending: true) //TODO не забыть вернуть к сортировке по последнему сообщению
         .limit(15)
         .snapshots();
   }
@@ -63,8 +59,8 @@ class DataBaseService {
   //       .limit(15)
   //       .snapshots();
   // }
-  Future<void> createGroup(List<MyUser>? selectedUsers, MyUser? user,
-      String topicTheme, String topicContent, bool isPrivate, String? category,
+  Future<void> createGroup(List<MyUser>? selectedUsers, MyUser? user, String topicTheme, String topicContent,
+      bool isPrivate, String? category,
       {Message? lastMessage}
       // String userId,
       ) async {
@@ -75,11 +71,7 @@ class DataBaseService {
     });
     // Room newRoom;
     DocumentReference roomDocRef = await dummyChats.add({
-      'lastMessage': {
-        'recentMessage': '',
-        'sender': user?.senderToMap(),
-        'time': DateTime.now()
-      },
+      'lastMessage': {'recentMessage': '', 'sender': user?.senderToMap(), 'time': DateTime.now()},
       'category': category,
       'isPrivate': isPrivate,
       'topicTheme': topicTheme,
@@ -137,10 +129,8 @@ class DataBaseService {
       .orderBy('time', descending: true)
       .snapshots();
 
-  Future<void>? sendMessage(
-      String messageContent, MyUser sender, String groupID) {
-    CollectionReference testChat =
-        dummyChats.doc(groupID).collection('messages');
+  Future<void>? sendMessage(String messageContent, MyUser sender, String groupID) {
+    CollectionReference testChat = dummyChats.doc(groupID).collection('messages');
     // String? userName = FirebaseAuth.instance.currentUser?.displayName;
     // Stream<QuerySnapshot> _userStream = users.snapshots();
     // try {
@@ -154,8 +144,7 @@ class DataBaseService {
     };
     print(message);
     if (messageContent.isNotEmpty) {
-      testChat.add(message).then((doc) =>
-          testChat.doc(doc.id).get().then((value) => print(value.data())));
+      testChat.add(message).then((doc) => testChat.doc(doc.id).get().then((value) => print(value.data())));
 
       dummyChats.doc(groupID).update({'lastMessage': message});
     }
@@ -166,8 +155,8 @@ class DataBaseService {
   }
 
   Future<void>? updateUserData(MyUser user, {String? nickName}) async {
-    Color color = Color.fromARGB(255, Random().nextInt(10) * 10 + 100,
-        Random().nextInt(10) * 10 + 100, Random().nextInt(10) * 10 + 100);
+    Color color = Color.fromARGB(
+        255, Random().nextInt(10) * 10 + 100, Random().nextInt(10) * 10 + 100, Random().nextInt(10) * 10 + 100);
     int colorCode = color.value;
     return await userCollection.doc(user.uid).set({
       'name': user.name,
@@ -203,8 +192,7 @@ class DataBaseService {
   // }
 
   Future<void> kickUser(String groupID, List<Map<String, dynamic>> list) async {
-    DocumentReference roomDocRef =
-        FirebaseFirestore.instance.collection('chatsCollection').doc(groupID);
+    DocumentReference roomDocRef = FirebaseFirestore.instance.collection('chatsCollection').doc(groupID);
 
     roomDocRef.update({"members": FieldValue.arrayRemove(list)});
     // print('we got here');
@@ -234,11 +222,7 @@ class DataBaseService {
   }
 
   Future<void> editRoom(
-      String groupID,
-      String? topicTheme,
-      String? topicContent,
-      List<MyUser>? selectedUsers,
-      bool? isPrivate) async {
+      String groupID, String? topicTheme, String? topicContent, List<MyUser>? selectedUsers, bool? isPrivate) async {
     List? newMembers = [];
 
     selectedUsers?.forEach((element) {
