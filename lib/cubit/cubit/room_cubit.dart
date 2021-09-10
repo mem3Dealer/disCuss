@@ -53,12 +53,6 @@ class RoomCubit extends Cubit<RoomState> {
           emit(state.copyWith(
               listRooms: newRoomsList, version: state.version! + 1));
         }
-
-        /// Вот тут можно сделать вспывайку дескать: дальше ничего нет :) Ну не знаю. а если будет всего 10 чатов и он будет каджый раз его выкидывать? Мне кажется это лишним уже немного. Ок
-        /// потом
-        /// потом так потом
-        /// пока
-        /// спасибо!
       });
     } catch (e, trace) {
       /// do не оч представляю что ду то
@@ -69,20 +63,23 @@ class RoomCubit extends Cubit<RoomState> {
     // var lastVisibleRoom = state.listRooms![state.listRooms!.length - 1];
   }
 
-  Future<void> loadRooms() async {
-    print('I see ${state.category}');
-    // data.roomsStream(state.category).listen((result) {
-    // lastRoom = result.docs[result.docs.length - 1];
-    await data.getRooms(state.category).then((result) {
-      List<QueryDocumentSnapshot<Object?>> _dbRooms = result.docs;
-      lastRoom = _dbRooms.last; //yes
-      List<Room> listOfRooms =
-          _dbRooms.map<Room>((e) => Room.fromSnapshot(e)).toList();
-      newRoomsList = listOfRooms;
-      // });  ну вроде бы
-      emit(
-          state.copyWith(listRooms: newRoomsList, version: state.version! + 1));
-    });
+  Future<dynamic> loadRooms() async {
+    // print('I see ${state.category}');.
+    try {
+      await data.getRooms(state.category).then((result) {
+        // print('FILTER: ${result.toString()}');
+        List<QueryDocumentSnapshot<Object?>> _dbRooms = result.docs;
+        lastRoom = _dbRooms.last; //yes
+        List<Room> listOfRooms =
+            _dbRooms.map<Room>((e) => Room.fromSnapshot(e)).toList();
+        newRoomsList = listOfRooms;
+        emit(state.copyWith(
+            listRooms: newRoomsList, version: state.version! + 1));
+      });
+    } catch (e) {
+      emit(state.copyWith(listRooms: [], version: state.version! + 1));
+      // print("ERROR IS $e");/
+    }
   }
 
   Future<void> loadChat(String groupId) async {
@@ -90,15 +87,15 @@ class RoomCubit extends Cubit<RoomState> {
 
     Room? newCurrentRoom;
     newCurrentRoom?.chatMessages = [];
-
-    try {
-      // print(state.listRooms);
-      newCurrentRoom = state.listRooms?.firstWhere((element) {
-        return element.groupID == groupId;
-      });
-    } on Exception catch (e) {
-      print(e);
-    }
+    if (state.currentRoom == null)
+      try {
+        // print(state.listRooms);
+        newCurrentRoom = state.listRooms?.firstWhere((element) {
+          return element.groupID == groupId;
+        });
+      } on Exception catch (e) {
+        print(e);
+      }
 
     data.chatStream(groupId).listen((result) {
       List<Message>? _msg =
@@ -163,19 +160,31 @@ class RoomCubit extends Cubit<RoomState> {
       bool isPrivate) async {
     List<MyUser> _filtered = selectedUsers!.toSet().toList();
 
+    Room newRoom = Room(
+        isPrivate: isPrivate,
+        topicTheme: topicTheme,
+        topicContent: topicContent,
+        category: category,
+        members: _filtered);
+
     await data.createGroup(
         _filtered, creator, topicTheme, topicContent, isPrivate, category);
+
+    // state.listRooms?.add(newRoom);
+
     emit(state.copyWith(
-        currentRoom: Room(
-            isPrivate: isPrivate,
-            // groupID: ,
-            // groupName: textFieldController.text,
-            // admin: creator,
-            members: _filtered)));
+        listRooms: state.listRooms,
+        currentRoom: newRoom,
+        version: state.version! + 1
+        // Room(
+        //     isPrivate: isPrivate,
+        //     // groupID: ,
+        //     // groupName: textFieldController.text,
+        //     // admin: creator,
+        //     members: _filtered)
+        ));
     userCubit.dismissSelected();
-    // textFieldController.clear();
-    // print('NEW ROOM DONE: ${state.currentRoom}');
-    Navigator.of(context).pop();
+    // Navigator.of(context).pop();
   }
 
   Future<void> setCategory(String category) async {
@@ -183,10 +192,10 @@ class RoomCubit extends Cubit<RoomState> {
   }
 
   Future<void> dissolveRoom(String groupId) async {
+    print('PRINTOUT FROM CUBIT');
     data.deleteRoom(groupId);
     emit(state.copyWith(
         listRooms: state.listRooms, version: state.version! + 1));
-    // print('PRINTOUT FROM CUBIT');
   }
 
   Future<void> leaveRoom(String groupId, MyUser user) async {

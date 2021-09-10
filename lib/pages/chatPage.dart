@@ -114,8 +114,6 @@ class _ChatPageState extends State<ChatPage>
     didIWrite = currentRoom?.chatMessages?.any((element) {
       return element.sender?.uid == currentMemberofThisRoom?.uid;
     });
-    // print(
-    //     'THIS IS PRINT FROM SCAFFOLD BUILD ${roomCubit.state.currentRoom?.chatMessages}');
 
     if (didIWrite == false) {
       _controller.fling(velocity: -1);
@@ -145,9 +143,9 @@ class _ChatPageState extends State<ChatPage>
         final ThemeData theme = Theme.of(context);
         // BoxConstraints? constraints;
 
-        Color color = Color.fromARGB(255, Random().nextInt(100) + 100,
-            Random().nextInt(100) + 100, Random().nextInt(100) + 100);
-        int hexCode = color.value;
+        // Color color = Color.fromARGB(255, Random().nextInt(100) + 100,
+        //     Random().nextInt(100) + 100, Random().nextInt(100) + 100);
+        // // int hexCode = color.value;
         return
             // MyScaffold(
             //   Text(

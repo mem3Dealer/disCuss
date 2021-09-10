@@ -58,27 +58,20 @@ class DataBaseService {
 
   Future<QuerySnapshot> getRooms(String? category) async {
     print('I see ${category}');
-    //текущая комната у меня определяется после выбора тайла чата. То есть сейчас текущей нет. мне помнится были огромные проблемы подгружать чтото раньше датабейса
     return FirebaseFirestore.instance
         .collection('chatsCollection')
-        .where('category', isEqualTo: category ?? '*')
-
-        ///кажется так, попробуем, в крайнем случае сделать два мы можем сделать 2 запроса есть есть катрегория и если нет
+        .where('category', isEqualTo: category)
         .orderBy('lastMessage.time', descending: true)
         .limit(15)
         .get();
   }
 
-  // по хорошему, ты делал это когда у тебя был бесконечный поток
-  // я бы для комнат оказалсяз от стримов. Вообще? или только для подтягивания? Вообще. Когда ты попадаешь на страницу категории, грузишь первые 15 и ничего больше не ждешь, когда юзверь крутит грузишь следующие и все. Хорошо, но что тогда, если не стрим?
   Future<QuerySnapshot> nextRooms(
       DocumentSnapshot lastRoom, String? category) async {
     return FirebaseFirestore.instance
         .collection('chatsCollection')
         .where('category', isEqualTo: category ?? '*')
-        .orderBy('lastMessage.time',
-            descending:
-                true) // может быть по времени публикации?у меня было по времени отправки последнго сообщения. да просто так нужно было. В общем могу вернуть к сортировке по ообщению. Да
+        .orderBy('lastMessage.time', descending: true)
         .startAfterDocument(lastRoom)
         .limit(15)
         .get();

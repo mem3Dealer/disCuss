@@ -107,29 +107,42 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
     return MyScaffold(
       Text('Chat Members'),
       Center(
-        child: Column(
-          children: [
-            // Text( authCubit.state.currentUser.t)
-            _buildListOfMembers(_users, areThereAdmins, tiles, areThereMembers,
-                currentMemberofThisRoom!, areThereReqeusts, areThereBanned),
-            _buildSaveOrDiscardButtons(currentMemberofThisRoom, context),
-          ],
+        child: Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Column(
+            children: [
+              // Text( authCubit.state.currentUser.t)
+              _buildListOfMembers(
+                  _users,
+                  areThereAdmins,
+                  tiles,
+                  areThereMembers,
+                  currentMemberofThisRoom!,
+                  areThereReqeusts,
+                  areThereBanned),
+              _buildSaveOrDiscardButtons(currentMemberofThisRoom, context),
+            ],
+          ),
         ),
       ),
       actions: [
-        Row(
-          children: [
-            if (currentMemberofThisRoom.isAdmin == true)
-              IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute<void>(
-                        builder: (BuildContext context) =>
-                            AnotherGroupCreator(true)));
-                  },
-                  icon: Icon(Icons.edit)),
-            // _buildLeaveOrDeleteButton(currentMemberofThisRoom, context)
-            tiles.buildLeaveOrDeleteButton(currentMemberofThisRoom, context)
-          ],
+        Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Row(
+            children: [
+              if (currentMemberofThisRoom.isAdmin == true)
+                IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>
+                              AnotherGroupCreator(true)));
+                    },
+                    icon: Icon(Icons.edit)),
+              // _buildLeaveOrDeleteButton(currentMemberofThisRoom, context)
+              tiles.buildLeaveOrDeleteButton(
+                  currentMemberofThisRoom, context, widget.groupID)
+            ],
+          ),
         )
       ],
     );

@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   final roomCubit = GetIt.I.get<RoomCubit>();
   final formKey = GlobalKey<FormState>();
   final scrollController = ScrollController();
+  String? errorMsg;
 
   // final _auth = GetIt.I.get<FirebaseAuth>();
   // final dialog = GetIt.I.get<AnotherGroupCreator>();
@@ -61,10 +62,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(authCubit.state.currentUser);
+    print(roomCubit.state.listRooms?.length);
 
-    // roomCubit.fetchDocs(data.roomsStream(roomCubit
-    //     .state.category)); // я просто тестил что он работает хотя бы так
     final ThemeData theme = Theme.of(context);
     return BlocBuilder<AuthCubit, AuthState>(
         bloc: authCubit,
@@ -75,13 +74,18 @@ class _HomePageState extends State<HomePage> {
                 child: BlocBuilder<RoomCubit, RoomState>(
                     bloc: roomCubit,
                     builder: (context, state) {
-                      if (state.listRooms == null) {
+                      if (state.listRooms?.length == 0) {
                         return ClipRRect(
                           borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(25.0),
                               topRight: Radius.circular(25.0)),
                           child: Center(
-                            child: Text('There is a problem, no cap'),
+                            child: Text(
+                              'There are no rooms in this category.\nBe very first and start new discussion!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 25, fontWeight: FontWeight.w300),
+                            ),
                           ),
                         );
                       } else if (state.listRooms!.length > 0) {
@@ -129,59 +133,68 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildRooms(
       RoomState state, ThemeData theme, ScrollController scrollController) {
-    return Container(
-      decoration:
-          BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
-      child: ListView.builder(
-          controller: scrollController,
-          itemCount: state.listRooms?.length,
-          itemBuilder: (context, index) {
-            List<Room>? _list = state.listRooms;
-            // print(_list?.length);
-            // MyUser? currentUser = authCubit.state.currentUser;
-            return Column(
-              children: [
-                ListTile(
-                  trailing: _list![index].isPrivate
-                      ? Icon(Icons.lock_outline)
-                      : SizedBox.shrink(),
-                  title: Text(
-                    "${_list[index].topicTheme}",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: _list[index].isPrivate
-                      ? _list[index].members?.contains(roomCubit.getoLocalUser(
-                                  thatRoom: _list[index])) ==
-                              true
-                          ? Text(
-                              "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          : null
-                      : Text(
-                          "${_list[index].lastMessage?.sender?.name}: ${_list[index].lastMessage?.content}",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                  onTap: () async {
-                    // roomCubit.setRoomAsCurrent(_list[index].groupID!);
-                    await roomCubit.loadChat(_list[index].groupID!).then(
-                        (value) =>
-                            Navigator.of(context).push(MaterialPageRoute<void>(
-                              builder: (BuildContext context) =>
-                                  ChatPage(_list[index].groupID!),
-                            ))
-                        // print(
-                        //     'THIS IS THAT: ${state.currentRoom?.chatMessages}')
-                        );
-                  },
-                ),
-                Divider()
-              ],
-            );
-          }),
+    return BlocBuilder<RoomCubit, RoomState>(
+      bloc: roomCubit,
+      builder: (context, state) {
+        return Container(
+          decoration:
+              BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
+          child: ListView.builder(
+              controller: scrollController,
+              itemCount: state.listRooms?.length,
+              itemBuilder: (context, index) {
+                Room? thatRoom = state.listRooms![index];
+                String? senderName = thatRoom.lastMessage?.sender?.name;
+                String? contentOfLastMessage = thatRoom.lastMessage?.content;
+                return Column(
+                  children: [
+                    ListTile(
+                      trailing: thatRoom.isPrivate
+                          ? Icon(Icons.lock_outline)
+                          : SizedBox.shrink(),
+                      title: Text(
+                        "${thatRoom.topicTheme}",
+                        // style: theme.textTheme.headline6,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: contentOfLastMessage?.isNotEmpty == true
+                          ? thatRoom.isPrivate
+                              ? thatRoom.members?.contains(roomCubit
+                                          .getoLocalUser(thatRoom: thatRoom)) ==
+                                      true
+                                  ? Text(
+                                      "$senderName: $contentOfLastMessage",
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    )
+                                  : null
+                              : Text(
+                                  "$senderName: $contentOfLastMessage",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  // style: theme.textTheme.,
+                                )
+                          : null,
+                      onTap: () async {
+                        // roomCubit.setRoomAsCurrent(thatRoom.groupID!);
+                        await roomCubit.loadChat(thatRoom.groupID!).then(
+                            (value) => Navigator.of(context)
+                                    .push(MaterialPageRoute<void>(
+                                  builder: (BuildContext context) =>
+                                      ChatPage(thatRoom.groupID!),
+                                ))
+                            // print(
+                            //     'THIS IS THAT: ${state.currentRoom?.chatMessages}')
+                            );
+                      },
+                    ),
+                    Divider()
+                  ],
+                );
+              }),
+        );
+      },
     );
     //   ],
     // );

@@ -124,7 +124,7 @@ class TilesMethods {
   }
 
   IconButton buildLeaveOrDeleteButton(
-      MyUser? currentMemberofThisRoom, BuildContext context) {
+      MyUser? currentMemberofThisRoom, BuildContext context, String groupID) {
     return IconButton(
         onPressed: () {
           currentMemberofThisRoom?.isOwner == true
@@ -136,7 +136,8 @@ class TilesMethods {
                       actions: [
                         ElevatedButton(
                             onPressed: () {
-                              roomCubit.dissolveRoom(groupID!);
+                              roomCubit.dissolveRoom(groupID);
+                              print(' got us here?');
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   '/home_page',
                                   (Route<dynamic> route) => false);
@@ -154,7 +155,7 @@ class TilesMethods {
                         ElevatedButton(
                             onPressed: () {
                               roomCubit.leaveRoom(
-                                  groupID!, currentMemberofThisRoom!);
+                                  groupID, currentMemberofThisRoom!);
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   '/home_page',
                                   (Route<dynamic> route) => false);
