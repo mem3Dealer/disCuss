@@ -84,18 +84,18 @@ class RoomCubit extends Cubit<RoomState> {
 
   Future<void> loadChat(String groupId) async {
     List<Message>? _listOfMessages = [];
-
+    print('print from load chat');
     Room? newCurrentRoom;
     newCurrentRoom?.chatMessages = [];
-    if (state.currentRoom == null)
-      try {
-        // print(state.listRooms);
-        newCurrentRoom = state.listRooms?.firstWhere((element) {
-          return element.groupID == groupId;
-        });
-      } on Exception catch (e) {
-        print(e);
-      }
+    // if (state.currentRoom == null)
+    //   try {
+    // print(state.listRooms);
+    newCurrentRoom = state.listRooms?.firstWhere((element) {
+      return element.groupID == groupId;
+    });
+    // } on Exception catch (e) {
+    //   print(e);
+    // }
 
     data.chatStream(groupId).listen((result) {
       List<Message>? _msg =
@@ -159,32 +159,28 @@ class RoomCubit extends Cubit<RoomState> {
       String topicContent,
       bool isPrivate) async {
     List<MyUser> _filtered = selectedUsers!.toSet().toList();
+    String? newGroupId;
+
+    newGroupId = await data.createGroup(
+        _filtered, creator, topicTheme, topicContent, isPrivate, category);
 
     Room newRoom = Room(
         isPrivate: isPrivate,
         topicTheme: topicTheme,
         topicContent: topicContent,
         category: category,
-        members: _filtered);
+        members: _filtered,
+        groupID: newGroupId);
 
-    await data.createGroup(
-        _filtered, creator, topicTheme, topicContent, isPrivate, category);
-
-    // state.listRooms?.add(newRoom);
+    state.listRooms?.add(newRoom);
 
     emit(state.copyWith(
         listRooms: state.listRooms,
         currentRoom: newRoom,
-        version: state.version! + 1
-        // Room(
-        //     isPrivate: isPrivate,
-        //     // groupID: ,
-        //     // groupName: textFieldController.text,
-        //     // admin: creator,
-        //     members: _filtered)
-        ));
+        version: state.version! + 1));
     userCubit.dismissSelected();
-    // Navigator.of(context).pop();
+    print('THIS IS NEW ROOM: $newRoom');
+    Navigator.of(context).pop();
   }
 
   Future<void> setCategory(String category) async {

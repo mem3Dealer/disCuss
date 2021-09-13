@@ -77,7 +77,7 @@ class DataBaseService {
         .get();
   }
 
-  Future<void> createGroup(List<MyUser>? selectedUsers, MyUser? user,
+  Future<dynamic> createGroup(List<MyUser>? selectedUsers, MyUser? user,
       String topicTheme, String topicContent, bool isPrivate, String? category,
       {Message? lastMessage}
       // String userId,
@@ -87,6 +87,7 @@ class DataBaseService {
     selectedUsers!.forEach((element) {
       _mappedUsers.add(element.memberToMap());
     });
+    String? id;
     // Room newRoom;
     DocumentReference roomDocRef = await dummyChats.add({
       'lastMessage': {
@@ -104,6 +105,8 @@ class DataBaseService {
       // 'admin': user?.toMap(),
       'creationTime': DateTime.now().toUtc()
     });
+    return roomDocRef.id;
+    // print('THAT IS PRINT FROM DB: ${roomDocRef.id}');
     // .then((value) {
     //   final fbObject  = value.get().then((val){
     //     final doc =

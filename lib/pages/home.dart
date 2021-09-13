@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(roomCubit.state.listRooms?.length);
+    // print(roomCubit.state.listRooms?.first.lastMessage);
 
     final ThemeData theme = Theme.of(context);
     return BlocBuilder<AuthCubit, AuthState>(

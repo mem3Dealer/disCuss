@@ -340,7 +340,7 @@ class _ChatPageState extends State<ChatPage>
     String topic = " ${roomCubit.state.currentRoom?.topicTheme}";
 
     // print('Colors is: $color');
-
+    print('THEESE ARE THIS PRINTS: $currentRoom, $currentMemberofThisRoom');
     // print('THIS IS PRINT FROM BUILD:$_localChat ');
     return Container(
       color: Colors.transparent,
@@ -423,7 +423,7 @@ class _ChatPageState extends State<ChatPage>
                                                   fontWeight: FontWeight.w300),
                                             ),
                                           )
-                                        : _localChat!.isEmpty
+                                        : _localChat?.isEmpty == true
                                             ? Center(
                                                 child: Chip(
                                                     label: Text(
@@ -577,8 +577,8 @@ class _ChatPageState extends State<ChatPage>
       shrinkWrap: true,
       itemCount: _localChat?.length,
       itemBuilder: (context, index) {
-        final message = _localChat![index];
-        int _timeStamp = message.time!.seconds;
+        final message = _localChat?[index];
+        int _timeStamp = message!.time!.seconds;
         var date = DateTime.fromMillisecondsSinceEpoch(_timeStamp * 1000);
         var formattedDate = DateFormat('HH:mm dd.MM.yy', 'ru').format(date);
         return MessageTile(
