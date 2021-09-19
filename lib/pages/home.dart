@@ -2,14 +2,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/core/localization/generated/l10n.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/states/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
-
 import 'package:my_chat_app/cubit/states/room_state.dart';
-
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
-
 import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/pages/chatPage.dart';
 import 'package:my_chat_app/services/database.dart';
@@ -36,7 +34,6 @@ class _HomePageState extends State<HomePage> {
   final roomCubit = GetIt.I.get<RoomCubit>();
   final formKey = GlobalKey<FormState>();
   final scrollController = ScrollController();
-  String? errorMsg;
 
   // final _auth = GetIt.I.get<FirebaseAuth>();
   // final dialog = GetIt.I.get<AnotherGroupCreator>();
@@ -47,9 +44,9 @@ class _HomePageState extends State<HomePage> {
       scrollController.addListener(() {
         if (scrollController.position.atEdge) {
           if (scrollController.position.pixels == 0) {
-            print('we are on top');
+            // print('we are on top');
           } else {
-            print('we are at bottom');
+            // print('we are at bottom');
             roomCubit.pullNewRooms();
             // pullNewRooms = true;
           }
@@ -63,13 +60,13 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     // print(roomCubit.state.listRooms?.first.lastMessage);
-
+    final trText = GetIt.I.get<I10n>();
     final ThemeData theme = Theme.of(context);
     return BlocBuilder<AuthCubit, AuthState>(
         bloc: authCubit,
         builder: (context, state) {
           return MyScaffold(
-            Text('${roomCubit.state.category} rooms'),
+            Text(trText.homePageTitle("${roomCubit.state.category}")),
             Center(
                 child: BlocBuilder<RoomCubit, RoomState>(
                     bloc: roomCubit,
@@ -81,7 +78,7 @@ class _HomePageState extends State<HomePage> {
                               topRight: Radius.circular(25.0)),
                           child: Center(
                             child: Text(
-                              'There are no rooms in this category.\nBe very first and start new discussion!',
+                              trText.homeNoRooms,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 25, fontWeight: FontWeight.w300),

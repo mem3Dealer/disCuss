@@ -2,53 +2,102 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/core/localization/generated/l10n.dart';
 import 'package:my_chat_app/models/message.dart';
 import 'package:my_chat_app/models/room.dart';
 import 'package:my_chat_app/models/user.dart';
 
 class DataBaseService {
+//   GetIt locator = GetIt.instance;
+
+// void setupLocator() {
+//   locator.registerLazySingleton(() => I10n());
+// }
+
   //final roomCubit = GetIt.I.get<RoomCubit>(); // изза этого ошиба
   // String? uid;
   DataBaseService() {
     // initializeFB();
   }
-  List<Map<String, dynamic>> categories = [
-    {'option': 'Sport', 'label': "Sport", 'icon': Icons.sports_soccer_rounded},
-    {
-      'option': 'Games',
-      'label': "Video games",
-      'icon': Icons.sports_esports_rounded
-    },
-    {'option': 'Books', 'label': "Literature", 'icon': Icons.bookmarks_rounded},
-    {
-      'option': 'Music',
-      'label': "Rock`n`Roll",
-      'icon': Icons.music_note_rounded
-    },
-    {'option': 'Science', 'label': "Physics", 'icon': Icons.science_rounded},
-    {'option': 'Art', 'label': "Renissans", 'icon': Icons.palette_rounded},
-    {'option': 'Movies', 'label': "Star Wars", 'icon': Icons.theaters_rounded},
-    {'option': 'Activities', 'label': "Hike", 'icon': Icons.terrain_rounded},
-    {'option': 'Politics', 'label': "Politics", 'icon': Icons.festival_rounded},
-    {
-      'option': 'Ecology',
-      'label': "Global Warming",
-      'icon': Icons.fire_extinguisher_rounded
-    },
-    {
-      'option': 'History',
-      'label': "Belgium Crysis",
-      'icon': Icons.history_edu_rounded
-    },
-    {'option': 'Fashion', 'label': "Clothes", 'icon': Icons.local_mall_rounded},
-    {
-      'option': 'Psychologies',
-      'label': "Psychologies",
-      'icon': Icons.self_improvement_rounded
-    },
-    {'option': 'Stars', 'label': "Astrology", 'icon': Icons.stars_rounded},
-    {'option': 'Pets', 'label': "Cats", 'icon': Icons.pets_rounded},
-  ];
+  final tr = GetIt.I.get<I10n>();
+
+  List<Map<String, dynamic>> categories() {
+    return [
+      {
+        'option': 'Sport',
+        'label': tr.dbCatsSport,
+        'icon': Icons.sports_soccer_rounded
+      },
+      {
+        'option': 'Games',
+        'label': tr.dbCatsVideoGames,
+        'icon': Icons.sports_esports_rounded
+      },
+      {
+        'option': 'Books',
+        'label': tr.dbCatsLiterature,
+        'icon': Icons.bookmarks_rounded
+      },
+      {
+        'option': 'Music',
+        'label': tr.dbCatsRock,
+        'icon': Icons.music_note_rounded
+      },
+      {
+        'option': 'Science',
+        'label': tr.dbCatsPhysics,
+        'icon': Icons.science_rounded
+      },
+      {
+        'option': 'Art',
+        'label': tr.dbCatsRenissans,
+        'icon': Icons.palette_rounded
+      },
+      {
+        'option': 'Movies',
+        'label': tr.dbCatsStarWars,
+        'icon': Icons.theaters_rounded
+      },
+      {
+        'option': 'Activities',
+        'label': tr.dbCatsHike,
+        'icon': Icons.terrain_rounded
+      },
+      {
+        'option': 'Politics',
+        'label': tr.dbCatsPolitics,
+        'icon': Icons.festival_rounded
+      },
+      {
+        'option': 'Ecology',
+        'label': tr.dbCatsGlobalWarming,
+        'icon': Icons.fire_extinguisher_rounded
+      },
+      {
+        'option': 'History',
+        'label': tr.dbCatsBelgiumCrysis,
+        'icon': Icons.history_edu_rounded
+      },
+      {
+        'option': 'Fashion',
+        'label': tr.dbCatsClothes,
+        'icon': Icons.local_mall_rounded
+      },
+      {
+        'option': 'Psychologies',
+        'label': tr.dbCatsPsychologies,
+        'icon': Icons.self_improvement_rounded
+      },
+      {
+        'option': 'Stars',
+        'label': tr.dbCatsAstrology,
+        'icon': Icons.stars_rounded
+      },
+      {'option': 'Pets', 'label': tr.dbCatsCats, 'icon': Icons.pets_rounded},
+    ];
+  }
+
   // final authCubit = GetIt.I.get<AuthCubit>();
   CollectionReference userCollection =
       FirebaseFirestore.instance.collection('users');

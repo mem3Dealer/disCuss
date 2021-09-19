@@ -1,0 +1,468 @@
+{
+    "language": "English",
+    "@language":{
+        "description": "The default langauage"
+    },
+
+    "areYouNew": "New to DisCuss? Register",
+    "@areYouNew":{
+        "description":"are you new?"
+    },
+
+    "password": "Password",
+    "@password":{
+        "description":"Password label"
+    },
+
+    "passwordIsIncorrect": "Please, enter password",
+    "@passwordIsIncorrect":{
+        "description": "Message when password is not correct"
+    },
+
+    "passwordIsTooShort": "Enter password 6+ long",
+    "@passwordIsTooShort":{
+        "description":"Message when password is too short"
+    },
+
+    "signIn": "Sign In",
+    "@signIn":{
+        "description":"Sign in button"
+    },
+
+    "email": "E-mail",
+    "@email":{
+        "description":"email label"
+    },
+
+    "emailIsEmpty": "Please, enter Your e-mail",
+    "@emailIsEmpty":{
+        "description":"email is missing"
+    },
+
+
+    "regNameLabel":"What is your name?",
+    "@regNameLabel":{
+        "description": "Label for name text form field"
+    },
+
+    "regNameHelper":"It should be at least 2 characters long",
+    "@regNameHelper":{
+        "description":"Helper for name text form field"
+    },
+
+    "regNameMissing":"Please, enter Your name",
+    "@regNameMissing":{
+        "description":"Error message when name is missing"
+    },
+
+    "regNameTooShort": "Name is too short",
+    "@regNameTooShort":{
+        "description":"Error message when name is too short"
+    },
+
+    "regNickNameLabel": "Enter your nickname",
+    "@regNickNameLabel":{
+        "description": "Label text for nickname text form field"
+    },
+
+    "regNickNameHelper": "It should start with @",
+    "@regNickNameHelper":{
+        "description": "Helper text for this..."
+    },
+
+    "regNickNameNoAt": "please enter nickname starting with @",
+    "@regNickNameNoAt":{
+        "description": "Error message when there is no @"
+    },
+
+    "regNickNameTooShort": "Nickname should be at least 4 characters long",
+    "@regNickNameTooShort":{
+        "description": "Error message when nick is too short"
+    },
+
+    "regEmail": "Enter your e-mail",
+    "@regEmail":{
+        "description":"label email text"
+    },
+
+    "regEmailIsEmpty": "Enter an email adress",
+    "@regEmailIsEmpty":{
+        "description":"Error message when email is missing"
+    },
+
+    "regEmailNoAt": "Please enter valid email",
+    "@regEmailNoAt":{
+        "description":"Error message when there is no @"
+    },
+
+    "regPassword":"Create password",
+    "@regPassword":{
+        "description":"label for password"
+    },
+    "regPasswordHelper":"It should be at least 6 chatacters long",
+    "@regPasswordHelper":{
+        "description":"helper for password"
+    },
+    "regPasswordIsTooShort":"Enter an password 6+ long",
+    "@regPassword":{
+        "description":"Error message when password is too short"
+    },
+
+    "regYouAreNotNew":"Already have an account? Sign in",
+    "@regYouAreNotNew":{
+        "description":"Text for sign in"
+    },
+
+    "regRegister":"Register",
+    "@regRegister":{
+        "description":"Register button"
+    },
+
+
+    "grCreditingPageTitle" : "Editing Page",
+    "@grCreditingPageTitle":{
+        "description":"title for this page"
+    },
+    "grCrNewDiscussionTitle" : "Create new discussion",
+    "@grCrNewDiscussionTitle":{
+        "description":"title for this page"
+    },
+
+    "grCrNewDiscussionInThisCat" : "New {category} discussion",
+    "@grCrNewDiscussionInThisCat":{
+        "description":"title for this page with category",
+        "placeholders":{
+            "category":{
+                "type":"String"
+            }
+        }
+    },
+
+    "grCrMessageOfDifinedCat" : "You are creating new discussion in {category} category.",
+    "@grCrMessageOfDifinedCat":{
+        "description":"message when category is defined",
+        "placeholders":{
+            "category":{
+                "type":"String"
+            }
+        }
+    },
+
+    "grCrSelectCat": "Please, select category for future discussion below:",
+    "@grCrSelectCat":{
+        "description" :"Suggestion to pick a category"
+    },
+
+    "grCrAddNewMembers": "Add new members",
+    "@grCrAddNewMembers":{
+        "description" :"adding new members"
+    },
+
+    "grCrFutureParticipants": "You may add future participants below:",
+    "@grCrFutureParticipants":{
+        "description" :"Adding first members"
+    },
+
+    "grCrUserAlreadySelected": "This user is already selected",
+    "@grCrUserAlreadySelected":{
+        "description" :"message when user is alerady selected"
+    },
+
+    "grCrNickNameHint": "@nickname",
+    "@grCrNickNameHint":{
+        "description" :"Nickname hint here"
+    },
+    "grCrNickNameNoAt": "Please enter nickname starting with @",
+    "@grCrNickNameNoAt":{
+        "description" :"Nickname has no @"
+    },
+
+    "grCrNoCategorySelected": "Please select category",
+    "@grCrNoCategorySelected":{
+        "description" :"when category is null"
+    },
+
+    "grCrSelectCatHintText": "Select category",
+    "@grCrSelectCatHintText":{
+        "description" :"hint text for cat selection "
+    },
+    "grCrSaveChanges": "Save changes",
+    "@grCrSaveChanges":{
+        "description" :"button text saving changes"
+    },
+
+    "grCrDiscussButton": "Discuss",
+    "@grCrDiscussButton":{
+        "description" :"button text discuss"
+    },
+
+    "grCrContEditLabel": "Edit content",
+    "@grCrContEditLabel":{
+        "description" :"Label editing content"
+    },
+
+    "grCrContNoContent": "Please enter dicsussion content",
+    "@grCrContNoContent":{
+        "description" :"Error message when there is no content"
+    },
+
+    "grCrContContentIsTooShort": "Please, expand your topic",
+    "@grCrContContentIsTooShort":{
+        "description" :"Content is too short"
+    },
+
+    "grCrContLabelOfNewDiscussion": "Content of discussion",
+    "@grCrContLabelOfNewDiscussion":{
+        "description" :"Label new discussion"
+    },
+
+    "grCrContNewDiscussionHelper": "Should be at least couple of words",
+    "@grCrContNewDiscussionHelper":{
+        "description" :"helper"
+    },
+
+    "grCrTopicIsEmpty": "Please enter discussion topic!",
+    "@grCrTopicIsEmpty":{
+        "description" :"No topic :("
+    },
+
+    "grCrTopicIsTooShort": "Please be more specific",
+    "@grCrTopicIsTooShort":{
+        "description" :"topic is too short"
+    },
+
+    "grCrTopicEditLabel": "Edit theme",
+    "@grCrTopicEditLabel":{
+        "description" :"label for editing topic"
+    },
+
+    "grCrTopicNewLabel": "Topic of discussion",
+    "@grCrTopicNewLabel":{
+        "description" :"label for new topic"
+    },
+
+    "grCrTopicHelperText": "Enter main idea of this discussion. Press lock icon to make discussion private",
+    "@grCrTopicHelperText":{
+        "description" :"this badass helper"
+    },
+
+
+  "homePageTitle":"{category} rooms",
+    "@homePageTitle":{
+        "description":"title for this page",
+        "placeholders":{
+            "category":{
+                "type":"String"
+            }
+        }
+    },
+
+    "homeNoRooms": "There are no rooms in this category.\nBe very first and start new discussion!",
+    "@homeNoRooms":{
+        "description" :"message when there is no rooms"
+    },
+
+    "memPageTitle": "Chat Members",
+    "@memPageTitle":{
+        "description":"title for this page"
+    },
+    "memPageLabelCreator": "Creator",
+    "@memPageLabelCreator":{
+        "description":"Creator label"
+    },
+
+    "memPageLabelAdmins": "Admins",
+    "@memPageLabelAdmins":{
+        "description":"Admins label"
+    },
+    "memPageLabelMembers": "Members",
+    "@memPageLabelMembers":{
+        "description":"Members label"
+    },
+    "memPageLabelReqs": "Join Requests",
+    "@memPageLabelReqs":{
+        "description":"Join Requests label"
+    },
+    "memPageLabelBanned": "Banned users:",
+    "@memPageLabelBanned":{
+        "description":"Banned users label"
+    },
+    "memPageButtonSave": "Save",
+    "@memPageButtonSave":{
+        "description":"save button"
+    },
+    "memPageButtonCancel": "Cancel",
+    "@memPageButtonCancel":{
+        "description":"Cancel button"
+    },
+
+
+
+    "memTilesDeleteWarning": "Delete this room?",
+    "@memTilesDeleteWarning":{
+        "description":"warning before deleting"
+    },
+    "memTilesDelete": "Delete",
+    "@memTilesDelete":{
+        "description":"deleting button"
+    },
+
+    "memTilesLeaveWarning": "Leave this room?",
+    "@memTilesLeaveWarning":{
+        "description":"warning before leaving"
+    },
+    
+    "memTilesLeave": "Leave",
+    "@memTilesLeave":{
+        "description":"Leaving button"
+    },
+
+    "memTilesActionKick": "Kick",
+    "@memTilesActionKick":{
+        "description":"kicking user"
+    },
+    
+    "memTilesActionBan": "Ban",
+    "@memTilesActionBan":{
+        "description":"Banning user"
+    },
+
+    "memTilesActionDemote": "Demote",
+    "@memTilesActionDemote":{
+        "description":"Demoting user"
+    },
+    "memTilesActionPromote": "Promote",
+    "@memTilesActionPromote":{
+        "description":"Promoting user"
+    },
+    "memTilesActionCantWrite": "Can`t write",
+    "@memTilesActionCantWrite":{
+        "description":"takig right to write"
+    },
+    "memTilesActionAccept": "Accept",
+    "@memTilesActionAccept":{
+        "description":"accepcting join Requests"
+    },
+    "memTilesActionDecline": "Decline",
+    "@memTilesActionDecline":{
+        "description":"declining join Requests"
+    },
+
+    "memTilesActionUnban": "Unban",
+    "@memTilesActionUnban":{
+        "description":"unbanning join Requests"
+    },
+
+
+
+    "chatPageSnackForPerm": "Well, {name}, you can`t write here. Go ask for perm.",
+    "@chatPageSnackForPerm":{
+        "description":"Snack bar text asking to ask perm",
+        "placeholders":{
+            "name":{
+                "type":"String"
+            }
+        }
+    }, 
+
+    "chatPageSnackForOpenRoom": "Hit + to join this room and be able to send messages",
+    "@chatPageSnackForOpenRoom":{
+        "description":"snack for open room"
+    },  
+
+    "chatPageSnackSentRequest": "Join reqeust sent. Fingers crossed",
+    "@chatPageSnackSentRequest":{
+        "description":"snack for sent request"
+    },  
+    "chatPageSnackJoinedRoom": "You have joined this room. Be nice!",
+    "@chatPageSnackJoinedRoom":{
+        "description":"snack for joined room"
+    },  
+
+    "chatPageBodyMessageBanned": "You were banned from this discussion",
+    "@chatPageBodyMessageBanned":{
+        "description":"body message for banned user"
+    },  
+
+    "chatPageBodyMessageNotMember": "You are not yet member of this group",
+    "@chatPageBodyMessageNotMember":{
+        "description":"body message for user not being yet member"
+    },  
+
+    "chatPageBodyMessageRequestDev": "Your request is under develeopement",
+    "@chatPageBodyMessageRequestDev":{
+        "description":"body message request develeopement"
+    },  
+    "chatPageBodyMessageEmptyChat": "ooops... Such empty!",
+    "@chatPageBodyMessageEmptyChat":{
+        "description":"body message for empty chat"
+    },
+
+    "dbCatsSport": "Sport",
+    "@dbCatsSport":{
+        "description":"Sport category"
+    },
+
+    "dbCatsVideoGames": "Video Games",
+    "@dbCatsVideoGames":{
+        "description":"Video Games category"
+    },
+    "dbCatsLiterature": "Literature",
+    "@dbCatsLiterature":{
+        "description":"Literature category"
+    },
+    "dbCatsRock": "Rock`n`Roll",
+    "@dbCatsRock":{
+        "description":"Rock`n`Roll category"
+    },
+    "dbCatsPhysics": "Physics",
+    "@dbCatsPhysics":{
+        "description":"Physics category"
+    },
+    "dbCatsRenissans": "Renissans",
+    "@dbCatsRenissans":{
+        "description":"Renissans category"
+    },
+    "dbCatsStarWars": "Star Wars",
+    "@dbCatsStarWars":{
+        "description":"Star Wars category"
+    },
+    "dbCatsHike": "Hike",
+    "@dbCatsHike":{
+        "description":"Hike category"
+    },
+    "dbCatsPolitics": "Politics",
+    "@dbCatsPolitics":{
+        "description":"Politics category"
+    },
+    "dbCatsGlobalWarming": "Global Warming",
+    "@dbCatsGlobalWarming":{
+        "description":"Global Warming category"
+    },
+    "dbCatsBelgiumCrysis": "Belgium Crysis",
+    "@dbCatsBelgiumCrysis":{
+        "description":"Belgium Crysis category"
+    },
+    "dbCatsClothes": "Clothes",
+    "@dbCatsClothes":{
+        "description":"Clothes category"
+    },
+    "dbCatsPsychologies": "Psychologies",
+    "@dbCatsPsychologies":{
+        "description":"Psychologies category"
+    },
+    "dbCatsAstrology": "Astrology",
+    "@dbCatsAstrology":{
+        "description":"Astrology category"
+    },
+    "dbCatsCats": "Cats",
+    "@dbCatsCats":{
+        "description":"Cats category"
+    },
+
+    "catsPage":"Select category",
+    "@catsPage":{
+        "description":" title for this page"
+    }
+    
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/core/localization/generated/l10n.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/pages/anotherGroupCreator.dart';
 import 'package:my_chat_app/pages/home.dart';
@@ -13,16 +14,18 @@ class CategoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     // final ThemeData theme = Theme.of(context);
     return MyScaffold(
       Text(
-        'Select category',
+        trText.catsPage,
       ),
       Padding(
         padding: EdgeInsets.symmetric(horizontal: 25.0),
         child: ListView.separated(
             itemBuilder: (BuildContext context, index) {
-              var e = data.categories[index];
+              var e = data.categories()[index];
+
               return ListTile(
                 leading: Icon(e['icon']),
                 title: Text(e['label']),
@@ -44,7 +47,7 @@ class CategoryPage extends StatelessWidget {
                 ),
               );
             },
-            itemCount: data.categories.length),
+            itemCount: data.categories().length),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),

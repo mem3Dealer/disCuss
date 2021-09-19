@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/core/localization/generated/l10n.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/states/room_state.dart';
 import 'package:my_chat_app/models/user.dart';
@@ -21,18 +22,10 @@ class TilesMethods {
               user.isApporved == false &&
               user.canWrite == false)
             return BannedUsersTile(user, roomCubit);
-          // UsersTile(
-          //   _users[index],
-          //   TileType.banned,
-          //   captionPromote: 'Unban',
-          //   icon: Icons.check,
-          //   callbackIn: () => roomCubit.changeUserPrivileges(_users[index],
-          //       canWrite: true, isApporved: true),
-          // );
           else
             return SizedBox.shrink();
         });
-  } //я понял принцип, но в некоторых больше одного действия. Справедливо. Хорошо остальные доделаю также.Посмотришь подгрузку мою? Ок
+  }
 
   ListView buildJoinRequests(RoomState state, List<MyUser> _users) {
     return ListView.builder(
@@ -46,16 +39,6 @@ class TilesMethods {
               user.isApporved == true &&
               user.canWrite == false)
             return RequestedTile(user, roomCubit);
-          // UsersTile(
-          //   _users[index],
-          //   TileType.requested,
-          //   captionPromote: 'Accept',
-          //   captionDemote: 'Decline',
-          //   callbackIn: () => roomCubit.changeUserPrivileges(_users[index],
-          //       canWrite: !_users[index].canWrite!),
-          //   callbackOut: () => roomCubit.kickUser(
-          //       roomCubit.state.currentRoom!.groupID!, _users[index]),
-          // );
           else
             return SizedBox.shrink();
         });
@@ -73,22 +56,6 @@ class TilesMethods {
               user.isApporved == true &&
               user.canWrite == true)
             return MemberTile(user, roomCubit);
-          // UsersTile(
-          //   _users[index],
-          //   TileType.member,
-          //   captionPromote: 'Promote',
-          //   callbackIn: () =>
-          //       roomCubit.changeUserPrivileges(user, isAdmin: !user.isAdmin!),
-          //   captionDemote: 'Ban',
-          //   callbackOut: () => roomCubit.changeUserPrivileges(user,
-          //       canWrite: false, isApporved: false, isAdmin: false),
-          //   captionDemote1: 'Kick user',
-          //   callbackOut1: () => roomCubit.kickUser(
-          //       roomCubit.state.currentRoom!.groupID!, user),
-          //   captionDemote2: 'Can`t write',
-          //   callbackOut2: () => roomCubit.changeUserPrivileges(user,
-          //       canWrite: !user.canWrite!),
-          // );
           else
             return SizedBox.shrink();
         });
@@ -103,21 +70,6 @@ class TilesMethods {
           MyUser? user = _users[index];
           if (user.isAdmin == true && user.isOwner != true)
             return AdminTile(user, roomCubit);
-          // UsersTile(
-          //   user,
-          //   TileType.admin,
-          //   captionDemote: 'Demote',
-          //   callbackOut: () =>
-          //       roomCubit.changeUserPrivileges(user, isAdmin: !user.isAdmin!),
-          //   captionDemote1: 'Kick user',
-          //   callbackOut1: () => roomCubit.kickUser(
-          //       roomCubit.state.currentRoom!.groupID!, user),
-          //   captionDemote2: 'Ban',
-          //   callbackOut2: () => roomCubit.changeUserPrivileges(user,
-          //       canWrite: !user.canWrite!,
-          //       isApporved: !user.isApporved!,
-          //       isAdmin: !user.isAdmin!),
-          // );
           else
             return SizedBox.shrink();
         });
@@ -125,6 +77,7 @@ class TilesMethods {
 
   IconButton buildLeaveOrDeleteButton(
       MyUser? currentMemberofThisRoom, BuildContext context, String groupID) {
+    final trText = GetIt.I.get<I10n>();
     return IconButton(
         onPressed: () {
           currentMemberofThisRoom?.isOwner == true
@@ -132,17 +85,17 @@ class TilesMethods {
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      title: Text('Delete this room?'),
+                      title: Text(trText.memTilesDeleteWarning),
                       actions: [
                         ElevatedButton(
                             onPressed: () {
                               roomCubit.dissolveRoom(groupID);
-                              print(' got us here?');
+                              // print(' got us here?');
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   '/home_page',
                                   (Route<dynamic> route) => false);
                             },
-                            child: Text('Delete'))
+                            child: Text(trText.memTilesDelete))
                       ],
                     );
                   })
@@ -150,7 +103,7 @@ class TilesMethods {
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      title: Text('Leave this room?'),
+                      title: Text(trText.memTilesLeaveWarning),
                       actions: [
                         ElevatedButton(
                             onPressed: () {
@@ -164,7 +117,7 @@ class TilesMethods {
                               //   builder: (BuildContext context) => HomePage(),
                               // ));
                             },
-                            child: Text('Leave'))
+                            child: Text(trText.memTilesLeave))
                       ],
                     );
                   });
@@ -321,6 +274,7 @@ class AdminTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     // MyUser? user;
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
@@ -328,14 +282,14 @@ class AdminTile extends StatelessWidget {
       actions: [
         if (roomCubit.getoLocalUser()?.isOwner == true)
           IconSlideAction(
-              caption: 'Kick user',
+              caption: trText.memTilesActionKick,
               color: Colors.orange.shade700,
               icon: Icons.delete_sweep,
               onTap: () => roomCubit.kickUser(
                   roomCubit.state.currentRoom!.groupID!, user!)),
         if (roomCubit.getoLocalUser()?.isOwner == true)
           IconSlideAction(
-              caption: 'Ban',
+              caption: trText.memTilesActionBan,
               color: Colors.red.shade900,
               icon: Icons.block_sharp,
               onTap: () => roomCubit.changeUserPrivileges(user,
@@ -346,7 +300,7 @@ class AdminTile extends StatelessWidget {
       secondaryActions: [
         if (roomCubit.getoLocalUser()?.isOwner == true)
           IconSlideAction(
-              caption: 'Demote',
+              caption: trText.memTilesActionDemote,
               color: Colors.indigo,
               icon: Icons.arrow_downward_sharp,
               onTap: () => roomCubit.changeUserPrivileges(user,
@@ -366,6 +320,7 @@ class MemberTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     // MyUser? user;
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
@@ -373,7 +328,7 @@ class MemberTile extends StatelessWidget {
       secondaryActions: [
         if (roomCubit.getoLocalUser()?.isOwner == true)
           IconSlideAction(
-            caption: 'Promote',
+            caption: trText.memTilesActionPromote,
             color: Colors.greenAccent.shade700,
             icon: Icons.arrow_upward_sharp,
             onTap: () =>
@@ -383,21 +338,21 @@ class MemberTile extends StatelessWidget {
       actions: [
         if (roomCubit.getoLocalUser()?.isOwner == true)
           IconSlideAction(
-              caption: 'Ban',
+              caption: trText.memTilesActionBan,
               color: Colors.red.shade900,
               icon: Icons.block_sharp,
               onTap: () => roomCubit.changeUserPrivileges(user,
                   canWrite: false, isApporved: false, isAdmin: false)),
         if (roomCubit.getoLocalUser()?.isAdmin == true)
           IconSlideAction(
-              caption: 'Kick user',
+              caption: trText.memTilesActionKick,
               color: Colors.orange.shade700,
               icon: Icons.delete_sweep,
               onTap: () => roomCubit.kickUser(
                   roomCubit.state.currentRoom!.groupID!, user!)),
         if (roomCubit.getoLocalUser()?.isAdmin == true)
           IconSlideAction(
-              caption: 'Can`t write',
+              caption: trText.memTilesActionCantWrite,
               color: Colors.indigo,
               icon: Icons.arrow_downward_sharp,
               onTap: () => roomCubit.changeUserPrivileges(user,
@@ -417,13 +372,14 @@ class RequestedTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     // MyUser? user;
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
       secondaryActions: <Widget>[
         IconSlideAction(
-          caption: 'Accept',
+          caption: trText.memTilesActionAccept,
           color: Colors.greenAccent.shade700,
           icon: Icons.check,
           onTap: () =>
@@ -432,7 +388,7 @@ class RequestedTile extends StatelessWidget {
       ],
       actions: <Widget>[
         IconSlideAction(
-            caption: 'Decline',
+            caption: trText.memTilesActionDecline,
             color: Colors.red.shade800,
             icon: Icons.cancel,
             onTap: () =>
@@ -455,13 +411,14 @@ class BannedUsersTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     // MyUser? user;
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
       secondaryActions: <Widget>[
         IconSlideAction(
-          caption: 'Unban',
+          caption: trText.memTilesActionUnban,
           color: Colors.greenAccent.shade700,
           icon: Icons.check,
           onTap: () => roomCubit.changeUserPrivileges(user,

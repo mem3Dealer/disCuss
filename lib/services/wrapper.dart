@@ -17,8 +17,7 @@ class Wrapper extends StatelessWidget {
     return BlocBuilder<AuthCubit, AuthState>(
       bloc: authCubit,
       builder: (context, state) {
-        if (
-            // authCubit.fbAuth != null ||
+        if (authCubit.fbAuth != null ||
             // authCubit.fbAuth!.uid.isNotEmpty ||
             state.isLoggedIn == true) {
           return CategoryPage();

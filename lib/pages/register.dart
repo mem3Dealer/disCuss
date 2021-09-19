@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/core/localization/generated/l10n.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/user_cubit.dart';
 import 'package:my_chat_app/services/database.dart';
@@ -29,6 +30,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String? _emailTaken;
   @override
   Widget build(BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     final ThemeData theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
@@ -61,13 +63,14 @@ class _RegisterPageState extends State<RegisterPage> {
                       TextFormField(
                           controller: _nameController,
                           decoration: InputDecoration().copyWith(
-                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                              labelText: 'What is your name?',
-                              helperText: 'It should be at least 4 characters long'),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
+                              labelText: trText.regNameLabel,
+                              helperText: trText.regNameHelper),
                           validator: (val) => val!.isEmpty
-                              ? "Please, enter your name"
-                              : val.length < 4
-                                  ? 'Name should be at least 4 chars long'
+                              ? trText.regNameMissing
+                              : val.length < 2
+                                  ? trText.regNameTooShort
                                   : null),
                       SizedBox(
                         height: 20,
@@ -76,16 +79,17 @@ class _RegisterPageState extends State<RegisterPage> {
                           // initialValue: '@',
                           controller: _nickNameController,
                           decoration: InputDecoration().copyWith(
-                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                              labelText: 'Enter your nickname',
-                              helperText: 'It should start with @'),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
+                              labelText: trText.regNickNameLabel,
+                              helperText: trText.regNickNameHelper),
                           // onSaved:   authCubit.isNickNameUnique(_nickNameController.text).toString();,
                           validator: (val) {
                             if (val?.contains('@') == false) {
-                              return 'please enter nickname starting with @';
+                              return trText.regNickNameNoAt;
                             }
                             if (val!.length <= 4) {
-                              return 'Nickname should be at least 4 characters long';
+                              return trText.regNickNameTooShort;
                             }
                             if (nickNameValidator == '') {
                               return null;
@@ -97,13 +101,15 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       TextFormField(
                           controller: _emailController,
-                          decoration: InputDecoration()
-                              .copyWith(floatingLabelBehavior: FloatingLabelBehavior.always, labelText: 'Enter e-mail'),
+                          decoration: InputDecoration().copyWith(
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
+                              labelText: trText.regEmail),
                           validator: (val) {
                             if (val?.isEmpty == true) {
-                              return 'Enter an email adress';
+                              return trText.regEmailIsEmpty;
                             } else if (val?.contains('@') == false) {
-                              return 'Please enter valid email';
+                              return trText.regEmailNoAt;
                             } else if (_emailTaken?.isNotEmpty == true) {
                               return _emailTaken;
                             }
@@ -115,9 +121,11 @@ class _RegisterPageState extends State<RegisterPage> {
                         controller: _passwordController,
                         decoration: InputDecoration().copyWith(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
-                            labelText: 'Create password',
-                            helperText: 'It should be at least 6 chatacters long'),
-                        validator: (val) => val!.length < 6 ? "Enter an password 6+ long" : null,
+                            labelText: trText.regPassword,
+                            helperText: trText.regPasswordHelper),
+                        validator: (val) => val!.length < 6
+                            ? trText.regPasswordIsTooShort
+                            : null,
                         obscureText: true,
                       ), // password
                       SizedBox(height: 10),
@@ -125,24 +133,15 @@ class _RegisterPageState extends State<RegisterPage> {
                           onPressed: () {
                             widget.letsToggleView!();
                           },
-                          child: Text('Already have an account? Sign in',
-                              style: TextStyle(color: Theme.of(context).accentColor))),
+                          child: Text(trText.regYouAreNotNew,
+                              style: TextStyle(
+                                  color: Theme.of(context).accentColor))),
                       SizedBox(height: 10),
                       ElevatedButton(
-                        child: Text('Register'),
+                        child: Text(trText.regRegister),
                         onPressed: () async {
-                          nickNameValidator = await authCubit.isNickNameUnique(_nickNameController.text);
-
-                          // var result = await authCubit.registrate(
-                          //     _nameController.text.trim(),
-                          //     _emailController.text.trim(),
-                          //     _passwordController.text.trim(),
-                          //     _nickNameController.text.trim());
-
-                          // print('THIS IS THIS PRINT: $result');
-                          // if (result != null && result.runtimeType == String) {
-                          //   _emailTaken = result;
-                          // }
+                          nickNameValidator = await authCubit
+                              .isNickNameUnique(_nickNameController.text);
 
                           if (_formKey.currentState!.validate()) {
                             var result = await authCubit.registrate(
@@ -151,8 +150,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 _passwordController.text.trim(),
                                 _nickNameController.text.trim());
 
-                            print('THIS IS THIS PRINT: $result');
-                            if (result != null && result.runtimeType == String) {
+                            // print('THIS IS THIS PRINT: $result');
+                            if (result != null &&
+                                result.runtimeType == String) {
                               _emailTaken = result;
                             }
                           }

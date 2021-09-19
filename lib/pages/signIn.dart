@@ -1,7 +1,7 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/core/localization/generated/l10n.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 
 class SignInPage extends StatefulWidget {
@@ -20,6 +20,7 @@ class _SignInPageState extends State<SignInPage> {
   TextEditingController _passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     final ThemeData theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
@@ -52,12 +53,14 @@ class _SignInPageState extends State<SignInPage> {
                           controller: _emailController,
                           decoration: InputDecoration().copyWith(
                               alignLabelWithHint: true,
-                              labelText: 'E-mail',
-                              labelStyle: TextStyle(color: Theme.of(context).accentColor),
-                              floatingLabelBehavior: FloatingLabelBehavior.always),
+                              labelText: trText.email,
+                              labelStyle: TextStyle(
+                                  color: Theme.of(context).accentColor),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always),
                           validator: (val) {
                             if (val?.isEmpty == true) {
-                              return 'Enter a valid email';
+                              return trText.emailIsEmpty;
                             }
                             if (_emailError?.isNotEmpty == true) {
                               return _emailError;
@@ -70,15 +73,17 @@ class _SignInPageState extends State<SignInPage> {
                         TextFormField(
                           controller: _passwordController,
                           decoration: InputDecoration().copyWith(
-                              labelStyle: TextStyle(color: Theme.of(context).accentColor),
-                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                              labelText: 'Password'),
+                              labelStyle: TextStyle(
+                                  color: Theme.of(context).accentColor),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
+                              labelText: trText.password),
                           validator: (val) {
                             if (val!.isEmpty) {
-                              return 'Please, enter password';
+                              return trText.passwordIsIncorrect;
                             }
                             if (val.length < 6) {
-                              return 'Enter password 6+ long';
+                              return trText.passwordIsTooShort;
                             }
                             if (_passError?.isNotEmpty == true) {
                               return _passError;
@@ -92,25 +97,28 @@ class _SignInPageState extends State<SignInPage> {
                               widget.letsToggleView();
                             },
                             child: Text(
-                              'New to DisCuss? Register',
-                              style: TextStyle(color: Theme.of(context).accentColor),
+                              // 'New to DisCuss? Register',
+                              trText.areYouNew,
+                              style: TextStyle(
+                                  color: Theme.of(context).accentColor),
                             )),
                         SizedBox(height: 10),
                         ElevatedButton(
                           child: Text(
-                            'Sign in',
+                            trText.signIn,
                           ),
                           onPressed: () async {
                             _passError = '';
                             _emailError = '';
-                            var result =
-                                await authCubit.signIn(_emailController.text.trim(), _passwordController.text.trim());
+                            var result = await authCubit.signIn(
+                                _emailController.text.trim(),
+                                _passwordController.text.trim());
                             if (result?.isNotEmpty == true) {
                               if (result!.contains('password')) {
                                 _passError = result;
                               } else if (result.contains('User')) {
                                 _emailError = result;
-                                print('THAT print from button: $_emailError');
+                                // print ('THAT print from button: $_emailError');
                               }
                             }
                             if (_formKey.currentState!.validate()) {}

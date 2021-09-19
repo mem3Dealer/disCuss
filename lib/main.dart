@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:my_chat_app/core/localization/generated/l10n.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/states/auth_state.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
@@ -28,6 +29,7 @@ void main() async {
   // WidgetsFlutterBinding.ensureInitialized();
   // print('ayy');
   GetIt.instance
+    ..registerSingleton<I10n>(I10n())
     //..registerSingleton<RoomState>(
     //  RoomState()) // может не синглтон? или порядок не тот
     ..registerSingleton<DataBaseService>(DataBaseService())
@@ -65,13 +67,25 @@ class MyApp extends StatelessWidget {
                   '/wrapper': (BuildContext context) => Wrapper(),
                   // '/signIn': (BuildContext context) => SignInPage()
                 },
-                localizationsDelegates: const [
+                localizationsDelegates: [
+                  I10n.delegate,
                   GlobalMaterialLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
                 ],
-                supportedLocales: const [
-                  Locale('ru', ''), // English, no country code
-                  // Spanish, no country code
-                ],
+                supportedLocales: I10n.delegate.supportedLocales,
+                localeResolutionCallback: (deviceLocale, supportedLocales) {
+                  if (supportedLocales
+                      .map((e) => e.languageCode)
+                      .contains(deviceLocale?.languageCode)) {
+                    return deviceLocale;
+                  } else {
+                    return const Locale('en', '');
+                  }
+                },
+                // Locale('ru', ''), // English, no country code
+                // Spanish, no country code
+
                 home:
                     //SliverPage(),
                     BlocBuilder<AuthCubit, AuthState>(

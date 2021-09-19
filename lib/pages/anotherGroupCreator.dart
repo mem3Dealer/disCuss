@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/core/localization/generated/l10n.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/states/room_state.dart';
@@ -41,6 +42,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
 
   @override
   Widget build(BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     bool _isEditing = widget.isEditing!;
     String? nickNameIsValid;
     List<MyUser>? _selectedUsers = userCubit.state.selectedUsers;
@@ -59,42 +61,13 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
         TextEditingController(text: roomCubit.state.currentRoom?.topicTheme);
 
     String? _category = widget.category;
-    // return Container(
-    //   decoration: BoxDecoration(
-    //     image: DecorationImage(
-    //         scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
-    //         repeat: ImageRepeat.repeat,
-    //         // fit: BoxFit.cover,
-    //         image: theme.brightness == Brightness.dark
-    //             ? ExactAssetImage('assets/dark_back.png')
-    //             : ExactAssetImage('assets/light_back.jpg')),
-    //   ),
-    //   child: BackdropFilter(
-    //     filter: theme.brightness == Brightness.dark
-    //         ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
-    //         : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-    //     child: Scaffold(
-    //         backgroundColor: Colors.transparent,
-    //         // resizeToAvoidBottomInset: false,
-    //         appBar: AppBar(
-    //           backgroundColor: Colors.transparent,
-    //           elevation: 0,
-    //           title: _isEditing
-    //               ? Text('Editing page')
-    //               : _category == null
-    //                   ? Text('Create new discussion')
-    //                   : Text('New $_category discussion'),
-    //         ),
-    //         body: ClipRRect(
-    //           borderRadius: BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
-    //           child:
 
     return MyScaffold(
       _isEditing
-          ? Text('Editing page')
+          ? Text(trText.grCreditingPageTitle)
           : _category == null
-              ? Text('Create new discussion')
-              : Text('New $_category discussion'),
+              ? Text(trText.grCrNewDiscussionTitle)
+              : Text(trText.grCrNewDiscussionInThisCat(_category)),
       Container(
           height: double.infinity,
           decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
@@ -111,7 +84,8 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                         _isEditing == false
                             ? _category != null
                                 ? Text(
-                                    'You are creating new discussion in $_category category.',
+                                    trText
+                                        .grCrNewDiscussionInThisCat(_category),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 20,
@@ -123,21 +97,22 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 11.0),
                                         child: Text(
-                                          'Please, select category for future discussion below:',
+                                          trText.grCrSelectCat,
                                           style: theme.textTheme.caption,
                                         ),
                                       ),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      _buildSelectCategory(_category),
+                                      _buildSelectCategory(_category, context),
                                     ],
                                   )
                             : SizedBox.shrink(),
                         SizedBox(
                           height: 20,
                         ),
-                        buildTopicTheme(_isEditing, _themeEditingController),
+                        buildTopicTheme(
+                            _isEditing, _themeEditingController, context),
                         SizedBox(
                           height: 15,
                         ),
@@ -145,7 +120,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                           bloc: roomCubit,
                           builder: (context, state) {
                             return buildTopicContent(
-                                _isEditing, _editingTopicContent);
+                                _isEditing, _editingTopicContent, context);
                           },
                         ),
                         SizedBox(
@@ -154,8 +129,8 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                         Divider(),
                         Text(
                           _isEditing
-                              ? 'Add new members'
-                              : 'You may add future participants below:',
+                              ? trText.grCrAddNewMembers
+                              : trText.grCrFutureParticipants,
                           style:
                               theme.textTheme.caption?.copyWith(fontSize: 13),
                           // textAlign: TextAlign.start,
@@ -213,7 +188,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                                                 isContainedNewRoom == true) {
                                           // print('THIS IS PRINT: $contained');
                                           nickNameIsValid =
-                                              'This user is already selected';
+                                              trText.grCrUserAlreadySelected;
                                           // print('THIS IS PRINT: $nickNameIsValid');
                                         } else {
                                           userCubit.selectUser(_addingUser!);
@@ -226,14 +201,14 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                                               .validate()) {}
                                     },
                                     icon: Icon(Icons.add)),
-                                hintText: '@nickname'),
+                                hintText: trText.grCrNickNameHint),
                             controller: _searchBy,
                             validator: (val) {
                               if (val?.contains('@') == false) {
-                                return 'please enter nickname starting with @';
+                                return trText.grCrNickNameNoAt;
                               }
                               if (nickNameIsValid.runtimeType == String) {
-                                print('final print: $nickNameIsValid');
+                                // print('final print: $nickNameIsValid');
                                 // return nickNameIsValid.toString();
                                 return '$nickNameIsValid';
                               } else
@@ -260,23 +235,20 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     // );
   }
 
-  DropdownButtonFormField<String> _buildSelectCategory(String? category) {
-    // List<DropdownMenuItem<String>> dropDownCats = [];
-    // data.categories.forEach((element) {
-    //   dropDownCats.add(DropdownMenuItem(
-    //       value: element['label']!, child: Text(element['label']!)));
-    // });
-
+  DropdownButtonFormField<String> _buildSelectCategory(
+      String? category, BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     return DropdownButtonFormField(
       value: category,
-      items: data.categories.map<DropdownMenuItem<String>>((e) {
+      items: data.categories().map<DropdownMenuItem<String>>((e) {
         return DropdownMenuItem(
           // onTap: () {},
           value: e['option']!,
           child: Text((e['label']!)),
         );
       }).toList(),
-      validator: (value) => value == null ? 'Please select category' : null,
+      validator: (value) =>
+          value == null ? trText.grCrNoCategorySelected : null,
       onChanged: category == null
           ? (value) async {
               category = value!;
@@ -284,7 +256,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
               // print("I see new room cat: ${roomCubit.state.category}");
             }
           : null,
-      hint: Text('Select category'),
+      hint: Text(trText.grCrSelectCatHintText),
     );
   }
 
@@ -294,6 +266,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
       TextEditingController _themeEditingController,
       BuildContext context,
       String? category) {
+    final trText = GetIt.I.get<I10n>();
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -306,7 +279,7 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                   backgroundColor: MaterialStateProperty.resolveWith(
                       (states) => Theme.of(context).primaryColor)),
               child: Text(
-                _isEditing ? "Save changes" : 'Discuss',
+                _isEditing ? trText.grCrSaveChanges : trText.grCrDiscussButton,
                 style: TextStyle(fontSize: 20),
               ),
               onPressed: () {
@@ -402,40 +375,42 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
     );
   }
 
-  TextFormField buildTopicContent(
-      bool _isEditing, TextEditingController _editingTopicContent) {
+  TextFormField buildTopicContent(bool _isEditing,
+      TextEditingController _editingTopicContent, BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     return TextFormField(
         maxLines: 7,
         controller: _isEditing ? _editingTopicContent : _topicContent,
         validator: (val) => val!.isEmpty
-            ? "Please enter dicsussion content"
+            ? trText.grCrContNoContent
             : val.length >= 10
                 ? null
-                : 'Please, expand your topic',
+                : trText.grCrContContentIsTooShort,
         decoration: _isEditing
-            ? InputDecoration().copyWith(labelText: 'Edit content')
+            ? InputDecoration().copyWith(labelText: trText.grCrContEditLabel)
             : InputDecoration().copyWith(
                 // isCollapsed: true,
-                labelText: 'Content of discussion',
+                labelText: trText.grCrContLabelOfNewDiscussion,
                 alignLabelWithHint: true,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 // hintText: 'What do you want to discuss?',
-                helperText: 'Should be at least couple of words'));
+                helperText: trText.grCrContNewDiscussionHelper));
   }
 
-  TextFormField buildTopicTheme(
-      bool _isEditing, TextEditingController _themeEditingController) {
+  TextFormField buildTopicTheme(bool _isEditing,
+      TextEditingController _themeEditingController, BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     return TextFormField(
         controller: _isEditing ? _themeEditingController : _topicTheme,
         validator: (val) => val!.isEmpty
-            ? "Please enter discussion topic!"
+            ? trText.grCrTopicIsEmpty
             : val.length < 5
-                ? 'Please be more specific'
+                ? trText.grCrTopicIsTooShort
                 : null,
         decoration: _isEditing
             ? InputDecoration().copyWith(
                 floatingLabelBehavior: FloatingLabelBehavior.auto,
-                labelText: 'Edit theme',
+                labelText: trText.grCrTopicEditLabel,
                 suffixIcon: BlocBuilder<RoomCubit, RoomState>(
                   bloc: roomCubit,
                   builder: (context, state) {
@@ -464,10 +439,9 @@ class _AnotherGroupCreatorState extends State<AnotherGroupCreator> {
                             : Icon(Icons.lock_open));
                   },
                 ),
-                labelText: 'Topic of discussion',
+                labelText: trText.grCrTopicNewLabel,
                 helperMaxLines: 3,
-                helperText:
-                    'Enter main idea of this discussion. Press lock icon to make discussion private',
+                helperText: trText.grCrTopicHelperText,
                 floatingLabelBehavior: FloatingLabelBehavior.always));
   }
 }

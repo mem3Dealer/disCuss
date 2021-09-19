@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:my_chat_app/core/localization/generated/l10n.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/states/room_state.dart';
@@ -49,6 +50,7 @@ class _ChatPageState extends State<ChatPage>
     _controller = AnimationController(
         duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
+      final trText = GetIt.I.get<I10n>();
       MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
       bool userIsbanned = (currentMemberofThisRoom?.uid != null &&
           currentMemberofThisRoom?.canWrite == false &&
@@ -56,13 +58,14 @@ class _ChatPageState extends State<ChatPage>
       final entrySnackBar = SnackBar(
           duration: Duration(seconds: 3),
           content: Text(
-              'Well, ${authCubit.state.currentUser?.name}, you can`t write here. Go ask for perm.',
+              trText
+                  .chatPageSnackForPerm("${authCubit.state.currentUser?.name}"),
               style: TextStyle(
                 fontSize: 17,
               )));
       final entryPublicRoomSnackBar = SnackBar(
           duration: Duration(seconds: 3),
-          content: Text('Hit + to send messages in this room',
+          content: Text(trText.chatPageSnackForOpenRoom,
               style: TextStyle(
                 fontSize: 17,
               )));
@@ -107,6 +110,7 @@ class _ChatPageState extends State<ChatPage>
 
   @override
   Widget build(BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     Room? currentRoom = roomCubit.state.currentRoom;
     MyUser? currentMemberofThisRoom = roomCubit.getoLocalUser();
     bool? didIWrite;
@@ -122,12 +126,12 @@ class _ChatPageState extends State<ChatPage>
     final requestSentSnackBar = SnackBar(
         duration: Duration(seconds: 2),
         content: Text(
-          'Join reqeust sent. Fingers crossed',
+          trText.chatPageSnackSentRequest,
         ));
     final youHaveJoinedSnackBar = SnackBar(
         duration: Duration(seconds: 2),
         content: Text(
-          'You have joined this room. Be nice!',
+          trText.chatPageSnackJoinedRoom,
         ));
     return BlocBuilder<RoomCubit, RoomState>(
       bloc: roomCubit,
@@ -141,185 +145,104 @@ class _ChatPageState extends State<ChatPage>
         // List<Message>? _localChat = state.messagesOfThisChatRoom;
         String title = " ${roomCubit.state.currentRoom?.topicTheme}";
         final ThemeData theme = Theme.of(context);
-        // BoxConstraints? constraints;
 
-        // Color color = Color.fromARGB(255, Random().nextInt(100) + 100,
-        //     Random().nextInt(100) + 100, Random().nextInt(100) + 100);
-        // // int hexCode = color.value;
-        return
-            // MyScaffold(
-            //   Text(
-            //     title,
-            //     style: Theme.of(context).textTheme.headline1,
-            //     overflow: TextOverflow.ellipsis,
-            //   ),
-            //   LayoutBuilder(
-            //     builder: _buildChatBody,
-            //   ),
-            //   actions: [
-            //     Padding(
-            //       padding: EdgeInsets.only(right: 10.0),
-            //       child: Row(
-            //         children: [
-            //           if (!userIsbanned)
-            //             AnimatedIconButton(
-            //                 splashRadius: 5,
-            //                 onPressed: () {
-            //                   _controller.fling(
-            //                       velocity: _isPanelVisible ? -1.0 : 1.0);
-            //                   // print(_controller.velocity);
-            //                 },
-            //                 icons: [
-            //                   AnimatedIconItem(
-            //                       icon: Icon(
-            //                     Icons.arrow_downward_sharp,
-            //                     size: 24,
-            //                     color: theme.brightness == Brightness.light
-            //                         ? Colors.black
-            //                         : Colors.white,
-            //                   )),
-            //                   AnimatedIconItem(
-            //                       icon: Icon(
-            //                     Icons.arrow_upward_sharp,
-            //                     color: theme.brightness == Brightness.light
-            //                         ? Colors.black
-            //                         : Colors.white,
-            //                     size: 24,
-            //                   )),
-            //                 ]),
-            //           if (currentMemberofThisRoom?.isApporved == false &&
-            //               currentMemberofThisRoom?.canWrite == false)
-            //             IconButton(
-            //                 onPressed: () {
-            //                   roomCubit.sentRequest(
-            //                     authCubit.state.currentUser,
-            //                   );
-            //                   currentRoom!.isPrivate
-            //                       ? ScaffoldMessenger.of(context)
-            //                           .showSnackBar(requestSentSnackBar)
-            //                       : ScaffoldMessenger.of(context)
-            //                           .showSnackBar(youHaveJoinedSnackBar);
-            //                 },
-            //                 icon: Icon(Icons.add)),
-            //           if (currentMemberofThisRoom?.isApporved == true &&
-            //               currentMemberofThisRoom?.canWrite == true)
-            //             IconButton(
-            //                 padding: EdgeInsets.zero,
-            //                 onPressed: () {
-            //                   Navigator.of(context).push(
-            //                     MaterialPageRoute<void>(
-            //                       builder: (BuildContext context) =>
-            //                           RoomMembersPage(widget.groupID),
-            //                     ),
-            //                   );
-            //                 },
-            //                 icon: Icon(Icons.people))
-            //         ],
-            //       ),
-            //     )
-            //   ],
-            // );
-            Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                      scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
-                      repeat: ImageRepeat.repeat,
-                      // fit: BoxFit.cover,
-                      image: theme.brightness == Brightness.dark
-                          ? ExactAssetImage('assets/dark_back.png')
-                          : ExactAssetImage('assets/light_back.jpg')),
-                ),
-                child: BackdropFilter(
-                    filter: theme.brightness == Brightness.dark
-                        ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
-                        : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-                    child: Scaffold(
-                      backgroundColor: Colors.transparent,
-                      appBar: AppBar(
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
-                        title: Text(
-                          title,
-                          style: Theme.of(context).textTheme.headline1,
-                          overflow: TextOverflow.ellipsis,
+        return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                  scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
+                  repeat: ImageRepeat.repeat,
+                  // fit: BoxFit.cover,
+                  image: theme.brightness == Brightness.dark
+                      ? ExactAssetImage('assets/dark_back.png')
+                      : ExactAssetImage('assets/light_back.jpg')),
+            ),
+            child: BackdropFilter(
+                filter: theme.brightness == Brightness.dark
+                    ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
+                    : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+                child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  appBar: AppBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    title: Text(
+                      title,
+                      style: Theme.of(context).textTheme.headline1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    actions: [
+                      Padding(
+                        padding: EdgeInsets.only(right: 10.0),
+                        child: Row(
+                          children: [
+                            if (!userIsbanned)
+                              AnimatedIconButton(
+                                  splashRadius: 5,
+                                  onPressed: () {
+                                    _controller.fling(
+                                        velocity: _isPanelVisible ? -1.0 : 1.0);
+                                    // print(_controller.velocity);
+                                  },
+                                  icons: [
+                                    AnimatedIconItem(
+                                        icon: Icon(
+                                      Icons.arrow_downward_sharp,
+                                      size: 24,
+                                      color:
+                                          theme.brightness == Brightness.light
+                                              ? Colors.black
+                                              : Colors.white,
+                                    )),
+                                    AnimatedIconItem(
+                                        icon: Icon(
+                                      Icons.arrow_upward_sharp,
+                                      color:
+                                          theme.brightness == Brightness.light
+                                              ? Colors.black
+                                              : Colors.white,
+                                      size: 24,
+                                    )),
+                                  ]),
+                            if (currentMemberofThisRoom?.isApporved == false &&
+                                currentMemberofThisRoom?.canWrite == false)
+                              IconButton(
+                                  onPressed: () {
+                                    roomCubit.sentRequest(
+                                      authCubit.state.currentUser,
+                                    );
+                                    currentRoom!.isPrivate
+                                        ? ScaffoldMessenger.of(context)
+                                            .showSnackBar(requestSentSnackBar)
+                                        : ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                                youHaveJoinedSnackBar);
+                                  },
+                                  icon: Icon(Icons.add)),
+                            if (currentMemberofThisRoom?.isApporved == true &&
+                                currentMemberofThisRoom?.canWrite == true)
+                              IconButton(
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute<void>(
+                                        builder: (BuildContext context) =>
+                                            RoomMembersPage(widget.groupID),
+                                      ),
+                                    );
+                                  },
+                                  icon: Icon(Icons.people))
+                          ],
                         ),
-                        actions: [
-                          Padding(
-                            padding: EdgeInsets.only(right: 10.0),
-                            child: Row(
-                              children: [
-                                if (!userIsbanned)
-                                  AnimatedIconButton(
-                                      splashRadius: 5,
-                                      onPressed: () {
-                                        _controller.fling(
-                                            velocity:
-                                                _isPanelVisible ? -1.0 : 1.0);
-                                        // print(_controller.velocity);
-                                      },
-                                      icons: [
-                                        AnimatedIconItem(
-                                            icon: Icon(
-                                          Icons.arrow_downward_sharp,
-                                          size: 24,
-                                          color: theme.brightness ==
-                                                  Brightness.light
-                                              ? Colors.black
-                                              : Colors.white,
-                                        )),
-                                        AnimatedIconItem(
-                                            icon: Icon(
-                                          Icons.arrow_upward_sharp,
-                                          color: theme.brightness ==
-                                                  Brightness.light
-                                              ? Colors.black
-                                              : Colors.white,
-                                          size: 24,
-                                        )),
-                                      ]),
-                                if (currentMemberofThisRoom?.isApporved ==
-                                        false &&
-                                    currentMemberofThisRoom?.canWrite == false)
-                                  IconButton(
-                                      onPressed: () {
-                                        roomCubit.sentRequest(
-                                          authCubit.state.currentUser,
-                                        );
-                                        currentRoom!.isPrivate
-                                            ? ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                                    requestSentSnackBar)
-                                            : ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                                    youHaveJoinedSnackBar);
-                                      },
-                                      icon: Icon(Icons.add)),
-                                if (currentMemberofThisRoom?.isApporved ==
-                                        true &&
-                                    currentMemberofThisRoom?.canWrite == true)
-                                  IconButton(
-                                      padding: EdgeInsets.zero,
-                                      onPressed: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute<void>(
-                                            builder: (BuildContext context) =>
-                                                RoomMembersPage(widget.groupID),
-                                          ),
-                                        );
-                                      },
-                                      icon: Icon(Icons.people))
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                      body: LayoutBuilder(
-                        builder: _buildChatBody,
-                      ),
+                      )
+                    ],
+                  ),
+                  body: LayoutBuilder(
+                    builder: _buildChatBody,
+                  ),
 
-                      // _buildChatBody(userIsbanned, currentRoom,
-                      //     currentMemberofThisRoom, _localChat)
-                    )));
+                  // _buildChatBody(userIsbanned, currentRoom,
+                  //     currentMemberofThisRoom, _localChat)
+                )));
       },
     );
   }
@@ -338,9 +261,10 @@ class _ChatPageState extends State<ChatPage>
     final ThemeData theme = Theme.of(context);
     String content = " ${roomCubit.state.currentRoom?.topicContent}";
     String topic = " ${roomCubit.state.currentRoom?.topicTheme}";
+    final trText = GetIt.I.get<I10n>();
 
     // print('Colors is: $color');
-    print('THEESE ARE THIS PRINTS: $currentRoom, $currentMemberofThisRoom');
+    // print('THEESE ARE THIS PRINTS: $currentRoom, $currentMemberofThisRoom');
     // print('THIS IS PRINT FROM BUILD:$_localChat ');
     return Container(
       color: Colors.transparent,
@@ -391,7 +315,7 @@ class _ChatPageState extends State<ChatPage>
                       if (userIsbanned)
                         Expanded(
                           child: Chip(
-                            label: Text('You were banned from this discussion'),
+                            label: Text(trText.chatPageBodyMessageBanned),
                           ),
                         )
                       else if (currentRoom?.isPrivate == true)
@@ -403,7 +327,7 @@ class _ChatPageState extends State<ChatPage>
                                             false
                                     ? Center(
                                         child: Text(
-                                          'You are not yet member of this group',
+                                          trText.chatPageBodyMessageNotMember,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                               fontSize: 23,
@@ -416,7 +340,8 @@ class _ChatPageState extends State<ChatPage>
                                                 false
                                         ? Center(
                                             child: Text(
-                                              'Your request is under develeopement',
+                                              trText
+                                                  .chatPageBodyMessageRequestDev,
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
                                                   fontSize: 23,
@@ -426,8 +351,8 @@ class _ChatPageState extends State<ChatPage>
                                         : _localChat?.isEmpty == true
                                             ? Center(
                                                 child: Chip(
-                                                    label: Text(
-                                                        'ooops... Such empty!')))
+                                                    label: Text(trText
+                                                        .chatPageBodyMessageEmptyChat)))
                                             : _buildChat(_localChat)))
                       else if (currentRoom?.isPrivate == false)
                         if (_localChat?.isEmpty == true)
@@ -435,8 +360,8 @@ class _ChatPageState extends State<ChatPage>
                               child: Container(
                                   child: Center(
                                       child: Chip(
-                                          label:
-                                              Text('ooops... Such empty!')))))
+                                          label: Text(trText
+                                              .chatPageBodyMessageEmptyChat)))))
                         else if (_localChat?.isNotEmpty == true)
                           Expanded(child: _buildChat(_localChat)),
                       // _localChat.forEach((element) {

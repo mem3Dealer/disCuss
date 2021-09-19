@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:my_chat_app/core/localization/generated/l10n.dart';
 import 'package:my_chat_app/cubit/cubit/auth_cubit.dart';
 import 'package:my_chat_app/cubit/cubit/room_cubit.dart';
 import 'package:my_chat_app/cubit/states/room_state.dart';
@@ -33,6 +34,7 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     // final ThemeData theme = Theme.of(context);
     final tiles = TilesMethods();
     List<MyUser>? _users = roomCubit.state.currentRoom?.members;
@@ -54,58 +56,9 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
           element.canWrite == false &&
           element.isApporved == false;
     });
-    // Room? defaultRoomState = state.currentRoom;
-    // return Container(
-    //   decoration: BoxDecoration(
-    //     image: DecorationImage(
-    //         scale: theme.brightness == Brightness.dark ? 7.5 : 0.3,
-    //         repeat: ImageRepeat.repeat,
-    //         // fit: BoxFit.cover,
-    //         image: theme.brightness == Brightness.dark
-    //             ? ExactAssetImage('assets/dark_back.png')
-    //             : ExactAssetImage('assets/light_back.jpg')),
-    //   ),
-    //   child: BackdropFilter(
-    //     filter: theme.brightness == Brightness.dark
-    //         ? ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0)
-    //         : ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-    //     child: Scaffold(
-    //         backgroundColor: Colors.transparent,
-    //         appBar:
-    //             // MyAppBar(currentMemberofThisRoom, roomCubit, widget.groupID)),
-    //             AppBar(
-    //           backgroundColor: Colors.transparent,
-    //           elevation: 0,
-    //           title: Text('Chat members'),
-    //           actions: [
-    //             Row(
-    //               children: [
-    //                 if (currentMemberofThisRoom?.isAdmin == true)
-    //                   IconButton(
-    //                       onPressed: () {
-    //                         Navigator.of(context).push(MaterialPageRoute<void>(
-    //                             builder: (BuildContext context) =>
-    //                                 AnotherGroupCreator(true)));
-    //                       },
-    //                       icon: Icon(Icons.edit)),
-    //                 // _buildLeaveOrDeleteButton(currentMemberofThisRoom, context)
-    //                 tiles.buildLeaveOrDeleteButton(
-    //                     currentMemberofThisRoom, context)
-    //               ],
-    //             )
-    //           ],
-    //         ),
-    //         body: ClipRRect(
-    //           borderRadius: BorderRadius.only(
-    //               topLeft: Radius.circular(25.0),
-    //               topRight: Radius.circular(25.0)),
-    //           child: Container(
-    //               decoration: BoxDecoration(
-    //                   color: Theme.of(context).scaffoldBackgroundColor),
-    //               child:
 
     return MyScaffold(
-      Text('Chat Members'),
+      Text(trText.memPageTitle),
       Center(
         child: Padding(
           padding: EdgeInsets.all(10.0),
@@ -166,13 +119,14 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
           child: BlocBuilder<RoomCubit, RoomState>(
             bloc: roomCubit,
             builder: (context, state) {
+              final trText = GetIt.I.get<I10n>();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
                     height: 10,
                   ),
-                  Label('Creator:'),
+                  Label(trText.memPageLabelCreator),
                   ListTile(
                     title: Text(
                         _users.firstWhere((element) => element.isOwner!).name!),
@@ -183,14 +137,14 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
                   SizedBox(
                     height: 15,
                   ),
-                  if (areThereAdmins) Label('Admins:'),
+                  if (areThereAdmins) Label(trText.memPageLabelAdmins),
                   // _buildAdminTiles(state, _users),
                   tiles.buildAdminTiles(state, _users),
                   SizedBox(
                     height: 15,
                   ),
 
-                  if (areThereMembers) Label('Members:'),
+                  if (areThereMembers) Label(trText.memPageLabelMembers),
                   tiles.buildMemberTiles(state, _users),
                   // _buildMemberTiles(state, _users),
                   SizedBox(
@@ -198,11 +152,11 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
                   ),
 
                   if (currentMemberofThisRoom.isAdmin == true)
-                    if (areThereReqeusts) Label('Join Requests:'),
+                    if (areThereReqeusts) Label(trText.memPageLabelReqs),
                   // _buildJoinRequests(state, _users),
                   tiles.buildJoinRequests(state, _users),
                   if (currentMemberofThisRoom.isOwner == true)
-                    if (areThereBanned) Label('Banned users:'),
+                    if (areThereBanned) Label(trText.memPageLabelBanned),
                   // _buildBannedDudes(state, _users)
                   tiles.buildBannedDudes(state, _users)
                   // Spacer(),
@@ -217,6 +171,7 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
 
   Padding _buildSaveOrDiscardButtons(
       MyUser currentMemberofThisRoom, BuildContext context) {
+    final trText = GetIt.I.get<I10n>();
     return Padding(
       padding: EdgeInsets.only(bottom: 8.0),
       child: currentMemberofThisRoom.isAdmin == true ||
@@ -230,7 +185,7 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      'Cancel',
+                      trText.memPageButtonCancel,
                       style: TextStyle(fontSize: 18),
                     )),
                 ElevatedButton(
@@ -239,7 +194,7 @@ class _RoomMembersPageState extends State<RoomMembersPage> {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      'Save',
+                      trText.memPageButtonSave,
                       style: TextStyle(fontSize: 18),
                     ))
               ],
