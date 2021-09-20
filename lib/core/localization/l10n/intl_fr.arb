@@ -107,5 +107,6 @@
       "authStatusTooManyRequests": "Trop de demandes. Réessayez plus tard.",
       "authStatusOperationNotAllowed": "La connexion avec l'e-mail et le mot de passe n'est pas activée.",
       "authStatusEmailAlreadyExists": "Cet e-mail a déjà été enregistré. Veuillez vous connecter ou réinitialiser votre mot de passe.",
-      "authStatusUndefError": "Une erreur non définie s'est produite."
+      "authStatusUndefError": "Une erreur non définie s'est produite.",
+      "nickNameIsTaken":"Ce nom d'utilisateur est déjà pris :("
 }

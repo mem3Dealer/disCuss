@@ -166,6 +166,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "memTilesLeave": MessageLookupByLibrary.simpleMessage("Выйти"),
         "memTilesLeaveWarning":
             MessageLookupByLibrary.simpleMessage("Покинуть эту комнату?"),
+        "nickNameIsTaken": MessageLookupByLibrary.simpleMessage(
+            "Это имя пользователя уже используется :("),
         "password": MessageLookupByLibrary.simpleMessage("Пароль"),
         "passwordIsIncorrect":
             MessageLookupByLibrary.simpleMessage("Пожалуйста, введите пароль"),

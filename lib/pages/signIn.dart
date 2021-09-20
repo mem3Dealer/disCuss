@@ -125,8 +125,7 @@ class _SignInPageState extends State<SignInPage> {
                                 _passwordController.text.trim());
                             if (result?.runtimeType == AuthResultStatus) {
                               // print("THATS IT: $result");
-                              result == AuthResultStatus.emailAlreadyExists ||
-                                      result == AuthResultStatus.invalidEmail
+                              result == AuthResultStatus.invalidEmail
                                   ? _emailError = AuthExceptionHandler
                                       .generateExceptionMessage(result)
                                   : result == AuthResultStatus.wrongPassword
@@ -134,12 +133,6 @@ class _SignInPageState extends State<SignInPage> {
                                           .generateExceptionMessage(result)
                                       : _otherError = AuthExceptionHandler
                                           .generateExceptionMessage(result);
-                              // if (result) {
-                              //   _passError = result;
-                              // } else if (result) {
-                              //   _emailError = result;
-                              //   // print ('THAT print from button: $_emailError');
-                              // }
                             }
                             if (_formKey.currentState!.validate()) {}
                           },

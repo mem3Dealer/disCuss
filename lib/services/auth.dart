@@ -51,11 +51,11 @@ class AuthService {
 
       User? _fbUser = result.user;
 
-      if (_fbUser != null) {
-        _status = AuthResultStatus.successful;
-      } else {
-        _status = AuthResultStatus.undefined;
-      }
+      // if (_fbUser != null) {
+      //   _status = AuthResultStatus.successful;
+      // } else {
+      //   _status = AuthResultStatus.undefined;
+      // }
 
       _fbUser?.updateDisplayName(name);
 
@@ -71,10 +71,11 @@ class AuthService {
       return newUser.copyWith(colorCode: colorCode);
       // _userFromFirebase(_fbUser, password);
     } catch (e) {
-      print('Exception @createAccount: $e');
-      _status = AuthExceptionHandler.handleException(e);
+      // print('Exception @createAccount: $e');
+      // _status = AuthExceptionHandler.handleException(e);
+      return e;
     }
-    return AuthExceptionHandler.generateExceptionMessage(_status);
+    // return AuthExceptionHandler.generateExceptionMessage(_status);
   }
 
   //sign in with email and password

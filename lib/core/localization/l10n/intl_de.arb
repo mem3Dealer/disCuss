@@ -106,5 +106,6 @@
       "authStatusTooManyRequests":"Zu viele Anfragen. Versuchen Sie es später noch einmal.",
       "authStatusOperationNotAllowed":"Anmeldung mit E-Mail und Passwort ist nicht aktiviert.",
       "authStatusEmailAlreadyExists":"Diese E-Mail wurde bereits registriert. Bitte loggen Sie sich ein oder setzen Sie Ihr Passwort zurück.",
-      "authStatusUndefError":"Ein undefinierter Fehler ist aufgetreten."
+      "authStatusUndefError":"Ein undefinierter Fehler ist aufgetreten.",
+      "nickNameIsTaken":"Dieser Benutzername ist bereits vergeben :("
 }

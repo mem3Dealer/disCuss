@@ -496,6 +496,10 @@
     "authStatusUndefError":"An undefined Error happened.",
     "@authStatusUndefError":{
         "description":" undefined error"
+    },
+    "nickNameIsTaken":"This username is already taken :(",
+    "@nickNameIsTaken":{
+        "description":"Error message on failed unique nickname check"
     }
     
 }

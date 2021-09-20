@@ -164,6 +164,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "memTilesLeave": MessageLookupByLibrary.simpleMessage("Quitter"),
         "memTilesLeaveWarning":
             MessageLookupByLibrary.simpleMessage("Quitter cette pièce ?"),
+        "nickNameIsTaken": MessageLookupByLibrary.simpleMessage(
+            "Ce nom d\'utilisateur est déjà pris :("),
         "password": MessageLookupByLibrary.simpleMessage("Mot de passe"),
         "passwordIsIncorrect": MessageLookupByLibrary.simpleMessage(
             "Veuillez entrer le mot de passe"),

@@ -14,6 +14,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
   final currentUser = MyUser();
   final data = GetIt.I.get<DataBaseService>();
   final auth = GetIt.I.get<AuthService>();
+  final trText = GetIt.I.get<I10n>();
   final fbAuth = FirebaseAuth.instance.currentUser;
   AuthCubit() : super(AuthState(isLoggedIn: false, version: 0));
 
@@ -78,7 +79,7 @@ class AuthCubit extends HydratedCubit<AuthState> {
 
     if (await userExists) {
       // print('THIS IS PRINT FROM THIS FUNC: $userExists');
-      return 'This username is already taken :(';
+      return trText.nickNameIsTaken;
     } else
       return '';
   }
@@ -98,23 +99,23 @@ class AuthCubit extends HydratedCubit<AuthState> {
       String name, String email, String password, String nickName) async {
     dynamic regResult = await auth.registerWithEmailandPassword(
         name, email, password, nickName);
+    AuthResultStatus? _status;
+    // print("I watch $regResult");
 
-    //  Color color = Color.fromARGB(255, Random().nextInt(10)*10 + 100,
-    //     Random().nextInt(10)*10  + 100, Random().nextInt(10)*10  + 100);
-    // int colorCode = color.value;
-
-    print("I watch $regResult");
     if (regResult != null && regResult.runtimeType == MyUser) {
+      _status = AuthResultStatus.successful;
       emit(state.copyWith(
           currentUser: regResult.copyWith(nickName: nickName),
           isLoggedIn: true,
           error: '',
           version: state.version! + 1));
-      print("Filter: final outprint: ${state.currentUser}");
-    } else if (regResult != null && regResult.runtimeType == String) {
+      // print("Filter: final outprint: ${state.currentUser}");
+
+    } else if (regResult != null && regResult.runtimeType != MyUser) {
+      _status = AuthExceptionHandler.handleException(regResult);
       emit(state.copyWith(version: state.version! + 1));
-      print("THIS IS another print: $regResult");
-      return regResult;
+      print("THIS IS another print: $_status");
+      return _status;
     }
   }
 

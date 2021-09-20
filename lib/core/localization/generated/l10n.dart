@@ -1069,6 +1069,16 @@ class I10n {
       args: [],
     );
   }
+
+  /// `This username is already taken :(`
+  String get nickNameIsTaken {
+    return Intl.message(
+      'This username is already taken :(',
+      name: 'nickNameIsTaken',
+      desc: 'Error message on failed unique nickname check',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<I10n> {

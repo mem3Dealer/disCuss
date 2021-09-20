@@ -39,8 +39,8 @@ class _RegisterPageState extends State<RegisterPage> {
             repeat: ImageRepeat.repeat,
             // fit: BoxFit.cover,
             image: theme.brightness == Brightness.dark
-                ? ExactAssetImage('assets/dark_back.png')
-                : ExactAssetImage('assets/light_back.jpg')),
+                ? ExactAssetImage('assets/images/dark_back.png')
+                : ExactAssetImage('assets/images/light_back.jpg')),
       ),
       child: BackdropFilter(
         filter: theme.brightness == Brightness.dark
@@ -140,6 +140,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ElevatedButton(
                         child: Text(trText.regRegister),
                         onPressed: () async {
+                          _emailTaken = '';
                           nickNameValidator = await authCubit
                               .isNickNameUnique(_nickNameController.text);
 
@@ -152,8 +153,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
                             // print('THIS IS THIS PRINT: $result');
                             if (result != null &&
-                                result.runtimeType == String) {
-                              _emailTaken = result;
+                                result == AuthResultStatus.emailAlreadyExists) {
+                              _emailTaken =
+                                  AuthExceptionHandler.generateExceptionMessage(
+                                      result);
                             }
                           }
                         },
