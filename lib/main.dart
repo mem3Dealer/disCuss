@@ -19,6 +19,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:splash_screen_view/SplashScreenView.dart';
 
 void main() async {
+  // print(imageCache == null);
   // final userCubit = GetIt.I.get<UserCubit>();
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -48,6 +49,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     final authCubit = GetIt.I.get<AuthCubit>();
@@ -96,7 +98,7 @@ class MyApp extends StatelessWidget {
                           return SplashScreenView(
                               duration: 2000,
                               imageSize: 450,
-                              imageSrc: 'assets/logo.png',
+                              imageSrc: 'assets/images/logo.png',
                               navigateRoute: Wrapper());
                           // Wrapper();
                         }));

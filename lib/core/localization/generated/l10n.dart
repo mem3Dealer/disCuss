@@ -989,6 +989,86 @@ class I10n {
       args: [],
     );
   }
+
+  /// `Your email address appears to be malformed.`
+  String get authStatusInvEmail {
+    return Intl.message(
+      'Your email address appears to be malformed.',
+      name: 'authStatusInvEmail',
+      desc: ' error for invalid email',
+      args: [],
+    );
+  }
+
+  /// `Your password is wrong.`
+  String get authStatusWrongPassword {
+    return Intl.message(
+      'Your password is wrong.',
+      name: 'authStatusWrongPassword',
+      desc: ' error for wrong password',
+      args: [],
+    );
+  }
+
+  /// `User with this email doesn't exist.`
+  String get authStatusUserNotFound {
+    return Intl.message(
+      'User with this email doesn\'t exist.',
+      name: 'authStatusUserNotFound',
+      desc: ' error for no user',
+      args: [],
+    );
+  }
+
+  /// `User with this email has been disabled.`
+  String get authStatusUserDisabled {
+    return Intl.message(
+      'User with this email has been disabled.',
+      name: 'authStatusUserDisabled',
+      desc: ' error for disabled user',
+      args: [],
+    );
+  }
+
+  /// `Too many requests. Try again later.`
+  String get authStatusTooManyRequests {
+    return Intl.message(
+      'Too many requests. Try again later.',
+      name: 'authStatusTooManyRequests',
+      desc: ' error for too many reqs',
+      args: [],
+    );
+  }
+
+  /// `Signing in with Email and Password is not enabled.`
+  String get authStatusOperationNotAllowed {
+    return Intl.message(
+      'Signing in with Email and Password is not enabled.',
+      name: 'authStatusOperationNotAllowed',
+      desc: ' error for not allowed operation',
+      args: [],
+    );
+  }
+
+  /// `This email has already been registered. Please login or reset your password.`
+  String get authStatusEmailAlreadyExists {
+    return Intl.message(
+      'This email has already been registered. Please login or reset your password.',
+      name: 'authStatusEmailAlreadyExists',
+      desc: ' error for already existing email',
+      args: [],
+    );
+  }
+
+  /// `An undefined Error happened.`
+  String get authStatusUndefError {
+    return Intl.message(
+      'An undefined Error happened.',
+      name: 'authStatusUndefError',
+      desc: ' undefined error',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<I10n> {

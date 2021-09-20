@@ -21,8 +21,8 @@ class MyScaffold extends StatelessWidget {
               repeat: ImageRepeat.repeat,
               // fit: BoxFit.cover,
               image: theme.brightness == Brightness.dark
-                  ? ExactAssetImage('assets/dark_back.png')
-                  : ExactAssetImage('assets/light_back.jpg')),
+                  ? ExactAssetImage('assets/images/dark_back.png')
+                  : ExactAssetImage('assets/images/light_back.jpg')),
         ),
         child: BackdropFilter(
             filter: theme.brightness == Brightness.dark

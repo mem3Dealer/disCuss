@@ -33,6 +33,22 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "areYouNew": MessageLookupByLibrary.simpleMessage(
             "Вы новичок в DisCuss? Зарегестрируйтесь"),
+        "authStatusEmailAlreadyExists": MessageLookupByLibrary.simpleMessage(
+            "Этот адрес электронной почты уже был зарегистрирован. Пожалуйста, войдите или сбросьте свой пароль."),
+        "authStatusInvEmail": MessageLookupByLibrary.simpleMessage(
+            "Ваш адрес эл. почты указан неверно."),
+        "authStatusOperationNotAllowed": MessageLookupByLibrary.simpleMessage(
+            "Вход с помощью электронной почты и пароля не включен."),
+        "authStatusTooManyRequests": MessageLookupByLibrary.simpleMessage(
+            "Слишком много запросов. Попробуйте позже."),
+        "authStatusUndefError": MessageLookupByLibrary.simpleMessage(
+            "Непредвиденная ошибка случилась. Бывает."),
+        "authStatusUserDisabled": MessageLookupByLibrary.simpleMessage(
+            "Пользователь с этой эл.почтой был отключен."),
+        "authStatusUserNotFound": MessageLookupByLibrary.simpleMessage(
+            "Пользователя с этой эл. почтой не существует."),
+        "authStatusWrongPassword":
+            MessageLookupByLibrary.simpleMessage("Неправильный пароль"),
         "catsPage": MessageLookupByLibrary.simpleMessage("Выберите категорию"),
         "chatPageBodyMessageBanned": MessageLookupByLibrary.simpleMessage(
             "Вы были забанены в этом обсуждении"),

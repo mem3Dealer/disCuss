@@ -98,5 +98,14 @@
      "dbCatsPsychologies": "Психология",
      "dbCatsAstrology": "Астрология",
      "dbCatsCats": "Кошки",
-     "catsPage":"Выберите категорию"
+     "catsPage":"Выберите категорию",
+
+     "authStatusInvEmail":"Ваш адрес эл. почты указан неверно.",
+     "authStatusWrongPassword":"Неправильный пароль",
+     "authStatusUserNotFound":"Пользователя с этой эл. почтой не существует.",
+     "authStatusUserDisabled":"Пользователь с этой эл.почтой был отключен.",
+     "authStatusTooManyRequests":"Слишком много запросов. Попробуйте позже.",
+     "authStatusOperationNotAllowed":"Вход с помощью электронной почты и пароля не включен.",
+     "authStatusEmailAlreadyExists":"Этот адрес электронной почты уже был зарегистрирован. Пожалуйста, войдите или сбросьте свой пароль.",
+     "authStatusUndefError":"Непредвиденная ошибка случилась. Бывает."
 }

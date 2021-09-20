@@ -16,6 +16,7 @@ class _SignInPageState extends State<SignInPage> {
   final authCubit = GetIt.I.get<AuthCubit>();
   String? _emailError;
   String? _passError;
+  String? _otherError;
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   @override
@@ -29,8 +30,8 @@ class _SignInPageState extends State<SignInPage> {
             repeat: ImageRepeat.repeat,
             // fit: BoxFit.cover,
             image: theme.brightness == Brightness.dark
-                ? ExactAssetImage('assets/dark_back.png')
-                : ExactAssetImage('assets/light_back.jpg')),
+                ? ExactAssetImage('assets/images/dark_back.png')
+                : ExactAssetImage('assets/images/light_back.jpg')),
       ),
       child: BackdropFilter(
         filter: theme.brightness == Brightness.dark
@@ -102,7 +103,15 @@ class _SignInPageState extends State<SignInPage> {
                               style: TextStyle(
                                   color: Theme.of(context).accentColor),
                             )),
-                        SizedBox(height: 10),
+                        SizedBox(height: 5),
+                        _otherError?.isNotEmpty == true
+                            ? Text(
+                                "$_otherError",
+                                style: theme.textTheme.caption
+                                    ?.copyWith(color: Colors.red),
+                              )
+                            : SizedBox.shrink(),
+                        SizedBox(height: 5),
                         ElevatedButton(
                           child: Text(
                             trText.signIn,
@@ -110,16 +119,27 @@ class _SignInPageState extends State<SignInPage> {
                           onPressed: () async {
                             _passError = '';
                             _emailError = '';
+                            _otherError = '';
                             var result = await authCubit.signIn(
                                 _emailController.text.trim(),
                                 _passwordController.text.trim());
-                            if (result?.isNotEmpty == true) {
-                              if (result!.contains('password')) {
-                                _passError = result;
-                              } else if (result.contains('User')) {
-                                _emailError = result;
-                                // print ('THAT print from button: $_emailError');
-                              }
+                            if (result?.runtimeType == AuthResultStatus) {
+                              // print("THATS IT: $result");
+                              result == AuthResultStatus.emailAlreadyExists ||
+                                      result == AuthResultStatus.invalidEmail
+                                  ? _emailError = AuthExceptionHandler
+                                      .generateExceptionMessage(result)
+                                  : result == AuthResultStatus.wrongPassword
+                                      ? _passError = AuthExceptionHandler
+                                          .generateExceptionMessage(result)
+                                      : _otherError = AuthExceptionHandler
+                                          .generateExceptionMessage(result);
+                              // if (result) {
+                              //   _passError = result;
+                              // } else if (result) {
+                              //   _emailError = result;
+                              //   // print ('THAT print from button: $_emailError');
+                              // }
                             }
                             if (_formKey.currentState!.validate()) {}
                           },

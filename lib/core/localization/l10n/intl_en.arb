@@ -463,6 +463,39 @@
     "catsPage":"Select category",
     "@catsPage":{
         "description":" title for this page"
+    },
+    
+    "authStatusInvEmail":"Your email address appears to be malformed.",
+    "@authStatusInvEmail":{
+        "description":" error for invalid email"
+    },
+    "authStatusWrongPassword":"Your password is wrong.",
+    "@authStatusWrongPassword":{
+        "description":" error for wrong password"
+    },
+    "authStatusUserNotFound":"User with this email doesn't exist.",
+    "@authStatusUserNotFound":{
+        "description":" error for no user"
+    },
+    "authStatusUserDisabled":"User with this email has been disabled.",
+    "@authStatusUserDisabled":{
+        "description":" error for disabled user"
+    },
+    "authStatusTooManyRequests":"Too many requests. Try again later.",
+    "@authStatusTooManyRequests":{
+        "description":" error for too many reqs"
+    },
+    "authStatusOperationNotAllowed":"Signing in with Email and Password is not enabled.",
+    "@authStatusOperationNotAllowed":{
+        "description":" error for not allowed operation"
+    },
+    "authStatusEmailAlreadyExists":"This email has already been registered. Please login or reset your password.",
+    "@authStatusEmailAlreadyExists":{
+        "description":" error for already existing email"
+    },
+    "authStatusUndefError":"An undefined Error happened.",
+    "@authStatusUndefError":{
+        "description":" undefined error"
     }
     
 }

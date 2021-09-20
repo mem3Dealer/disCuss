@@ -97,5 +97,14 @@
       "dbCatsPsychologies": "Psychologien",
       "dbCatsAstrology": "Astrologie",
       "dbCatsCats": "Katzen",
-      "catsPage":"Kategorie auswählen"  
+      "catsPage":"Kategorie auswählen",
+
+      "authStatusInvEmail":"Ihre E-Mail-Adresse scheint fehlerhaft zu sein.",
+      "authStatusWrongPassword":"Ihr Passwort ist falsch.",
+      "authStatusUserNotFound":"Benutzer mit dieser E-Mail existiert nicht.",
+      "authStatusUserDisabled":"Benutzer mit dieser E-Mail wurde deaktiviert.",
+      "authStatusTooManyRequests":"Zu viele Anfragen. Versuchen Sie es später noch einmal.",
+      "authStatusOperationNotAllowed":"Anmeldung mit E-Mail und Passwort ist nicht aktiviert.",
+      "authStatusEmailAlreadyExists":"Diese E-Mail wurde bereits registriert. Bitte loggen Sie sich ein oder setzen Sie Ihr Passwort zurück.",
+      "authStatusUndefError":"Ein undefinierter Fehler ist aufgetreten."
 }

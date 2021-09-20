@@ -33,6 +33,22 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "areYouNew": MessageLookupByLibrary.simpleMessage(
             "Sind Sie neu bei Discuss? Registrieren"),
+        "authStatusEmailAlreadyExists": MessageLookupByLibrary.simpleMessage(
+            "Diese E-Mail wurde bereits registriert. Bitte loggen Sie sich ein oder setzen Sie Ihr Passwort zurück."),
+        "authStatusInvEmail": MessageLookupByLibrary.simpleMessage(
+            "Ihre E-Mail-Adresse scheint fehlerhaft zu sein."),
+        "authStatusOperationNotAllowed": MessageLookupByLibrary.simpleMessage(
+            "Anmeldung mit E-Mail und Passwort ist nicht aktiviert."),
+        "authStatusTooManyRequests": MessageLookupByLibrary.simpleMessage(
+            "Zu viele Anfragen. Versuchen Sie es später noch einmal."),
+        "authStatusUndefError": MessageLookupByLibrary.simpleMessage(
+            "Ein undefinierter Fehler ist aufgetreten."),
+        "authStatusUserDisabled": MessageLookupByLibrary.simpleMessage(
+            "Benutzer mit dieser E-Mail wurde deaktiviert."),
+        "authStatusUserNotFound": MessageLookupByLibrary.simpleMessage(
+            "Benutzer mit dieser E-Mail existiert nicht."),
+        "authStatusWrongPassword":
+            MessageLookupByLibrary.simpleMessage("Ihr Passwort ist falsch."),
         "catsPage": MessageLookupByLibrary.simpleMessage("Kategorie auswählen"),
         "chatPageBodyMessageBanned": MessageLookupByLibrary.simpleMessage(
             "Sie wurden von dieser Diskussion ausgeschlossen"),

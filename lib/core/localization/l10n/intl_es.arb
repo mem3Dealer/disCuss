@@ -95,5 +95,14 @@
       "dbCatsPsychologies": "Psicologías",
       "dbCatsAstrology": "Astrología",
       "dbCatsCats": "Gatos",
-      "catsPage": "Seleccionar categoría"
+      "catsPage": "Seleccionar categoría",
+      
+      "authStatusInvEmail": "Su dirección de correo electrónico parece tener un formato incorrecto.",
+      "authStatusWrongPassword": "Tu contraseña es incorrecta.",
+      "authStatusUserNotFound": "El usuario con este correo electrónico no existe",
+      "authStatusUserDisabled": "El usuario con este correo electrónico ha sido deshabilitado.",
+      "authStatusTooManyRequests": "Demasiadas solicitudes. Vuelve a intentarlo más tarde.",
+      "authStatusOperationNotAllowed": "No está habilitado el inicio de sesión con correo electrónico y contraseña.",
+      "authStatusEmailAlreadyExists": "Este correo electrónico ya ha sido registrado. Inicie sesión o restablezca su contraseña.",
+      "authStatusUndefError": "Ocurrió un error indefinido"
 }

@@ -33,6 +33,22 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "areYouNew":
             MessageLookupByLibrary.simpleMessage("New to DisCuss? Register"),
+        "authStatusEmailAlreadyExists": MessageLookupByLibrary.simpleMessage(
+            "This email has already been registered. Please login or reset your password."),
+        "authStatusInvEmail": MessageLookupByLibrary.simpleMessage(
+            "Your email address appears to be malformed."),
+        "authStatusOperationNotAllowed": MessageLookupByLibrary.simpleMessage(
+            "Signing in with Email and Password is not enabled."),
+        "authStatusTooManyRequests": MessageLookupByLibrary.simpleMessage(
+            "Too many requests. Try again later."),
+        "authStatusUndefError": MessageLookupByLibrary.simpleMessage(
+            "An undefined Error happened."),
+        "authStatusUserDisabled": MessageLookupByLibrary.simpleMessage(
+            "User with this email has been disabled."),
+        "authStatusUserNotFound": MessageLookupByLibrary.simpleMessage(
+            "User with this email doesn\'t exist."),
+        "authStatusWrongPassword":
+            MessageLookupByLibrary.simpleMessage("Your password is wrong."),
         "catsPage": MessageLookupByLibrary.simpleMessage("Select category"),
         "chatPageBodyMessageBanned": MessageLookupByLibrary.simpleMessage(
             "You were banned from this discussion"),
